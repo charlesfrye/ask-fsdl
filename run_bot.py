@@ -8,7 +8,7 @@ load_dotenv()
 
 DISCORD_AUTH = os.environ["DISCORD_AUTH"]
 
-import ask_fsdl  # hack: YOLO, do it in-process
+import ask_fsdl
 
 run_query = ask_fsdl.get_runner()
 
@@ -27,9 +27,9 @@ async def on_message(message):
         return
 
     if message.content.startswith('$ask-fsdl'):
-        header, *content = message.content.split("$ask-fsdl")
+        header, *content = message.content.split("$ask-fsdl")  # parse
         content =  "".join(content).strip()
-        response = run_query(content)
-        await message.channel.send(f'{response}')
+        response = run_query(content)  # execute
+        await message.channel.send(f'{response}')  # respond
 
 client.run(DISCORD_AUTH)
