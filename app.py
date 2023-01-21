@@ -1,8 +1,12 @@
 # SETUP
 from flask import Flask, request, jsonify
-import ask_fsdl
+
 from dotenv import load_dotenv
+
 load_dotenv()
+
+import ask_fsdl
+
 run_query = ask_fsdl.get_runner()
 
 
