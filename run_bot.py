@@ -10,7 +10,7 @@ DISCORD_AUTH = os.environ["DISCORD_AUTH"]
 
 import ask_fsdl  # hack: YOLO, do it in-process
 
-ask_fsdl.setup()
+run_query = ask_fsdl.get_runner()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -29,7 +29,7 @@ async def on_message(message):
     if message.content.startswith('$ask-fsdl'):
         header, *content = message.content.split("$ask-fsdl")
         content =  "".join(content).strip()
-        response = ask_fsdl.run_query(content)
+        response = run_query(content)
         await message.channel.send(f'{response}')
 
 client.run(DISCORD_AUTH)
