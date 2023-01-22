@@ -1,18 +1,21 @@
-# SETUP
-from flask import Flask, request, jsonify, send_from_directory
-
+# LOAD ENVIRONMENT VARIABLES 
 from dotenv import load_dotenv
-
 load_dotenv()
 
+# LOAD DISCORD BOT
+import run_bot
+
+# SETUP FLASK
+from flask import Flask, request, jsonify, send_from_directory
+
+# LOAD ASK-FSDL MODULE WITH ML MODEL
 import ask_fsdl
-
 run_query = ask_fsdl.get_runner()
-
 
 # CREATE FLASK APP AND ROUTES
 app = Flask(__name__, static_url_path='', static_folder="frontend/dist")
 
+# ROUTES
 @app.route("/")
 def serve():
    return send_from_directory(app.static_folder,'index.html')
