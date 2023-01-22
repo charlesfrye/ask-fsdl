@@ -12,14 +12,6 @@ from flask import Flask, request, jsonify, send_from_directory
 import ask_fsdl
 run_query = ask_fsdl.get_runner()
 
-import os
-current_directory = os.getcwd()
-for file in os.scandir(current_directory):
-    if file.is_file():
-        print(f'File: {file.name}')
-    elif file.is_dir():
-        print(f'Directory: {file.name}')
-
 # CREATE FLASK APP AND ROUTES
 app = Flask(__name__, static_url_path='', static_folder="frontend/dist")
 
@@ -46,12 +38,3 @@ def courses():
     course_list = [{"name": "Full Stack Deep Learning",
                     "id": 1, "instructors": ["Charles Frye"]}]
     return jsonify(course_list)
-
-
-import os
-current_directory = os.getcwd()
-for file in os.scandir(current_directory):
-    if file.is_file():
-        print(f'File: {file.name}')
-    elif file.is_dir():
-        print(f'Directory: {file.name}')
