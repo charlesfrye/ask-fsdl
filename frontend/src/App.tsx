@@ -1,12 +1,31 @@
 import { useState } from "react";
 import "./App.css";
 
+function getId(url: string) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+
+  return match && match[2].length === 11 ? match[2] : null;
+}
+
 function App() {
   const [searchText, setSearchText] = useState("");
   const [response, setResponse] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async (e: any) => {
+  const getYTPreviews = (body: string) => {
+    const youtubeLinks = body.match(/(https?:\/\/www\.youtube\.com\/watch\?v=\S+)/g);
+    const youtubeIds = youtubeLinks?.map((link) => getId(link));
+    const youtubePreviews = youtubeIds?.map((id) => {
+      const iframeMarkup =
+        '<iframe width="560" height="315" src="//www.youtube.com/embed/' +
+        id +
+        '" frameborder="0" allowfullscreen></iframe>';
+      return iframeMarkup;
+    });
+    return youtubePreviews;
+  };
+  const handleSearch = async (e: any) => {   
     setIsLoading(true);
     e.preventDefault();
     console.log(`Searching for ${searchText}`);
@@ -23,7 +42,6 @@ function App() {
       }),
     });
     const data = await res.json();
-
     setIsLoading(false);
     setResponse(data);
     console.log(data);
@@ -33,7 +51,14 @@ function App() {
       <h1>Ask FSDL</h1>
 
       {response ? (
-        <h4>{response}</h4>
+        <div>
+          <h4>{response}</h4>
+          <div>
+            {getYTPreviews(response)?.map((preview) => (
+              <div dangerouslySetInnerHTML={{ __html: preview }} />
+            ))}
+          </div>
+        </div>
       ) : (
         <form className="fancy-search-bar" onSubmit={handleSearch}>
           <input
@@ -41,7 +66,7 @@ function App() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             className="fancy-search-bar__input"
-            placeholder="What do you want to know?..."
+            placeholder="Ask me anything..."
             disabled={isLoading}
           />
           <button type="button" disabled={isLoading} style={{ backgroundColor: "#646cff" }}>

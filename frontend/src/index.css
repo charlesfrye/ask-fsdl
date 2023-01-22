@@ -88,5 +88,7 @@ button:focus-visible {
   box-shadow: none;
   margin: 0px 10px;
   border-radius: 10px;
+  text-align: center;
+  display: block;
 }
 
