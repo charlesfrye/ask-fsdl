@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import sys
+
+sys.path.append(".")
 
 from . import make_docs
 from .chainrunner import *

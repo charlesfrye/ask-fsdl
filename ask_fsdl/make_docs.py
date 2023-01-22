@@ -1,9 +1,13 @@
 from pathlib import Path
 
+DOCS_FOLDER = Path("documents")
 
-def download_lectures():
+def download_lectures(docs_folder=DOCS_FOLDER):
     import os
     import subprocess
+
+    if not os.path.exists(docs_folder):
+        os.makedirs(docs_folder, exist_ok=True)
 
     lecture_titles = get_lecture_titles()
     lecture_md_urls = list_lecture_md_urls(lecture_titles)
@@ -39,7 +43,7 @@ def get_lecture_titles():
     return lecture_titles
 
 
-def produce_documents(docs_folder=Path("documents")):
+def produce_documents(docs_folder=DOCS_FOLDER):
     """Assumes the documents are on disk already."""
     import os
     from pathlib import Path
