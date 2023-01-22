@@ -15,12 +15,14 @@ def print_dir():
         elif file.is_dir():
             print(f'Directory: {file.name}')
     documents_dir = os.path.join(current_directory, 'documents')
-    if (os.listdir(documents_dir)):
+    if (os.path.exists(documents_dir)):
         for file in os.scandir(documents_dir):
             if file.is_file():
                 print(f'File: {file.name}')
             elif file.is_dir():
                 print(f'Directory: {file.name}')
+    else: 
+        print(f'Directory: DOCUMENTS does not exist')
 
 
 def get_runner(regenerate=False):
