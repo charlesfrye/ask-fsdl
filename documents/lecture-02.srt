@@ -1,0 +1,256 @@
+1
+00:00:00,399 --> 00:00:49,360
+hi everyone welcome to week two of full stack deep learning 2022. today we have a lecture on development infrastructure and tooling my name is sergey and i have my assistant mishka right here so just diving right in the dream of machine learning development is that you provide a project spec identify birds maybe some sample data here's what the birds look like here's what i want to see and then you get a continually improving prediction system and it's deployed at scale but the reality is that it's not just some sample data you really have to find the data aggregated process it clean it label it then you have to find the model architecture potentially the pre-trained weights then you still have to look at the model code
+
+2
+00:00:46,480 --> 00:01:32,640
+probably edit it debug it run training experiments review the results that's going to feed back into maybe trying a new architecture debugging some more code and then when that's done you can actually deploy the model and then after you deploy it you have to monitor the predictions and then you close the data flywheel loop basically your user is generating fresh data for you that that you then have to add to your data set so this reality has roughly kind of three components and we divided into data and read this development in yellow and deployment in green and there are a lot of tools like the infrastructure landscape is pretty large so we have three lectures to cover all of it and today we're going to concentrate on
+
+3
+00:01:30,240 --> 00:02:16,239
+the development part the middle part which is probably what you're familiar with from previous courses most of what you do is model development we actually want to start even a little bit before that and talk about software engineering you know it starts with maybe the programming language and for machine learning it's pretty clear it has to be python and the reason is because of all the libraries that have been developed for it it's just the winner in scientific and data computing there have been some contenders so julia is actually the the ju in jupiter jupiter notebooks to write python code you need an editor you can be old school and use vim or emacs a lot of people just write in jupyter notebooks or jupyter lab which
+
+4
+00:02:14,000 --> 00:03:06,400
+also gives you a code editor window vs code is a very popular text editor python specific code editor pycharm is is really good as well at fsdl we recommend vs code it has a lot of nice stuff it hasn't built you know in addition to the nice editing features it has built-in git version control so you can see your commit you can actually stage line by line you can look at documentation as you write your code you can open projects remotely so like the window i'm showing here is actually on a remote machine that i've sshed into you can lend code as you write and if you haven't seen linters before it's basically this idea that if there are code style rules that you want to follow like a certain number of spaces
+
+5
+00:03:04,959 --> 00:03:49,280
+for indentation whatever you decide you want to do gotta you should just codify it so that you don't ever have to think about it or manually put that in your tools just do it for you and you've run something that just looks at your code all the time you can do a little bit of static analysis so for example there's two commas in a row it's not going to run in this file or potentially you're using a variable that never got defined and in addition python now has type hints so you can actually say you know this variable is supposed to be an integer and then if you use it as an argument to a function that expects expect to float a static type checker can catch and tell you about it before you actually run it so we set
+
+6
+00:03:46,799 --> 00:04:35,040
+that all up in the lab by the way and you will see how that works it's a very nice part of the lab a lot of people develop in jupiter notebooks and they're really fundamental to data science and i think for good reason i think it's a great kind of first draft of a project you just open up this notebook and you start coding there's very little thought that you have to put in before you start coding and start seeing immediate output so that kind of like fast feedback cycle that's really great and jeremy howard is a great practitioner so if you watch the fast ai course videos you'll see him use them to their full extent they do have problems though for example the editor that you use in the notebook is pretty primitive right
+
+7
+00:04:32,960 --> 00:05:23,039
+there's no refactoring support there's no maybe peaking of the documentation there's no copilot which i have now got used to in vs code there's out of order execution artifact so if you've run the cells in a different order you might not get the same result as if you ran them all in line it's hard to version them you either strip out the output of each cell in which case you lose some of the benefit because sometimes you want to save the artifact that you produced in the notebook or the file is pretty large and keeps changing and it's hard to test because it's just not very amenable to like the unit testing frameworks and and and best practices that people have built up counterpoint to everything i just said
+
+8
+00:05:20,400 --> 00:06:10,560
+is that you can kind of fix all of that and that's what jeremy howard is trying to do with nbdev which is this package that lets you write documentation your code and test for the code all in a notebook the full site deep learning recommendation is go ahead and use notebooks actually use the vs code built-in notebook support so i actually don't i'm not in the browser ever i'm just in in my vs code but i'm coding in a notebook style but also i usually write code in a module that then gets imported into a notebook and with this live reload extension it's quite nice because when you change code in the module and rerun the notebook that it gets the updated code and also you have nice things like you
+
+9
+00:06:08,960 --> 00:06:55,520
+have a terminal you can look at files and so on and by the way it enables really awesome debugging so if you want to debug some code you can put a breakpoint here on the right you see the little red dot and then i'm about to launch the cell with the debug cell command and it'll drop me in into the debugger at that break point and so this is just really nice without leaving the editor i'm able to to do a lot notebooks are great sometimes you want something a little more interactive maybe something you can share with the world and streamlit has come along and let you just decorate python codes you write a python script you decorate it with widgets and data loaders and stuff and you can get interactive applets
+
+10
+00:06:53,599 --> 00:07:45,120
+where people can let's say a variable can be controlled by a slider and everything just gets rerun very efficiently and then when you're happy with your applet you can publish it to the web and just share that streamlet address with your audience it's really quite great for setting up the python environment it can actually be pretty tricky so for deep learning usually you have a gpu and the gpu needs cuda libraries and python has a version and then each of the requirements that you use like pytorch or numpy have their own specific version also some requirements are for production like torch but some are only for development for example black is a code styling tool where my pi is a static analysis tool and it'd be nice to
+
+11
+00:07:41,440 --> 00:08:34,080
+just separate the two so we can achieve all these desired things by specifying python and cuda versions in environment.yaml file and use conda to install the python and the cuda version that we specified but then all the other requirements we specify in with basically just very minimal constraints so we say like torch version greater than 1.7 or maybe no constraints like numpy any version and then we use this tool called pip tools that will analyze the constraints we gave and the constraints they might have for each other and find a mutually compatible version of all the requirements and then locks it so that when you come back to the project you have exactly the versions of everything you used
+
+12
+00:08:32,640 --> 00:09:25,040
+and we can also just use a make file to simplify this now we do this in lab so you'll see this in lab and on that note please go through labs one through three they're already out and starts with an overview of what the labs are going to be about then pi torch lightning and pytorch and then we go through cnns transformers and we see a lot of the structure that i've been talking about so that is it for software engineering and the next thing i want to talk about are specifically deep learning frameworks and distributed training so why do we need frameworks well deep learning is actually not a lot of code if you have a matrix math library like numpy now fast.ai course does this pretty brilliantly they they basically have you
+
+13
+00:09:23,120 --> 00:10:12,560
+build your own deep learning library and and you see how very little code it is but when you have to deploy stuff onto cuda for gpu power deep learning and when you have to consider that you might be writing weird layers that have to you have to figure out the differentiation of the layers that you write that can get to be just a lot to maintain and so and then also there's all the layer types that have been published in the literature like the convolutional layers there's all the different optimizers so there's just a lot of code and for that you really need a framework so which framework should you use right well i think josh answered this you know pretty concisely about a year ago and you said jax is for researchers pi
+
+14
+00:10:10,480 --> 00:11:00,880
+torches for engineers and tensorflows for boomers so pytorch is the full stack deep learning choice but seriously though you know both pytorch and tensorflow and jaxx they all are similar you define a deep learning model by running python code writing and running python code and then what you get is an optimized execution graph that can target cpus gpus tpus mobile deployments now the reason you might prefer pytorch is because it just basically is absolutely dominant right so if you look at the number of models trained models that are shared on hugging face which is like the largest model zoo we'll talk about it in a few minutes you know there's models that are both pi torch and tensorflow there's some models
+
+15
+00:10:59,600 --> 00:11:50,240
+on jacks there's some models for tensorflow only there's a lot of models that are just for pi torch if you track paper submissions to academic conferences it's about 75 plus percent pi torch implementations of these research papers and my face is blocking the stat but it's something like 75 percent of machine learning competition winners used pytorch in 2022 now tensorflow is kind of cool tensorflow.js in particular lets you run deep learning models in your browser and pytorch doesn't have that and then keras as a development experience is i think pretty unmatched for just stacking together layers easily training the model and then there's jax which you might have heard about so jack's you know the main thing is you
+
+16
+00:11:48,800 --> 00:12:37,200
+need a meta framework for deep learning we'll talk about in a second but pytorch that's the pick excellent dev experience it's people used to say well maybe it's a little slow but it really is production ready even as is but you can make it even faster by compiling your model with a torch script there's a great distributed training ecosystem there's libraries for vision audio 3d data you know etc there's mobile deployment targets and with pytorch lightning which is what we use in labs have a nice structure for how to kind of where do you put your actual model code where you put your optimizer code where do you put your training code your evaluation code how should the data loaders look like and and then what you get is if you just
+
+17
+00:12:34,959 --> 00:13:26,800
+kind of structure your code as pytorch lightning expects it you can run your code on cpu or gpu or any number of gpus or tpus with just you know a few characters change in your code there's a performance profiler there's model checkpointing there's 16-bit precision there's distributed training libraries it's just all very nice to use now another possibility is fast ai software which is developed alongside the fastai cores and it provides a lot of advanced tricks like data augmentations better weight initializations learning grade schedulers it has this kind of modular structure where there's data blocks and learners and then even vision text tabular applications the main problem with it that i see is
+
+18
+00:13:24,399 --> 00:14:20,560
+the code style is quite different and in general it's it's a bit different than than mainstream pie torch it can be very powerful if you go in on it at fsdl we recommend pytorch lightning tensorflow is not just for boomers right fsdl prefers pi torch because we think it's a stronger ecosystem but tensorflow is still perfectly good and if you have a specific reason to prefer it such as that's what your employer uses you're gonna have a good time it still makes sense it's not bad jax is a recent a more recent project from google which is really not specific to deep learning it's about just general vectorization of all kinds of code and also auto differentiation of all kinds of code including your physics simulations
+
+19
+00:14:19,040 --> 00:15:03,440
+stuff like that and then whatever you can express in jax gets compiled to gpu or tpu code and super fast for deep learning there are separate frameworks like flax or haiku and you know here at fsdl we say use it if you have a specific need maybe you're doing research on something kind of weird that's fine or you know potentially you're working at google you're not allowed to use pytorch that could make it a pretty good reason to use jacks there's also this notion of meta frameworks and model zoos that i want to cover so model zooz is the idea that sure you can just start with blank pi torch but most of the time you're going to start with at least a model architecture that someone's developed and published
+
+20
+00:15:02,320 --> 00:15:49,519
+and a lot of the time you're going to start with actually a pre-trained model meaning someone trained the architecture on specific data they got weights that they then saved and uploaded to a hub and you can download and actually start not from scratch but from a pre-trained model onyx is this idea that deep learning models are all about the same right like we know what an mlp type of layer is we know what a cnn type of layer is and it doesn't matter if it's written in pytorch or tensorflow or cafe whatever it's written in we should be able to actually port it between the different code bases because the real thing that we're that we care about are the weights and the weights are just numbers right so onyx is this format that lets you
+
+21
+00:15:47,920 --> 00:16:39,279
+convert from pytorch to tensorflow and vice versa and it can work super well it can also not work super well you can run into some edge cases so if it's something that you need to do then definitely worth a try but it's not necessarily going to work for all types of models hugging face has become an absolutely stellar repository of models starting with nlp but have since expanded to all kinds of tasks audio classification image classification object detection there's sixty thousand pre-trained models for all these tasks there is a specific library of transformers that works with pytorch tensorflow jacks also 7.5 000 data sets that people have uploaded there's also a lot more to it it's worth checking out you can host your model for
+
+22
+00:16:36,720 --> 00:17:31,679
+inference and there's there's community aspects to it so it's a great resource another great resource specifically for vision is called tim state of the art computer vision models can be found on tim just search tim github next up let's talk about distributed training so the scenarios are we have multiple machines represented by little squares here with multiple gpus on each machine and you are sending batches of data to be processed by a model that has parameters right and the data batch can fit on a single gpu or potentially not fit on a single gpu and the model parameters can fit in a single gpu or potentially not fit in a single gpu so let's say the best case the easiest case is your batch of data fits on a single gpu
+
+23
+00:17:30,320 --> 00:18:21,280
+your model parameters fit on a single gpu and that's really called trivial parallelism you can launch independent experiments on other gpus so maybe do a hyper parameter search or potentially you increase your batch size until it can no longer fit on one gpu and then you have to figure something else out and but then yeah what you have to then figure out is okay well my model still fits on a single gpu but my data no longer fits on a single gpu so now i have to go and do something different and what that different thing is usually is data parallelism it lets you distribute a single batch of data across gpus and then average gradients that are computed by the model across all the gpus so it's the same model on each gpu but
+
+24
+00:18:18,880 --> 00:19:10,960
+different batches of data because a lot of this work is cross gpu we have to make sure that the gpus have fast interconnect right so gpu is connected usually through a pci interface to the computer but it and so if there's no other connection then all the data has to flow through the pci bus all the time it's possible that there is a faster interconnect like nv link between the gpus and then the data can leave the pci bus alone and just go straight across the the fast interconnect and the speed up you can expect is if you are using server cards like a100s a6000s you know v100s it's basically a linear speed up for data parallelism which is really cool if you're using consumer cards like 2080s or 3080s we'll talk about it a
+
+25
+00:19:08,720 --> 00:19:59,919
+little further down then unfortunately it's going to be a sublinear speed up so maybe if you have four gpus it'll be like a 3x speed up if you have a gpus maybe a 5x speed up and that's due to the the fact that the consumer cards don't have as fast of an interconnect so data parallelism is implemented in pi torch in the distributed data parallel library there's also a third-party library called horovod and you can use either one super simply using pytorch lightning you basically say what's your strategy if you don't say anything then it's single gpu but if your strategy is ddp then it uses the python distributed data parallel if you use strategy horovod then it uses horivon it seems like the speedup's basically
+
+26
+00:19:58,160 --> 00:20:48,640
+about the same there's no real reason to use horowat over distributed data parallel but it might make it easier for a specific case that you might have so it's good to know about but the first thing to try is just distributed data parallel now we come to a more advanced scenario which is now we can't even fit our model our model is so large it has billions of parameters it doesn't actually fit on a single gpu so we have to spread the model not just the data over multiple gpus and there's three solutions to this so sharded data parallelism starts with the question what exactly is in the gpu memory what is taking up the gpu memory so okay we have the model parameters the floats that make up our actual
+
+27
+00:20:47,360 --> 00:21:40,400
+layers we have the gradients we need to know about the gradients because that's what we average to do our backdrop but we also have optimizer states and that's actually a lot of data for the atom optimizer that's probably the most often used optimizer today it has to be statistics about the gradients basically and in addition if you're doing kind of float 16 training then your model parameters gradients might be float 16 but the optimizer will keep a copy of them as float32 as well so it can be a lot more data and then plus of course you send your batch of data so all of this has to fit on a gpu but does it actually have to fit on every gpu is the question so the baseline that we have is yeah let's send all of this stuff to each gpu
+
+28
+00:21:37,840 --> 00:22:33,440
+and that might take up like 129 gigabytes of data in this in this example this is from the paper called zero optimization storage training trillion parameter models okay so what if we shard the optimizer states sharding is a concept from databases where if you have one source of data you actually break it up into shards of data such that across your distributed system each part of your each node only sees a shard a single shard of the data so here the first thing we can try is we can shard the optimizer states each gpu doesn't have to have all the optimizer state it just has to have its little shard of it we can do the same for gradients and that's called zero two and then pretty crazily we can also do it for the
+
+29
+00:22:31,520 --> 00:23:19,840
+model parameters themselves and that's called zero three and that can result in a pretty insane order of magnitude reduction in memory use which means that your batch size can be 10 times bigger i recommend watching this helpful video that i have linked but you literally pass around the model params between the gpus as computation is proceeding so here we see four gpus four chunks of data entering the gpus and what happened is gpu zero had the model parameters for that first part of the model and it communicated these parameters to the other three gpus and then they did their computation and once they were complete with that computation the other gpus can actually delete the parameters for those first
+
+30
+00:23:18,559 --> 00:24:05,440
+four layers and then gpu one has the parameters for the next four layers and it broadcasts them to the other three gpus who are now able to do the next four layers of computation and that's just in the forward pass then you do the same with gradients and optimizer states in the backward pass this is a lot to implement thankfully we don't have to do it it's implemented by the deep speed library from microsoft and the fair scale library from facebook and recently actually also implemented natively by pytorch so in pytorch it's called fully sharded data parallel instead of zero three and with pytorch lightning you can actually try sharded ddp with just a tiny bit of a change try it see if you see a massive memory
+
+31
+00:24:04,400 --> 00:24:54,880
+reduction that can correspond to a speed up in your training now the same idea the zero three principle right is that the gpu only needs the model frames it needs in the moment for the computation it's doing at this moment the same principle can be applied to just a single gpu you can get a 13 billion parameters onto the gpu and you can train a 13 billion parameter model on a single v100 which doesn't even fit it natively and fair scale also implements this and calls it cpu offloading there's a couple more solutions model parallelism take your model your model let's say has three layers and you have three gpus you can put each layer on a gpu right and in pytorch you can just implement it very trivially but the
+
+32
+00:24:52,960 --> 00:25:41,840
+problem is that only one gpu will be active at a given time so the trick here is that and once again implemented by libraries like deep speed and fair scale they make it better so they pipeline this kind of computation so that gpus are mostly fully utilized although you need to tune the amount of pipelining on the batch size and exactly how you're going to split up the model into the gpus so this isn't as much of fire and forget solution like like sharded data parallel and another solution is tensor parallelism which basically is observing that there's nothing special about a matrix multiplication that requires the whole matrix to be on one gpu you can distribute the matrix over gpus so megatron lm is a repository from
+
+33
+00:25:39,279 --> 00:26:34,960
+nvidia which did this for the transformer model and is widely used so you can actually use all of these if you really need to scale and the model that really needs to scale is a gpt3 three-sized language model such as bloom which recently finished training so they used zero data parallelism tensor parallelism pipeline parallelism in addition to some other stuff and they called it 3d parallelism but they also write that since they started their endeavor the the zero stage three performance has dramatically improved and if they were to start over again today maybe they would just do sharded data parallel and that would just be enough so in conclusion you know if your model and data fits on one gpu that's awesome
+
+34
+00:26:32,799 --> 00:27:21,919
+if it doesn't or you want to speed up training then you can distribute over gpus with distributed data parallel if the model still doesn't fit you should try zero three or fully shared data parallel there's other ways to speed up there's 16 bit training there's maybe some special you know fast kernels for different types of layers like transformers you can maybe try sparse attention instead of normal dense attention so there's other things that these libraries like deep speed and fair skill implement that you can try and there's even more tricks that you could try for example for nlp there's this position encoding step you can use something called alibi which scales to basically all length of sequences
+
+35
+00:27:20,480 --> 00:28:09,600
+so you can actually train on shorter sequences and use this trick called sequence length warm up where you train on shorter sequences and then you increase the size and because you're using alibi it should not mess up your position and then for vision you can also use a size warm up by progressively increasing the size of the image you can use special optimizers and these tricks are implemented by a library called mosaic ml composer and they report some pretty cool speed ups and it's pretty easy to implement and they also have a cool web tool i'm a fan of these things that basically lets you see the efficient frontier for training models time versus cost kind of fun to play around with this mosaic ml explorer
+
+36
+00:28:08,000 --> 00:29:01,039
+there's also some research libraries like ffcv which actually try to optimize the data flow there are some simple tricks you can maybe do that speed it up a lot these things will probably find their way into mainstream pie torch eventually but it's worth giving this a try especially if again you're training on vision models the next thing we're going to talk about is compute that we need for deep learning i'm sure you've seen plots like this from open ai this is up through 2019 showing on a log scale just how many times the compute needs for the top performing models have grown and this goes even further into 2022 with the large language models like gpt3 they're just incredibly large and required an incredible amount of
+
+37
+00:28:58,720 --> 00:29:53,279
+pedoflops to train so basically nvidia is the only choice for deep learning gpus and recently google tpus have been made available in the gcp cloud and they're also very nice and the three main factors that we need to think about when it comes to gpus are how much data can you transfer to the gpu then how fast can you crunch through that data and that actually depends on whether the data is 32-bit or 16-bit and then how fast can you communicate between the cpu and the gpu and between gpus we can look at some landmark nvidia gpus so the first thing we might notice is that there's a basically a new architecture every year every couple of years it went from kepler with the k80 and k40 cards in 2014
+
+38
+00:29:51,520 --> 00:30:44,480
+up through ampere from 2020 on some cards are for server use some cards are for consumer use if you're doing stuff for business you're only supposed to use the server cards the ram that the gpu has allows you to fit a large model and a meaningful batch of data on the gpu so the more ram the better these are this is like kind of how much data can you crunch through in a unit time and there's also i have a column for tensor t flops are special tensor cores that nvidia specifically intends for deep learning operations which are mixed precision float32 and float16 these are much higher than just straight 32-bit teraflops if you use 16-bit training you effectively double or so your rain capacity we looked at the teraflops these are
+
+39
+00:30:42,720 --> 00:31:46,960
+theoretical numbers but how do they actually benchmark lame the labs is probably the best source of benchmark data and here they show relative to the v100 single gpu how do the different gpus compare so one thing we might notice is the a100 which is the most recent gpu that's the server grade is over 2.5 faster than v100 you'll notice there's a couple of different a100s the pcie versus sxm4 refers to how fast you can get the data onto the gpu and the 40 gig versus 80 gig refers to how much data can fit on the gpu also recently there's rtx a 4000 5000 6000 and so on cards and the a40 and these are all better than the v100 another source of benchmarks is aime they show you time for resnet50 model to go through
+
+40
+00:31:44,240 --> 00:32:42,720
+1.4 images in imagenet the configuration of four a100s versus four v100s is three times faster in in flow 32 and only one and a half times faster in float 16. there's a lot more stuff you can notice but that's what i wanted to highlight and we could buy some of these gpus we could also use them in the cloud so amazon web services google cloud platform microsoft azure are all the heavyweight cloud providers google cloud platform out of the three is special because it also has tpus and the startup cloud providers are lame the labs paper space core weave data crunch jarvis and others so briefly about tpus so there's four versions of them four generations the tpu v4 are the most recent ones and they're
+
+41
+00:32:40,480 --> 00:33:36,960
+just the fastest possible accelerator for deep learning this graphic shows speed ups over a100 which is the fastest nvidia accelerator but the v4s are not quite in general availability yet the v3s are still super fast and they excel at scaling so if you use if you have to train such a large model that you use multiple nodes multiple and all the cores in the tpu then this can be quite fast each tpu has 128 gigs of ram so there's a lot of different clouds and it's a little bit overwhelming to actually compare prices so we built a tool for cloud comparison cloud gpu comparison so we have aws gcp azure lambda labs paper space jarvis labs data crunch and we solicit pull requests so if you know another one like core weave
+
+42
+00:33:35,519 --> 00:34:34,639
+make a pull request to this csv file and then what you can do is you can filter so for example i want to see only the latest generation gpus i want to see only four or eight gpu machines and then maybe particularly i actually don't even want to see the i want to see only the a100s so let's only select the a100s so that narrows it down right so if we want to use that that narrows it down and furthermore maybe i only want to use the 80 gig versions so that narrows it down further and then we can sort by per gpu price or the total price and we can see the properties of the machines right so we know the gpu ram but how many virtual cpus and how much machine ram do these different providers supply to us now let's combine this cost
+
+43
+00:34:33,679 --> 00:35:33,119
+data with benchmark data and what we find is that something that's expensive per hour is not necessarily expensive per experiment using lambda labs benchmarking data if you use the forex v100 machine which is the cheapest per hour and you run an experiment using a transformers model that takes 72 hours it'll cost 1750 to run but if you use the 8x a100 machine it will only take eight hours to run and it'll actually only cost 250 and there's a similar story if you use confnet instead of transformer models less dramatic but still we find that the 8 by a100 machine is both the fastest and the cheapest so that's a little counter-intuitive so i was looking for more benchmarks so here is mosaic ml which i mentioned
+
+44
+00:35:30,960 --> 00:36:30,000
+earlier they're benchmarking the resnet 50 and this is on aws what they find is the 8x a100 machine is one and a half times faster and 15 cheaper than 8x v100 so this is a confident experiment and here's a transformer experiment ept2 model so the 8x a100 machine is twice as fast and 25 cheaper than the adax v100 machine and it's actually three times faster and 30 cheaper than the 8x t4 machine which is a touring generation gpu a good heuristic is use the most expensive per hour gpu which is probably going to be a 4x or 8x a100 in the least expensive cloud and from playing with that cloud gpu table you can convince yourself that the startups are much cheaper than the big boys so here i'm filtering by a100
+
+45
+00:36:26,960 --> 00:37:22,560
+and the per gpu cost on lambda labs is only one dollar and 10 cents per hour and on gcp azure and and aws it's at least you know 3.67 cents but what if you don't want to use the cloud there's two options you could build your own which is i would say easy or you can buy pre-built which is definitely even easier lambda labs builds them and nvidia builds them and then just pc builders like super micro and stuff like that build them you can build a pretty quiet pc with with a lot of ram and let's say you know two 390s or 2080 ti's or something that would maybe be five to eight thousand dollars it take you a day to build it and set it up maybe it's a rite of passage for deep learning practitioners
+
+46
+00:37:20,480 --> 00:38:15,680
+now if you want to go beyond four or 2000 series like 20 80s or two 3000 series like 30 90s that can be painful just because there's a lot of power that they consume and they get hot so pre-built can be better here's a 12 000 machine with two a5000s which each have 24 gigs ram it's going to be incredibly fast or maybe you want 8 gpus now this one is going to be loud you're going to have to put it in some kind of special facility like a colo and actually lame the labs can can stored in their colo for you it'd be maybe sixty thousand dollars for eight a six thousands which is a really really fast server lame the labs also provides actionable advice for selecting specific gpus there is a well known article from tim detmers
+
+47
+00:38:13,119 --> 00:38:58,320
+that is now slightly out of date because there's no ampere cards but it's still good he talks about more than just gpus but also about what cpu to get the ram the recommendations that that i want to give is i think it's it's useful to have your own gpu machine just to shift your mindset from minimizing cost of running in the cloud to maximizing utility of having something that you already paid for and just maximizing how much use you get out of it but to scale out experiments you probably need to enter the cloud and you should use the most expensive machines in the least expensive cloud tpus are worth experimenting with if you're doing large scale training lameda labs is a sponsor of the full-stack deep
+
+48
+00:38:56,800 --> 00:39:45,520
+learning projects that our students are doing this year it's actually an excellent choice for both buying a machine for yourself and it's the least expensive cloud for a100s now that we've talked about compute we can talk about how to manage it so we want to do is we want to launch an experiment or a set of experiments each experiment is going to need a machinery machines with gpu or gpus in the machine it's going to need some kind of setup like a python version cuda version nvidia drivers python requirements like a specific version of pytorch and then it needs a source of data so we could do this manually we could use a workload manager like slurm we could use docker and kubernetes or we could use some software specialized
+
+49
+00:39:43,920 --> 00:40:35,520
+for machine learning if you follow best practices for specifying dependencies like content pip tools that we covered earlier then all you have to do is log into the machine launch an experiment right activate your environment launch the experiment say how many gpus it needs if you however have a cluster of machines then you need to do some more advanced which is probably going to be slurm which is an old-school solution to workload management that's still that's still widely used this is actually a job from the big science effort to train the gpt3 size language model so they have 24 nodes with 64 cpus and 8 gpus on each node slurm is the way that they launched it on their cluster docker is a way to package up an entire
+
+50
+00:40:34,079 --> 00:41:22,560
+dependency stack in in something that's lighter than a full-on virtual machine nvidia docker is also something you'll have to install which let's use gpus and we'll actually use this in lab so we'll talk more about it later kubernetes has kind of emerged as as the best way the most popular way to run many docker containers on top of a cluster cube flow specifically is a project for machine learning both of these are google originated open source projects but they're not controlled by google anymore so with kubeflow you can spawn and manage jupiter notebooks you can manage multi-step workflows it interfaces with pytorch and tensorflow and you can run it on top of google cloud platform or aws or azure or on your own
+
+51
+00:41:20,800 --> 00:42:10,400
+cluster and it can be useful but it's a lot so it could be the right choice for you but we think it probably won't be slarm and kubeflow they make sense if you already have a cluster up and running but how do you even get a cluster up and running in the first place and before we proceed i try not to mention software as a service that doesn't show pricing i find that you know when you go to the website and it says call us or whatever contact us for a demo that's not the right fit for the fsdl community we like to use open source ideally but if it's not open source then at least something that's transparently priced aws sagemaker is a solution you've probably heard about if you've used amazon web services
+
+52
+00:42:08,160 --> 00:42:57,040
+and it's really a set of solutions it's everything from labeling data to launching notebooks to training to deploying your models and even to monitoring them and notebooks are a central paradigm they call it sagemaker studio and sagemaker could totally make sense to adopt if you're already using aws for everything if you're not already using aws for everything it's not such a silver bullet that it's worth adopting necessarily but if you are it's definitely worth a look so for training specifically they have some basically pre-built algorithms and they're quite they're quite old-school but you can also connect any other algorithm yourself it's a little more it's a little more complicated and right away you have to configure a
+
+53
+00:42:55,119 --> 00:43:48,880
+lot of i am you know roles and and security groups and stuff like that it might be overwhelming if all you're trying to do is train a machine learning model that said they do have increasing support for pytorch now notice if you're using sagemaker to launch your python training you're going to be paying about a 15 to 20 markup so there's special sagemaker instances that correspond to normal aws gpu instances but it's more expensive they do have support for using spot instances and so that could make it worth it any scale is a company from the makers of ray which is an open source project from berkeley and recently they released ray train which they claim is faster than sagemaker so the same idea basically lets you
+
+54
+00:43:46,800 --> 00:44:40,560
+scale out your training to many nodes with many gpus but does it faster and it has better spot instance support where if a spot instance gets killed during training it recovers from it intelligently and any scale any scale a software is a service that makes it you know really simple to provision compute with one line of code you can launch a cluster of any size that ease of use comes at a significant markup to amazon web services grid ai is makers of py torch lightning and the the tagline is seamlessly trained hundreds of machine learning models on the cloud with zero code changes if you have some kind of main dot pi method that's going to run your training and that can run on your laptop or on on
+
+55
+00:44:38,400 --> 00:45:27,760
+some local machine you can just scale it out to a grid of instances by prefacing it with grid run and then just saying what kind of instance type how many gpus should i use spot instances and so on and you can also you can use their instances or you can use aws under the hood and then it shows you all the experiments you're running and so on now i'm not totally sure about the long term plans for grid.ai because the makers of python's lightning are also rebranding as lightning.i which has its own pricing so i'm i'm just not totally sure but it's if it sticks around it looks like a really cool solution there's also non-machine learning specific solutions like you don't need sagemaker to provision compute on aws
+
+56
+00:45:25,440 --> 00:46:11,200
+you could just do it in a number of ways that people have been doing you know provisioning aws instances and then uniting them into a cluster you can write your own scripts you can use kubernetes you can use some libraries for spot instances but there's nothing you know we can really recommend that's super easy to use determined ai is a machine learning specific open source solution that lets you manage a cluster either on prem or in the cloud it's cluster management distributed training experiment tracking hyper parameter search a lot of extra stuff it was a startup also from berkeley it got acquired by hp but it's still an active development it's really easy to use you just install determined get a
+
+57
+00:46:09,839 --> 00:46:59,920
+cluster up and running you can also launch it on aws or gcp that said i feel like a truly simple solution to launching training on many cloud instances still doesn't exist so this is an area where i think there's room for a better solution and that cannot be said about experiment management and model management because i think there's great solutions there so what experiment management refers to is you know as we run machine learning experiments we we can lose track of which code parameters data set generated which model when we run multiple experiments that's even more difficult we need to like start making a spreadsheet of all the experiments we ran and the results and so on tensorboard is a solution from google
+
+58
+00:46:58,079 --> 00:47:48,640
+that's not exclusive to tensorflow it gives you this nice set of pages that lets you track your loss and see where your model saved and it's a great solution for single experiments it does get unwieldy to manage many experiments as you get into dozens of experiments ml flow tracking is a solution that is open source it's from data bricks but it's not exclusive to data breaks it's not only for experiment management it's also for model packaging and stuff like that but they do have a robust solution for experiment management you do have to host it yourself weights and biases is a really popular super easy to use solution that is free for public projects and paid for private projects they show you
+
+59
+00:47:46,240 --> 00:48:33,119
+all the experiments you've ever run slice them dice however you want for each experiment they record would you log like your loss but also stuff about your system like how utilized your gpu is which is pretty important to track and you basically just initialize it with your experiment config and then you log anything you want including images and we're actually going to see this in lab 4 which is this week they also have some other stuff like you can host reports and tables is a recent product that lets you slice and dice your data and predictions in really cool ways determine.ai also has an experiment tracking solution which is also perfectly good and there's other solutions too like neptune and comet
+
+60
+00:48:30,160 --> 00:49:22,240
+and a number of others really often we actually want to programmatically launch experiments by doing something that's called hyper parameter optimization so maybe we want to search over learning rates so as we launch our training we don't want to commit to a specific learning rate we basically want to search over learning rates from you know point zero zero zero one to point one it'd be even more awesome if like this was done intelligently where if multiple runs are proceeding in in parallel the ones that aren't going as well as others get stopped early and we get to search over more of the potential hyperparameter space weights and biases has a solution to this that's very pragmatic and easy to
+
+61
+00:49:19,599 --> 00:50:10,720
+use it's called sweeps the way this works is you basically add a yaml file to your project that specifies the parameters you want to search over and how you want to do the search so here on the right you'll see we're using this hyperband algorithm which is a state-of-the-art hyper-parameter optimization algorithm and then you launch agent on whatever machines you control the agent will pull the sweep server for a set of parameters run an experiment report results poll the server for more parameters and keep doing that and there's other solutions this is pretty table stakes kind of thing so sagemaker has hyperparameter search determined ai has hyperparameter search i think of it as just it's a part of your training harness so
+
+62
+00:50:09,680 --> 00:51:02,480
+if you're already using weights and biases just use sweeps from weights and biases if you're already using determine just use hyperparameter search from determined it's not worth using some specialized software for this and lastly there are all-in-one solutions that cover everything from data to development to deployment a single system for everything for development usually a notebook interface scaling a training experiment to many machines provisioning the compute for you tracking experiments versioning models but also deploying models and monitoring performance managing data of really all-in-one each maker is the you know the prototypical solution here but there's some other ones like gradients from paper space so look at
+
+63
+00:51:00,960 --> 00:51:48,240
+look at these features notebooks experiments data sets models and inference or domino data labs you can provision compute you can track the experiments you can deploy a model via a rest api you can monitor the predictions that the the api makes and you can publish little data applets kind of like streamlit you can also monitor spend and you see all the projects in one place domino's meant more for kind of non-deep learning machine learning but i just wanted to show it because it's a nice set of the all-in-one functionality so these all-in-one solutions could be good but before deciding we want to go in on one of them let's wait to learn more about data management and deployment in the weeks ahead
+
+64
+00:51:46,480 --> 00:51:52,960
+and that is it for development infrastructure and tooling thank you
+

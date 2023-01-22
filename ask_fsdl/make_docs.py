@@ -50,6 +50,8 @@ def produce_documents(docs_folder=DOCS_FOLDER):
     import shutil
     import string
 
+    import srt
+
     if not os.path.exists(docs_folder):
         os.makedirs(docs_folder, exist_ok=True)
 
@@ -79,9 +81,66 @@ def produce_documents(docs_folder=DOCS_FOLDER):
     lecture_texts_flat = [split for lecture_text in lecture_texts_split.values() for split in lecture_text]
     source_urls_flat = [{"source": source_urls[idx]} for idx, lecture_text in lecture_texts_split.items() for split in lecture_text]
 
-    return lecture_texts_flat, source_urls_flat
+    srt_filenames = list(sorted([elem for elem in os.listdir(docs_folder) if elem.endswith(".srt")]))
+    srt_urls = get_srt_urls()
+    srt_texts_flat, srt_metadatas_flat = [], []
+
+    for fn in srt_filenames:
+        idx = int("".join(elem for elem in fn if elem in string.digits))
+        srt_url = srt_urls[idx]
+
+        srt_text_path = docs_folder / fn
+        with open(srt_text_path) as f:
+            srt_text = "\n".join(f.readlines())
+
+        subtitles = list(srt.parse(srt_text))
+
+        texts, metadatas = create_srt_texts_and_metadatas(subtitles, srt_url)
+        srt_texts_flat += texts
+        srt_metadatas_flat += metadatas
+
+    texts_flat = lecture_texts_flat + srt_texts_flat
+    metadatas_flat = source_urls_flat + srt_metadatas_flat
+
+    return texts_flat, metadatas_flat
+
+
+def create_srt_texts_and_metadatas(subtitles, base_url):
+    query_params_format = "&t={start}s"
+    texts, metadatas = [], []
+
+    for subtitle in subtitles:
+        raw_text = subtitle.content
+        text = subtitle.content.strip()
+        start = timestamp_from_timedelta(subtitle.start)
+        url = base_url + query_params_format.format(start=start)
+
+        texts.append(text)
+        metadatas.append({"source": url})
+
+    return texts, metadatas
+
+
+def timestamp_from_timedelta(timedelta):
+    return int(timedelta.total_seconds())
+
+
+def get_srt_urls():
+    return {
+        1: "https://www.youtube.com/watch?v=-Iob-FW5jVM",
+        2: "https://www.youtube.com/watch?v=BPYOsDCZbno",
+        3: "https://www.youtube.com/watch?v=RLemHNAO5Lw",
+        4: "https://www.youtube.com/watch?v=Jlm4oqW41vY",
+        5: "https://www.youtube.com/watch?v=W3hKjXg7fXM",
+        6: "https://www.youtube.com/watch?v=nra0Tt3a-Oc",
+        7: "https://www.youtube.com/watch?v=Rm11UeGwGgk",
+        8: "https://www.youtube.com/watch?v=a54xH6nT4Sw",
+        9: "https://www.youtube.com/watch?v=7FQpbYTqjAA"
+        }
 
 
 if __name__ == "__main__":
   download_lectures()
-  print(produce_documents()[0])
+  texts, metadatas = produce_documents()
+  print(texts[-1])
+  print(metadatas[-1])

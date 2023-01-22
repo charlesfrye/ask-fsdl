@@ -1,0 +1,160 @@
+1
+00:00:00,080 --> 00:00:45,920
+hey everyone welcome to week four of full stack deep learning my name is sergey i have my assistant mishka right here there she is and today we're going to be talking about data management one of the things that people don't quite get as they enter the field of machine learning is just how much of it is actually just dealing with data putting together data sets looking at data munching data it's like half of the problem and it's more than half of the job for a lot of people but at the same time it's not something that people want to do the key points of this presentation are going to be that you should do a lot of it you should spend about 10 times as much time exploring the data as you would
+
+2
+00:00:44,879 --> 00:01:36,240
+like to and let it really just flow through you and usually the best way to improve performance of your model is going to be fixing your data set adding to the data set or maybe augmenting your data as you train and the last key point is keep it all simple you might be overwhelmed especially if you haven't been exposed to a lot of this stuff before there's a lot of words and terminology in different companies you don't have to do any of it and in fact you might benefit if you keep it as simple as possible that said we're going to be talking about this area of the ammo ops landscape and we'll start with the sources of data there's many possibilities for the sources of data you might have images you might have text files you might have
+
+3
+00:01:34,880 --> 00:02:22,319
+maybe logs database records but in deep learning you're going to have to get that data onto some kind of local file system disk right next to a gpu so you can send data and train and how exactly you're going to do that is different for every project different for every company so maybe you're training on images and you simply download the images that's all it's going to be from s3 or maybe you have a bunch of text that you need to process in some distributed way then analyze the data select the subset of it put that on the local machine or maybe you have a nice process with a data lake that ingests logs and database records and then from that you can aggregate and process it so that's always going to be different
+
+4
+00:02:20,480 --> 00:03:13,440
+but the basics are always going to be the same and they concern the file system object storage and databases so the file system is the fundamental abstraction and the fundamental unit of it is a file which can be a text file or a binary file it's not versioned and it can be easily overwritten or deleted and usually this is the file system is on a disk that's connected to your machine may be physically connected or maybe attached in the cloud or maybe it's even the distributed file system although that's less common now and we'll be talking about directly connected disks the first thing to know about disks is that the speed of them and the bandwidth of them is a quite quite a range from hard disks which are
+
+5
+00:03:11,200 --> 00:04:05,120
+usually spinning magnetic disks to solid-state disks which can be connected through the sata protocol or the nvme protocol and there's two orders of magnitude difference between the slowest which is like sata spinning disks and the fastest which are nvme solid state disks and making these slides i realized okay i'm showing you that but there's also some other latency numbers you should know so there's a famous document that you might have seen on the internet originally credited to jeff dean who i think credited peter norvig from google but i added human scale numbers in parens so here's how it's going to go so if you access the l1 l2 maybe even l3 cache of the cpu it's a very limited store of data but
+
+6
+00:04:03,599 --> 00:04:59,280
+it's incredibly fast it only takes a name a second to access and in human scale you might think of it as taking a second and then accessing ram is the next fastest thing and it's about 100 times slower but it's still incredibly fast and then that's just kind of finding something in ram but reading a whole megabyte sequentially from ram is now 250 microseconds which if the cache access took a second now it's taken two and a half days to read a megabyte from ram and if you're reading a megabyte from a sata connected ssd drive now you're talking about weeks so it's one and a half weeks and if you're reading a one one megabit of data from a spinning disk now we're talking about months and finally if you're sending a packet
+
+7
+00:04:57,120 --> 00:05:51,120
+of data from california across the ocean to europe and then back we're talking about years on a human scale in a 150 millisecond on the absolute scale and if gpu timing info i'd love to include it here so please just send it over to full stack so what format should data be stored on the local disk if it's binary data like images or audio just use the standard formats like jpegs or mp3 that it comes in they're already compressed you can't really do better than that for the metadata like labels or tabular data or text data compress json or text files just fine or parquet is a table format that's fast it's compressed by default as it's written and read that's compact and it's very widely used now let's talk about
+
+8
+00:05:48,960 --> 00:06:46,000
+object storage i think of it as an api over the file system where the fundamental unit is now an object and it's usually binary so it's maybe an image or a sound file but it could also be a text we can build in versioning or redundancy into the object storage service so instead of a file that can easily be overridden and isn't versioned we can say that an object whenever i update it it's actually just updating the version of it s3 is the fundame is the most common example and it's not as fast as local file system but it's fast enough especially if you're staying within the cloud databases are persistent fast and scalable storage and retrieval of structured data systems the metal model that i like to use is
+
+9
+00:06:45,039 --> 00:07:38,960
+that all the data that the database holds is actually in the ram of the computer but the database software ensures that if the computer gets turned off everything is safely persisted to disk and if it actually is too much data for ram it scales out to disk but still in a very performant way do not store binary data in the database you should store the object store urls to the binary data in the database instead postgres is the right choice it's an open source database and most of the time it's what you should use for example it supports unstructured json and queries over that unstructured json but sqlite is perfectly good for small projects it's a self-contained binary every language has an interface to it
+
+10
+00:07:35,919 --> 00:08:24,879
+even your browser has it and i want to stress that you should probably be using a database most coding projects like anything that deals with collections of objects that reference each other like maybe you're dealing with snippets of text that come from documents and documents of authors and maybe authors have companies or something like that this is very common and that code base will probably implement some kind of database and you can save yourself time and gain performance if you just use the database from the beginning and many mo ops tools specifically are at their core databases like weights and biases is a database of experiments hugging phase model hub is a database of models label studio which we'll talk about is a
+
+11
+00:08:22,960 --> 00:09:22,320
+database of labels plus obviously user interfaces for generating the labels and uploading the models and stuff like that but coming from an academic background i think it's important to fully appreciate databases data warehouses are stores for online analytical processing as opposed to databases which are data stores for online transaction processing and the difference i'll cover in a second but the way you get data into data warehouses is another acronym called etl extract transform load so maybe you have a number of data sources here it's like files database otp database and some sources in the cloud you'll extract data transform it into a uniform schema and then load it into the data warehouse and then from the
+
+12
+00:09:20,160 --> 00:10:15,839
+warehouse we can run business intelligence queries we know that it's archived and so what's the difference between olaps and otps like why are they different software platforms instead of just using postgres for everything so the difference is all laps for analytical processing are usually column oriented which lets you do queries what's the mean length of the text of comments over the last 30 days and it lets them be more compact because if you're storing the column you can compress that whole column in storage and oltps are usually row oriented and those are for queries select all the comments for this given user data lakes are unstructured aggregation of data from multiple sources so the main difference to data
+
+13
+00:10:12,399 --> 00:11:10,720
+warehouses is that instead of extract transform load its extract load into the lake and then transform later and the trend is unifying both so both unstructured and structured data should be able to live together the big two platforms for this our snowflake and databricks and if you're interested in this stuff this is a really great book that walks through the stuff from first principles that i think you will enjoy now that we have our data stored if we would like to explore it we have to speak the language of data and the language of data is mostly sql and increasingly it's also data frames sql is the standard interface for structured data it's existed for decades it's not going away it's worth
+
+14
+00:11:08,480 --> 00:12:01,200
+being able to at least read and it's well worth being able to write and for python pandas is the main data frame solution which basically lets you do sql-like things but in code without actually writing sql our advice is to become fluent in both this is how you interact with both transactional databases and analytical warehouses and lakes pandas is really the workhorse of python data science i'm sure you've seen it i just wanted to give you some tips if pandas are slow on something it's worth trying das data frames have the same interface but they paralyze operations over many cores and even over multiple machines if you set that up and something else that's worth trying if you have gpus available is rapids and
+
+15
+00:11:59,600 --> 00:12:55,040
+video rapids lets you do a subset of what pandas can do but on gpus so significantly faster for a lot of types of data so talking about data processing it's useful to have a motivational example so let's say we have to train a photo popularity predictor every night and for each photo training data must include maybe metadata about the photos such as the posting time the title that the user gave the location was taken maybe some features of the user and then maybe outputs of classifiers of the photo for content maybe style so the metadata is going to be in the database the features we might have to compute from logs and the photo classifications we're going to need to run those classifiers so we have dependencies our ultimate
+
+16
+00:12:52,959 --> 00:13:50,800
+task is to train the photopredictor model but to do we need to output data from database compute stuff from logs and run classifiers to output their predictions what we'd like is to define what we have to do and as things finish they should kick off their dependencies and everything should ideally not only have not only be files but programs and databases we should be able to spread this work over many machines and we're not the only ones running this job or this isn't the only job that's running on these machines how do we actually schedule multiple such jobs airflow is a pretty standard solution for python where it's possible to specify the acyclical graph of tasks using python code and the operators in that graph can be
+
+17
+00:13:48,320 --> 00:14:52,320
+sql operations or actually python functions and other plugins for airflow and to distribute these jobs the workflow manager has a queue has workers that report to it will restart jobs if they fail and will ping you when the jobs are done prefect is another is another solution that's been to improve over air flow it's more modern and dagster is another contender for the airflow replacement the main piece of advice here is don't over engineer this you can get machines with many cpu cores and a ton of ram nowadays and unix itself has powerful parallelism streaming tools that are highly optimized and this is a little bit of a contrived example from a decade ago but hadoop was all the rage in 2014 it was a distributed data processing
+
+18
+00:14:51,120 --> 00:15:43,279
+framework and so to run some kind of job that just aggregated a bunch of text files and computed some statistics over them the author spanned set up a hadoop job and it took 26 minutes to run but just writing a simple unix command that reads all the files grabs for the string sorts it and gives you the unique things was only 70 seconds and part of the reason is that this is all actually happening in parallel so it's making use of your cores pretty efficiently and you can make even more efficient use of them with the parallel command or here it's an argument to x-args and that's not to say that you should do everything just in unix but it is to say that just because the solution exists doesn't mean that it's right for you it
+
+19
+00:15:41,680 --> 00:16:39,120
+might be the case that you can just run your stuff in a single python script on your 32 core pc feature stores you might have heard about the situation that they deal with is all the data processing we we're doing is generating artifacts that we'll need for training time so how do we ensure that in production the model that was trained sees data where the same processing took place as it as as happened during training time and also when we retrain how do we avoid recomputing things that we don't need to recompute so feature store is our solution to this that you may not need the first mention i saw feature stores were was in this blog post from uber describing their machine learning platform michelangelo
+
+20
+00:16:36,560 --> 00:17:43,520
+and so they had offline training process and an online prediction process and they had feature stores for both that had to be in sync tecton is probably the leading sas solution to a feature storage for open source solutions feast is a common one and i recently came across feature form that looks pretty good as well so this is something you need check it out if it's not something you need don't feel like you have to use it in summary binary data like images sound files maybe compressed text store is object metadata about the data like labels or user activity with object should be stored in the database don't be afraid of sql but also know if you're using data frames there are accelerated solutions to them
+
+21
+00:17:41,200 --> 00:18:35,200
+if dealing with stuff like logs and other sources of data that are disparate it's worth setting up a data lake to aggregate all of it in one place you should have a repeatable process to aggregate the data you need for training which might involve stuff like airflow and depending on the expense and complexity of processing a feature store could be useful at training time the data that you need should be copied over to a file system on a really fast local drive and then you should optimize gpu transfer so what about specifically data sets for machine learning training hugging phase data sets is a great hub of data there's over 8 000 data sets revision nlp speech etc so i wanted to take a look at a few
+
+22
+00:18:33,360 --> 00:19:28,320
+example data sets here's one called github code it's over a terabyte of text 115 million code files the hugging face library the datasets library allows you to stream it so you don't have to download the terabyte of data in order to see some examples of it and the underlying format of the data is parquet tables so there's thousands of parquet tables each about half a gig that you can download piece by piece another example data set is called red caps pretty recently released 12 million image text pairs from reddit the images don't come with the data you need to download the images yourself make sure as you download it's multithreaded they give you example code and the underlying format then of the
+
+23
+00:19:26,080 --> 00:20:21,600
+database are the images you download plus json files that have the labels or the text that came with the images so the real foundational format of the data is just the json files and there's just urls in those files to the objects that you can then download here's another example data set common voice from wikipedia 14 000 hours of speech in 87 languages the format is mp3 files plus text files with the transcription of what the person's saying there's another interesting data set solution called active loop where you can also explore data stream data to your local machine and even transform data without saving it locally it look it has a pretty cool viewer of the data so here's looking at microsoft
+
+24
+00:20:18,159 --> 00:21:14,159
+coco computer vision data set and in order to get it onto your local machine it's a simple hub.load the next thing we should talk about is labeling and the first thing to talk about when it comes to labeling is maybe we don't have to label data self-supervised learning is a very important idea that you can use parts of your data to label other parts of your data so in natural language this is super common right now and we'll talk more about this in the foundational models lecture but given a sentence i can mask the last part of the sentence and to use the first part of the sentence to predict how it's going to end but i can also mask the middle of the sentence and use the whole sentence to predict the middle or i can even mask
+
+25
+00:21:12,640 --> 00:22:04,640
+the beginning of the sentence and use the completion of the sentence to predict the beginning in vision you can extract patches and then predict the relationship of the patches to each other and you can even do it across modalities so openai clip which we'll talk about in a couple of weeks is trained in this contrastive way where a number of images and the number of text captions are given to the model and the learning objective is to minimize the distance between the image and the text that it came with and to maximize the distance between the image and the other texts the and when i say between the image and the text the embedding of the image and the embedding of the texts and this led to great results this is
+
+26
+00:22:02,640 --> 00:22:56,960
+one of the best vision models for all kinds of tasks right now data augmentation is something that must be done for training vision models there's frameworks that provide including torch vision that provide you functions to do this it's changing the brightness of the data the contrast cropping it skewing it flipping it all kinds of transformations that basically don't change the meaning of the image but change the pixels of the image this is usually done in parallel to gpu training on the cpu and interestingly the augmentation can actually replace labels so there's a paper called simclear where the learning objective is to extract different views of an image and maximize the agreement or the similarity of the
+
+27
+00:22:55,679 --> 00:23:50,000
+embeddings of the views of the same image and minimize the agreement between the views of the different images so without labels and just with data augmentation and a clever learning objective they were able to learn a model that performs very well for even supervised tasks for non-vision data augmentation if you're dealing with tabular data you could delete some of the table cells to simulate what it would be like to have missing data for text i'm not aware of like really well established techniques but you could maybe delete words replace words with synonyms change the order of things and for speech you could change the speed of the file you could insert pauses you could remove some stuff you
+
+28
+00:23:47,039 --> 00:24:36,000
+can add audio effects like echo you can strip out certain frequency bands synthetic data is also something where the labels would basically be given to you for free because you use the label to generate the data so you know the label and it's still somewhat of an underrated idea that's often worth starting with we certainly do this in the lab but it can get really deep right so you can even use 3d rendering engines to generate very realistic vision data where you know exactly the label of everything in the image and this was done for receipts in this project that i link here you can also ask your users if you have users to label data for you i love how google photos does this they always ask me is this the same or different person
+
+29
+00:24:34,480 --> 00:25:29,919
+and this is sometimes called the data flywheel right where i'm incentivized to answer because it helps me experience the product but it helps google train their models as well because i'm constantly generating data but usually you might have to label some data as well and data labeling always has some standard set of features there's bounding boxes key points or part of speech tagging for text there's classes there's captions what's important is training the annotators so whoever will be doing the annotation make sure that they have a complete rulebook of how they should be doing it because there's reasonable ways to interpret the task so here's some examples like if i'm only seeing the head of the fox should i label only
+
+30
+00:25:27,360 --> 00:26:21,360
+the head or should i label the inferred location of the entire fox behind the rock it's unclear and quality assurance is something that's going to be key to annotation efforts because different people are just differently able to uh adhere to the rules where do you get people to annotate you can work with full-service data labeling companies you can hire your own annotators probably part-time and maybe promote the most the most able ones to quality control or you could potentially crowdsource this was popular in the past with mechanical turk the full service companies provide you the software stack the labor to do it and quality assurance and it probably makes sense to use them so how do you pick one you should at
+
+31
+00:26:18,480 --> 00:27:12,880
+first label some data yourself to make sure that you understand the task and you have a gold standard that you can evaluate companies on then you should probably take calls with several of the companies or just try them out if they let you try it out online get a work sample and then look at how the work sample agrees with your own gold standard and then see how the price of the annotation compares scale dot ai is probably the dominant data labeling solution today and they take an api approach to this where it's you create tasks for them and then receive results and there are many other annotations like label box supervisedly and there's just a million more label studio is an open source solution that you can run yourself
+
+32
+00:27:11,440 --> 00:28:05,600
+there's an enterprise edition for managed hosting but there's an open source edition that you can just run in the docker container on your own machine we're going to use it in the lab and it has a lot of different interfaces for text images you can create your own interfaces you can even plug in models and do active learning for annotation diff gram is something i've come across but i haven't used it personally they claim to be better than label studio and it looks pretty good an interesting feature that that i've seen some software offerings have is evaluate your current model on your data and then explore how it performed such that you can easily select subsets of data for further labeling or potentially
+
+33
+00:28:03,360 --> 00:28:56,320
+find mistakes in your labeling and just understand how your model is performing on the data there's aquarium learning and scale nucleus are both solutions to this that you can check out snorkel you might have heard about and it's using this idea of weak supervision where if you have a lot of data to label some of it is probably really easy to label if you're labeling sentiment of text and if they're using the word wonderful then it's probably positive so if you can create a rule that says if the text contains the word wonderful just apply the positive label to it and you create a number of these labeling functions and then the software intelligently composes them and it could be a really fast way to to
+
+34
+00:28:54,159 --> 00:29:44,640
+go through a bunch of data there's the open source project of snorkel and there's the commercial platform and i recently came across rubrics which is a very similar idea that's fully open source so in conclusion for labeling first think about how you can do self-supervised learning and avoid labeling if you need to label which you probably will need to do use labeling software and really get to know your data by labeling it yourself for a while after you've done that you can write out detailed rules and then outsource to a full service company otherwise if you don't want to outsource you can't afford it you should probably hire some part-time contractors and not try to crowdsource because crowdsourcing is a lot of
+
+35
+00:29:42,480 --> 00:30:35,120
+quality assurance overhead it's a lot better to just find a good person who can trust to do the job and just have them label lastly in today's lecture we can talk about versioning i like to think of data versioning as a spectrum where the level zero is unversioned and level three is specialized data versioning solution so label level one level zero is bad okay where you have data that just lives on the file system or is on s3 or in a database and it's not version so you train a model you deploy the model and the problem is when you deploy the model what you're deploying is partly the code but partly the data that generated the weights right and if the data is not versioned then your model is in effect not
+
+36
+00:30:33,039 --> 00:31:21,679
+versioned and so what will probably happen is that your performance will degrade at some point and you won't be able to get back to a previous level of high performance so you can solve this with level one each time you train you just take a snapshot of your data and you store it somewhere so this kind of works because you'll be able to get back to that performance by retraining but it'd be nicer if i could just version the data as easily as code not through some separate process and that's where we arrive at level two where we just we version data exactly in the same way as reversion code so let's say we're having a data set of audio files and text transcriptions so we're going to upload the audio files
+
+37
+00:31:19,679 --> 00:32:12,559
+to s3 that's probably where they were to begin with and the labels for the files we can just store in a parquet file or a json file where it's going to be the s3 url and the transcription of it now even this metadata file can get pretty big it's a lot of text but you can use git lfs which stands for large file storage and we can just add them and the git add will version the data file exactly the same as your version your code file and this can totally work you do not need to definitely go to level three would be using a specialized solution for versioning data and this usually helps you store large files directly and it could totally make sense but just don't assume that you need it right away if you can get away with just
+
+38
+00:32:11,039 --> 00:33:08,240
+get lfs that would be the fstl recommendation if it's starting to break then the leading solution for level three versioning is dvc and there's a table comparing the different versioning solutions like pachyderm but this table is biased towards dvc because it's by a solution that's github for dbc called dags hub and the way dvc works is you set it up you add your data file and then the most basic thing it does is it can upload to s3 or google cloud storage or whatever some other network storage whatever you set up every time you commit it'll upload your data somewhere and it'll make sure it's versioned so it's like a replacement for git lfs but you can go further and you can also record the lineage of
+
+39
+00:33:06,000 --> 00:34:05,519
+the data so how exactly was this data generated how does this model artifact get generated so you can use dvc run to mark that and then use dvc to recreate the pipelines the last thing i want to say is we get a lot of questions at fstl about privacy sensitive data and this is still a research area there's no kind of off-the-shelf solution we can really recommend federated learning is a research area that refers to training a global model from data on local devices without the the model training process having access to the local data so it's there's a federated server that has the model and it sends what to do to local models and then it syncs back the models and differential privacy is another term
+
+40
+00:34:02,640 --> 00:34:52,200
+this is for aggregating data such that even though you have the data it's aggregated in such a way that you can't identify the individual points so it should be safe to train on sensitive data because you won't actually be able to understand the individual points of it and another topic that is in the same vein is learning on encrypted data so can i have data that's encrypted that i can't decrypt but can i still do machine learning on it in a way that generates useful models and these three things are all research areas and i'm not aware of like really good off-the-shelf solutions for them unfortunately that concludes our lecture on data management thank you
+

@@ -1,0 +1,396 @@
+1
+00:00:00,240 --> 00:00:32,000
+hey everybody welcome back this week we're going to talk about deploying models into production so we're talking about this part of the life cycle and why do we spend a whole week on this maybe the answer is obvious right which is if you want to build a machine learning powered product you need some way of getting your model into production but i think there's a more subtle reason as well which is that i think of deploying models as a really critical part of making your models good to begin with the reason for that is when you only evaluate your model offline it's really easy to miss some of the more subtle flaws that model has where it doesn't actually solve the problem that your users needed to solve
+
+2
+00:00:30,320 --> 00:01:07,040
+oftentimes when we deploy a model for the first time only then do we really see whether that model is actually doing a good job or not but unfortunately for a lot of data scientists and ml engineers model deployment is kind of an afterthought relative to some of the other techniques that you've learned and so the goal of this lecture is to cover different ways of deploying models into production and we're not going to be able to go in depth in all of them because it's it's a broad and deep topic worthy probably of a course itself and i'm not personally an expert in it but what we will do is we'll cover like a couple of happy paths that will take you to getting your first model in production for most use cases and then
+
+3
+00:01:05,680 --> 00:01:41,119
+we'll give you a tour of some of the other techniques that you might need to learn about if you want to do something that is outside of that normal 80 so to summarize it's really important to get your model into production because only there do you see if it actually works if it actually solves the task that you set out to solve the technique that we're going to emphasize that you use for this is much like what we use in other parts of the life cycle and it's focused on like getting an mvp out early deploy early deploy a minimum viable model as early as possible and deploy often we're also going to emphasize keeping it simple and adding to bluxy later and so we'll start we'll walk through this the following process starting with building
+
+4
+00:01:39,280 --> 00:02:10,959
+a prototype then we'll talk about how to separate your model in your ui which is sort of one of the first things that you'll need to do to make a more complex ui or to scale then we'll talk about some of the tricks that you need to do in order to scale your model up to serve many users and then finally we'll talk about more advanced techniques that you might use when you need your model to be really fast which often means moving it from a web server to the edge so the first thing that we'll talk about is how to build the first prototype of your production model and the goal here is just something that you can play around with yourself and share with your friends luckily unlike when we first taught this class there's many great
+
+5
+00:02:08,879 --> 00:02:46,160
+tools for building prototypes of models hugging face has some tools built into their playground they've also recently acquired a company called gradio which we'll be using in the lab for the course which makes it very easy to wrap a small user interface around the model and then streamlit is also a great tool for doing this streamlight gives you a little bit more flexibility than something like radio or hugging face spaces at the cost of just needing to put a little bit more thought into how to pull all the pieces together in your ui but it's still very easy to use a few best practices to think about when you're deploying the prototype model first i would encourage you to have a basic ui for the model not
+
+6
+00:02:44,720 --> 00:03:20,480
+just to have an api and the reason for that is you know the goal at this stage is to play around with the model get feedback on the model both yourself and also from your friends or your co-workers or whoever else you're talking with this project about gradio and streamlight are really your friends here gradio really it's often as easy as adding a couple of lines of code to create a simple interface for a model streamlit is a little bit more ambitious in that it's a tool that allows you to build pretty complex uis just using python so it'll be familiar interfaces for you if you're a python developer but will require a little bit more thought about how you want to structure things but still very easy next best practice
+
+7
+00:03:18,800 --> 00:03:51,040
+is don't just run this on your laptop it's actually worth at this stage putting it behind a web url why is that important one it's easier to share right so part of the goal here is to collect feedback from other folks but it also starts to get you thinking about some of the trade-offs that you'll be making when you do a more complex deployment how much latency does this model actually have luckily there are cloud versions of both streamlit and hub and face which are which make this very easy so there's at this point in time not a lot of excuse not to just put this behind a simple url so you can share with people and then the last tip here is just don't stress too much at this stage again this is a prototype this is
+
+8
+00:03:49,360 --> 00:04:20,880
+something that should take you not more than like maybe a day if you're doing it for the first time but if you're building many of these models maybe it even just takes you a couple hours we've talked about this first step which is buildings prototype and next i want to talk about why is this not going to work like why is this not going to be the end solution that you use to deploy your model so where will this fail the first big thing is with any of these tools that we discussed you're going to have limited flexibility in terms of how you build the user interface for your model and extremely gives you more flexibility there than gradio but still relatively limited flexibility and so eventually you're gonna want to be able to build a
+
+9
+00:04:19,040 --> 00:04:53,520
+fully custom ui for the model and then secondly these systems tend not to scale very well to many concurrent requests so if it's just you or you and a couple friends playing around the model that's probably fine but once you start to have users you'll hit the scaling limits of these pretty quickly and this is a good segue to talk about at a high level different ways you can structure your machine learning power application in particular where the model fits into that application so we'll start with an abstract diagram of how your application might look there's a few different components to this on the left we have a client and the client is essentially your user and that's the device that they're using to interact with the
+
+10
+00:04:52,160 --> 00:05:28,320
+application that you built so it could be a browser it could be a vehicle whatever that device is that they're interacting with then that device will make calls over a network to a server that server is typically if you're building a web app where most of your code is running that server will talk to a database where there's data stored that's used for powering the application and there's different ways of structuring this application to fit a machine learning model inside the prototype approach that we just described mostly fits into this model in service approach where the web server that you're hosting actually just has a packaged version of the model sitting inside of it when you write a streamled script for a gradioscript part of that
+
+11
+00:05:26,560 --> 00:06:02,000
+script will be to load the model and so that script will be building your ui as well as running the model at the same time so this pattern like all patterns has pros and cons the biggest pro i think is one it's really easy if you're using one of these prototype development tools but two even if you are doing something a little bit more complicated like you're reusing your web infrastructure for the app that your company is building you get to reuse a lot of existing infrastructure so it doesn't require you as a model developer to set up a lot of new things just to try your model out and that's really great but there are a number of pretty pronounced cons to this as well the first is that your web server in many
+
+12
+00:05:59,840 --> 00:06:34,080
+cases like once you get beyond this streamlight and gradio type example might be written in a different language than your model like it might be written in in ruby or in javascript or something like that getting your model into that language can be difficult the second reason is that oftentimes especially in early in the life cycle of building your model your model might be changing more frequently than your server code so if you have a relatively well established application but a model that you're still building you might not want to have to redeploy the entire application every single time that you make an update to the model which might be every day or even multiple times a day the third con of this approach is that it
+
+13
+00:06:31,360 --> 00:07:06,240
+doesn't scale very well with model size so if you have a really large model that you're trying to run inference on you'll have to load that on your web server and so that's going to start to eat into the resources of that web server and might affect the user experience for people using that web server even if they're not interacting with the model or that's not the primary thing that they're doing in that web application because all of the resources from that web server are being directed to making this model run the fourth reason is that server hardware the hardware that you're probably running your web application or your mobile application on is generally not optimized very well for machine learning workloads and so in particular
+
+14
+00:07:04,240 --> 00:07:38,720
+you're very rarely going to have a gpu on these devices that may or may not be a deal breaker which we'll come back to later in the lecture and the last con is that your model itself and the application that's part of might have very different scaling properties and you might want to be able to scale them differently so for example if you're running a very lightweight ui then it might not take a lot of resources or a lot of thought to scale it to many users but if your model itself is really complicated or very large you might need to get into some of the advanced techniques in this lecture and host these models on gpus to get them to scale you don't want to necessarily have to bring all of that complexity to your
+
+15
+00:07:37,120 --> 00:08:13,840
+web server it's important when there's different scaling properties to be able to separate these concerns as part of the application that you're building so that brings us to the second step which is pulling your model out of the ui and there's a couple of different ways that we can do this and we'll talk about two different patterns here the first is to pull your model out of the ui and have it interact directly with the database this is called batch prediction so how does this work periodically you will get new data in and you'll run your model on each of those data points then you'll save the results of that model inference into a database this can work really well in some circumstances so for example if there's just not a lot of
+
+16
+00:08:11,599 --> 00:08:50,240
+potential inputs to the model if you have one prediction per user or one prediction per customer or something along those lines then you can rerun your model on some frequency like every hour or every day or every week and you can have reasonably fresh predictions to return to those users just stored in your database so examples of types of problems where this can work well are you know in the early stages of building out a recommender system in some cases for doing more internal facing use cases like marketing automation if for example you want to give each of your marketing leads a score that tells your marketing your sales team how much effort to put into closing those leads then you'll have this finite universe of leads that
+
+17
+00:08:48,800 --> 00:09:23,680
+needs a prediction for the model so you can just run a model prediction on every single possible lead store that in a database and then let your users interact with it from there how can you actually do this how do you actually run the model on the schedule the data processing and workflow tools that we talked about in the previous lecture also work really well here what you'll need to do is you'll need to re-run your data pre-processing you'll then need to load the model run the predictions and store the predictions in the database that you're using for your application and so this is exactly a directed acyclic graph a workflow of data operations that tools like dagster airflow or prefix are designed to solve
+
+18
+00:09:22,240 --> 00:09:58,720
+it's worth noting here that there's also tools like metaflow that are designed more for a machine learning or data science use case that might be potentially even an easier way to get started so what are the pros and cons of this pattern of running your model offline and putting the predictions in a database the biggest pro is that this is just really easy to implement right it's reusing these existing batch processing tools that you may already be using for trading your model and it doesn't require you to host any type of new web server to get those predictions to users you can just put the predictions in the database that your product is already using it also scales very easily because databases themselves are designed and
+
+19
+00:09:57,040 --> 00:10:35,120
+have been engineered for decades to scale really easily it's also you know it seems like a simple pattern but it's used in production by very large scale production systems by large companies and it has been for years often times this is for things like recommender systems this is a tried and true pattern that you can run and become pretty confident that it'll work well and then it's also relatively low latency because the database itself is designed for the end application to interact with so latency was a concern that the database designers were able to solve for us there's also some very pronounced cons to this approach and the most important one is that it just doesn't work for every type of model if you have complex
+
+20
+00:10:33,360 --> 00:11:08,880
+inputs to your model if the universe of inputs is too large to enumerate every single time you need to update your predictions then this just isn't going to work second con is that your users are not going to be getting the most up-to-date predictions from your model if the features going into your model let's say change every hour or every minute or some second but you only run this batch prediction job every day then the predictions your users see might be slightly stale think about this in the context of a recommender system if you're only running the predictions of the recommender system every day then those recommendations that you serve to your users won't take into account all of the contacts that those users have
+
+21
+00:11:07,040 --> 00:11:42,720
+provided you in between those predictions so the movies that they watch today the tv shows that they watch today those won't be taken into account in at least the machine learning part of their recommendations but there's you know there's other algorithmic ways to make sure that you don't do things like show users the same movie twice and the final con here is that models frequently can become stale so if your batch job fails for some reason there's a timeout in one of your data pre-processing steps and the new predictions don't get dumped into the database these types of things can make this problem of not getting up-to-date predictions worse and worse and they can be very hard to detect although there's tools for data quality
+
+22
+00:11:41,200 --> 00:12:17,920
+that can really help detect them the next pattern that we're going to talk about is rather than running the model offline and putting the predictions in a database instead let's run the model online as its own service the service is going to interact with the backend or the client itself by making requests to this model service sending hey what is the prediction for this particular input and receiving responses back the model says that the prediction for this input is this particular value the pros of this approach are it's dependable if you have a bug in your model if your model is running directly in the web server then that can crash your entire application but hosting this as an independent service in your application
+
+23
+00:12:16,160 --> 00:12:51,680
+means that's less likely second it's more scalable so you can choose what is the best hardware what is the best infrastructure setup for the model itself and scale that as you need to without needing to worry about how that affects the rest of your application third it's really flexible if you stand up a model service for a particular model you can reuse that service in other applications or other parts of your application very easily concierge since this is a separate service you add a network call when your server or your client interacts with the model it has to make a request and receive a response over the network so that can add some latency to your application it adds infrastructure complexity relative to
+
+24
+00:12:50,560 --> 00:13:29,680
+the other techniques that we've talked about before because now you're on the hook for hosting and managing a separate service just to host your model this is i think really the challenge for a lot of ml teams is that hey i'm good at training models i'm not sure how to run a web service however i do think this is the sweet spot for most ml powered products because the cons of the other approaches are just too great you really need to be able to scale models independently of the application itself in most complex use cases and for a lot of interesting uses of ml we don't have a finite universe of inputs to the model that we can just enumerate every day we really need to be able to have our users send us whatever requests that they want
+
+25
+00:13:27,440 --> 00:13:59,680
+to get and receive a customized response back in this next section we'll talk through the basics of how to build your model service there's a few components to this we will talk about rest apis which are the language that your service will use to interact with the rest of your application we'll talk about dependency management so how to deal with these pesky versions of pi torch or tensorflow that you might need to be upgrading and we'll talk about performance optimization so how to make this run fast and scale well and then we'll talk about rollout so how to get the next version of your model into production once you're ready to deploy it and then finally we'll once we've covered sort of the technical
+
+26
+00:13:58,560 --> 00:14:40,399
+considerations that you'll need to think about we'll talk about managed options that solve a lot of these technical problems for you first let's talk about rest apis what are rest apis rest apis serve predictions in response to canonically formatted http requests there's other alternative protocols to rest for interacting with a service that you host on your infrastructure probably the most common one that you'll see in ml is grpc which is used in a lot of google products like tensorflow serving graphql is another really commonly used protocol in web development that is not terribly relevant for building model services so what does a rest api look like you may have seen examples of this before but when you are sending data to
+
+27
+00:14:37,199 --> 00:15:20,000
+a web url that's formatted as json blog oftentimes this is a rest request this is an example of what it might look like to interact with the rest api in this example we are sending some data to this url which is where the rest api is hosted api.fullstackdeeplearning.com and we're using the post method which is one of the parts of the rest standard that tells the server how it's going to interact with the data that we're sending and then we're sending this json blob of data that represents the inputs to the model that we want to receive a prediction from so one question you might ask is there any standard for how to format the inputs that we send to the model and unfortunately there isn't really any standard yet here are a few
+
+28
+00:15:16,959 --> 00:16:01,279
+examples from rest apis for model services hosted in the major clouds and we'll see some differences here between how they expect the inputs to the model to be formatted for example in google cloud they expect a batch of inputs that is structured as a list of what they call instances each of which has values and a key in azure they expect a list of things called data where the data structure itself depends on what your model architecture is and in sagemaker they also expect instances but these instances are formatted differently than they are in google cloud so one thing i would love to see in the future is moving toward a standard interface for making rest api calls for machine learning services since the types of
+
+29
+00:16:00,079 --> 00:16:35,839
+data that you might send to these services is pretty constrained we should be able to develop a standard as an industry the next topic we'll cover is dependency management model predictions depend not only on the weights of the model that you're running the prediction on but also on the code that's used to turn those weights into the prediction including things like pre-processing and the dependencies the specific library versions that you need in order to run the function that you called and in order for your model to make a correct prediction all of these dependencies need to be present on your web server unfortunately dependencies are a notorious cause of trouble in web applications in general and in
+
+30
+00:16:34,000 --> 00:17:10,799
+particular in machine learning web services the reason for that is a few things one they're very hard to make consistent between your development environment and your server how do you make sure that the server is running the exact same version of tensorflow pytorch scikit-learn numpy whatever other libraries you depend on as your jupyter notebook was when you train those models the second is that they're hard to update if you update dependencies in one environment you need to update them in all environments and in machine learning in particular since a lot of these libraries are moving so quickly small changes in something like a tensorflow version can change the behavior of your model so it's important to be like
+
+31
+00:17:09,439 --> 00:17:47,360
+particularly careful about these versions in ml at a high level there's two strategies that will cover for managing dependencies the first is to constrain the dependencies for just your model to save your model in a format that is agnostic that can be run anywhere and then the second is to wrap your entire inference program your entire predict function for your model into what's called a container so let's talk about how to constrain the dependencies of just your model the primary way that people do this today is through this library called onyx the open neural network exchange and the goal of onyx is to be an interoperability standard for machine learning models what they want you to be able to do is to define a neural network
+
+32
+00:17:45,280 --> 00:18:24,960
+in any language and run it consistently anywhere no matter what inference framework you're using hardware you're using etc that's the promise the reality is that since the underlying libraries used to build these models are currently changing so quickly there's often bugs in this translation layer and in many cases this can create more problems than it actually solves for you and the other sort of open problem here is this doesn't really deal with non-library code in many cases in ml things like feature transformations image transformations you might do as part of your tensorflow or your pi torch graph but you might also just do as a python function that wraps those things and these open neural network standards like
+
+33
+00:18:22,960 --> 00:18:57,440
+onyx don't really have a great story for how to handle pre-processing that brings us to a second strategy for managing dependencies which is containers how can you manage dependencies with containers like docker so we'll cover a few things here we'll talk about the differences between docker and general virtual machines which you might have covered in a computer science class we'll talk about how docker images are built via docker files and constructed via layers we'll talk a little bit about the ecosystem around docker and then we'll talk about specific wrappers around docker that you can use for machine learning the first thing to know about docker is how it differs from virtual machines which is an older technique for
+
+34
+00:18:55,600 --> 00:19:33,440
+packaging up dependencies in a virtual machine you essentially package up the entire operating system as well as all the libraries and applications that are built on top of that operating system so it tends to be very heavy weight because the operating system is itself just a lot of code and expensive to run the improvement that docker made is by removing the need to package up the operating system alongside the application instead you have the libraries and applications packaged up together in something called a container and then you have a docker engine that runs on top of your the operating system on your laptop or on your server that knows how to to virtualize the os and run your bins and libraries and
+
+35
+00:19:32,080 --> 00:20:08,559
+applications on top of it so we just learned that docker is much more lightweight than the typical virtual machine and by virtue of being lightweight it is used very differently than vms were used in particular a common pattern is to spin up a new docker container for every single discrete task that's part of your application so for example if you're building a web application you wouldn't just have a single docker container like you might if you were using a virtual machine instead you might have four you might have one for the web server itself one for the database one for job queue and one for your worker since each one of these parts of your application serves a different function it has different library dependencies and maybe
+
+36
+00:20:07,200 --> 00:20:43,039
+in the future you might need to scale it differently each one of them goes into its own container and those containers are are run together as part of an orchestration system which we'll talk about in a second how do you actually create a docker container docker containers are created from docker files this is what a docker file looks like it runs a sequence of steps to define the environment that you're going to run your code in so in this case it is importing another container that has some pre-packaged dependencies for running python 2.7 hopefully you're not running python 2.7 but if you were you could build a docker container that uses it using this from command at the top and then doing other things like adding
+
+37
+00:20:41,440 --> 00:21:21,120
+data from your local machine hip installing packages exposing ports and running your actual application you can build these docker containers on your laptop and store them there if you want to when you're doing development but one of the really powerful things about docker is it also allows you to build store and pull docker containers from a docker hub that's hosted on some other server on docker servers or on your cloud provider for example the way that you would run a docker container typically is by using this docker run command so what that will do is in this case it will find this container on the right called gordon slash getting started part two and it'll try to run that container but if you're connected
+
+38
+00:21:19,360 --> 00:21:59,280
+to a docker hub and you don't have that docker image locally then what it'll do is it'll automatically pull it from the docker hub that you're connected to the server that your docker engine is connected to it'll download that docker container and it will run it on your local machine so you can experiment with that code environment that's going to be identical to the one that you deploy on your server and in a little bit more detail docker is separated into three different components the first is the client this is what you'll be running on your laptop to build an image from a docker file that you define locally to pull an image that you want to run some code in on your laptop to run a command inside of an image those commands are
+
+39
+00:21:56,799 --> 00:22:35,440
+actually executed by a docker host which is often run on your laptop but it doesn't have to be it can also be run on a server if you want more storage or more performance and then that docker host talks to a registry which is where all of the containers that you might want to access are stored this separation of concerns is one of the things that makes docker really powerful because you're not limited by the amount of compute and storage you have on your laptop to build pull and run docker images and you're not limited by what you have access to on your docker host to decide which images to run in fact there's a really powerful ecosystem of docker images that are available on different public docker hubs you can
+
+40
+00:22:33,360 --> 00:23:07,600
+easily find these images modify them and contribute them back and have the full power of all the people on the internet that are building docker files and docker images there might just be one that already solves your use case out of the box it's easy to store private images in the same place as well so because of this community and lightweight nature of docker it's become incredibly popular in recent years and is pretty much ubiquitous at this point so if you're thinking about packaging dependencies for deployment this is probably the tool that you're going to want to use docker is not as hard to get started with as it sounds you'll need to read some documentation and play around with docker files a little bit to get a
+
+41
+00:23:05,679 --> 00:23:40,240
+feel for how they work and how they fit together you oftentimes won't need to build your own docker image at all because of docker hubs and you can just pull one that already works for your use case when you're getting started that being said there is a bit of a learning curve to docker isn't there some way that we can simplify this if we're working on machine learning and there's a number of different open source packages that are designed to do exactly that one is called cog another is called bento ml and a third is called truss and these are all built by different model hosting providers that are designed to work well with their model hosting service but also just package your model and all of its dependencies in a
+
+42
+00:23:38,720 --> 00:24:14,960
+standard docker container format so you could run it anywhere that you want to and the way that these systems tend to work is there's two components the first is there's a standard way of defining your prediction service so your like model.predict function how do you wrap that in a way that this service understands so in cog it's this base predictor class that you see on the bottom left in truss it's dependent on the model library that you're using like you see on the right hand side that's the first thing is how do you actually package up this model.predict function and then the second thing is a yaml file which sort of defines the other dependencies and package versions that are going to go into this docker
+
+43
+00:24:13,360 --> 00:24:47,520
+container that will be run on your laptop or remotely and so this this sort of a simplified version of the steps that you would put into your docker build command but at the end of the day it packages up in the standard format so you can deploy it anywhere so if you want to have some of the advantages of using docker for making your machine learning models reproducible and deploying them but you don't want to actually go through the learning curve of learning docker or you just want something that's a little bit more automated for machine learning use cases then it's worth checking out these three libraries the next topic we'll discuss is performance optimization so how do we make models go bur how do we make them
+
+44
+00:24:45,919 --> 00:25:22,559
+go fast and there's a few questions that we'll need to answer here first is should we use a gpu to do inference or not we'll talk about concurrency model distillation quantization caching batching sharing the gpu and then finally libraries that automate a lot of these things for you so the spirit of this is going to be sort of a whirlwind tour through some of the major techniques of making your models go faster and we'll try to give you pointers where you can go to learn more about each of these topics the first question you might ask is should you host your model on a gpu or on a cpu there's some advantages to hosting your model on a gpu the first is that it's probably the same hardware that you train your model on to begin with so
+
+45
+00:25:20,640 --> 00:25:59,919
+that can eliminate some loss and translation type moments the second big con is that as your model gets really big and as your techniques get relatively advanced your traffic gets very large this is usually how you can get the sort of maximum throughput like the most number of users that are simultaneously hitting your model is by hosting the model on a gpu but gpus introduce a lot of complexity as well they're more complex to set up because they're not as well trodden the path for hosting web services as cpus are and they're often almost always actually more expensive so i think one point that's worth emphasizing here since it's a common misconception i see all the time is just because your model was trained on a gpu does not mean that you
+
+46
+00:25:57,760 --> 00:26:36,080
+need to actually host it on a gpu in order for it to work so consider very carefully whether you really need a gpu at all or whether you're better off especially for an early version of your model just hosting it on a cpu in fact it's possible to get very high throughput just from cpu inference at relatively low cost by using some other techniques and so one of the main ones here is concurrency concurrency means on a single host machine not just having a single copy of the model running but having multiple copies of the model running in parallel on different cpus or different cpu cores how can you actually do this the main technique that you need to be careful about here is thread tuning so making sure that in torch it
+
+47
+00:26:34,400 --> 00:27:10,320
+knows which threads you need to use in order to actually run the model otherwise the different torch models are going to be competing for threads on your machine there's a great blog post from roblox about how they scaled up bert to serve a billion daily requests just using cpus and they found this to be much easier and much more cost effective than using gpus cpus can be very effective for scaling up to high throughput as well you don't necessarily need gpus to do that the next technique that we'll cover is model distillation what is model distillation model distillation means once you have your model that you've trained maybe a very large or very expensive model that does very well at the task that you want to
+
+48
+00:27:08,000 --> 00:27:44,399
+solve you can train a smaller model that tries to imitate the behavior of your larger one and so this generally is a way of taking the knowledge that your larger model learned and compressing that knowledge into a much smaller model that maybe you couldn't have trained to the same degree of performance from scratch but once you have that larger model it's able to imitate it so how does this work i'll just point you to this blog post that covers several techniques for how you can do this it's worth noting that this can be tricky to do on your own and is i would say relatively infrequently done in practice in production a big exception to that is oftentimes there are distilled versions of popular models the stilbert is a
+
+49
+00:27:42,399 --> 00:28:21,120
+great example of this that are pre-trained for you that you can use for very limited performance trade-off the next technique that we're going to cover is quantization what is it this means that rather than taking all of the matrix multiplication math that you do when you make a prediction with your model and doing that all in the sort of full precision 64 or 32-bit floating point numbers that your model weights might be stored in instead you execute some of those operations or potentially all of them in a lower fidelity representation of the numbers that you're doing the math with and so these can be 16-bit floating point numbers or even in some cases 8-bit integers this introduces some trade-offs with accuracy
+
+50
+00:28:19,279 --> 00:28:55,600
+but oftentimes this is a trade-off that's worth making because the accuracy you lose is pretty limited relative to the performance that you gain how can you do this the recommended path is to use the built-in methods in pytorch and hugging face and tensorflow lite rather than trying to roll this on your own and it's also worth starting to think about this even when you're training your model because techniques called quantization aware training can result in higher accuracy with quantized models than just naively training your model and then running quantization after the fact i want to call out one tool in particular for doing this which is relatively new optimum library from uh hugging face which just makes this very
+
+51
+00:28:53,840 --> 00:29:31,840
+easy and so if you're already using hugging face models there's a little downside to trying this out next we'll talk about caching what is caching for some machine learning models if you look at the patterns of the inputs that users are requesting that model to make predictions on there's some inputs that are much more common than others so rather than asking the model to make those predictions from scratch every single time users make those requests first let's store the common requests in a cache and then let's check that cache before we actually run this expensive operation of running a forward pass on our neural network how can you do this there's a huge depth of techniques that you can use for intelligent caching but
+
+52
+00:29:29,760 --> 00:30:07,679
+there's also a very basic way to do this using func tools library in python and so this looks like it's just adding a wrapper to your model.predict code that will essentially check the cache to see if this input is stored there and return the sort of cached prediction if it's there otherwise run the function itself and this is also one of the techniques used in the roblox blog post that i highlighted before for scaling this up to a billion requests per day the pretty important part of their approach so for some use cases you can get a lot of lift just by simple caching the next technique that we'll talk about is batching so what is the idea behind batching well typically when you run inference on a machine learning model
+
+53
+00:30:05,919 --> 00:30:46,240
+unlike in training you are running it with bat shy as equals one so you have one request come in from a user and then you respond with the prediction for that request and the fact that we are running a prediction on a single request is part of why generally speaking gpus are not necessarily that much more efficient than cpus for running inference what batching does is it takes advantage of the fact that gpus can achieve much higher throughput much higher number of concurrent predictions when they do that prediction in parallel on a batch of inputs rather than on a single input at a time how does this work you have individual predictions coming in from users i want a prediction for this input i want a prediction for this input so
+
+54
+00:30:44,799 --> 00:31:23,360
+you'll need to gather these inputs together until you have a batch of a sufficient size and then you'll run a prediction on that batch and then split the batch into the predictions that correspond to the individual requests and return those to the individual users so there's a couple of pretty tricky things here one is you'll need to tune this batch size in order to trade off between getting the most throughput from your model which generally requires a larger batch size and reducing the inference latency for your users because if you need to wait too long in order to gather enough predictions to fit into that batch then your users are gonna pay the cost of that they're gonna be the ones waiting for that response to come
+
+55
+00:31:21,840 --> 00:31:57,440
+back so you need to tune the batch size to trade off between those two considerations you'll also need some way to shortcut this process if latency becomes too long so let's say that you have a lull in traffic and normally it takes you a tenth of a second to gather your 128 inputs that you're going to put into a bash but now all of a sudden it's taking a full second to get all those inputs that can be a really bad user experience if they just have to wait for other users to make predictions in order to see their response back so you'll want some way of shortcutting this process of gathering all these data points together if the latency is becoming too long for your user experience so hopefully it's clear from
+
+56
+00:31:55,600 --> 00:32:32,559
+this that this is pretty complicated to implement and it's probably not something that you want to implement on your own but luckily it's built into a lot of the libraries for doing model hosting on gpus which we'll talk about in a little bit the next technique that we'll talk about is sharing the gpu between models what does this mean your model may not necessarily fully utilize your gpu for inference and this might be because your batch size is too small or because there's too much other delay in the system when you're waiting for requests so why not just have multiple models if you have multiple model services running on the same view how can you do this this is generally pretty hard and so this is also a place where
+
+57
+00:32:30,799 --> 00:33:08,080
+you'll want to run an out-of-the-box model serving solution that solves this problem for you so we talked about how in gpu inference if you want to make that work well there's a number of things like sharing the gpu between models and intelligently batching the inputs to the models to trade off between latency and throughput that you probably don't want to implement yourself luckily there's a number of libraries that will solve some of these gpu hosting problems for you there's offerings from tensorflow which is pretty well baked into a lot of google cloud's products and pytorch as well as third-party tools from nvidia and any scale and ray nvidia's is probably the most powerful and is the one that i often see from companies that are trying
+
+58
+00:33:06,399 --> 00:33:43,200
+to do very high throughput model serving but can also often be difficult to get started with starting with ray serve or the one that's specific to your neural net library is maybe an easier way to get started if you want to experiment with this all right we've talked about how to make your model go faster and how to optimize the performance of the model on a single server but if you're going to scale up to a large number of users interacting with your model it's not going to be enough to get the most efficiency out of one server at some point you'll need to scale horizontally to have traffic going to multiple copies of your model running on different servers so what is horizontal scaling if you have too much traffic for a single
+
+59
+00:33:41,360 --> 00:34:18,079
+machine you're going to take that stream of traffic that's coming in and you're going to split it among multiple machines how can you actually achieve this each machine that you're running your model on will have its own separate copy of your service and then you'll route traffic between these different copies using a tool called a load balancer in practice there's two common methods of doing this one is container orchestration which is a sort of set of techniques and technologies kubernetes being the most popular for managing a large number of different containers that are running as part of one application on your infrastructure and then a second common method especially in machine learning is serverless so
+
+60
+00:34:16,800 --> 00:34:52,320
+we'll talk about each of these let's start with container orchestration when we talked about docker we talked about how docker is different than typical deployment and typical virtual machines because rather than running a separate copy of the operating system for every virtual machine or program that you want to run instead you run docker on your server and then docker is able to manage these lightweight virtual machines that run each of the parts of your application that you want to run so when you deploy docker typically what you'll do is you'll run a docker host on a server and then you'll have a bunch of containers that the docker host is responsible for managing and running on that server but when you want to scale
+
+61
+00:34:50,960 --> 00:35:28,240
+out horizontally so when you want to have multiple copies of your application running on different servers then you'll need a different tool in order to coordinate between all of these different machines and docker images the most common one is called kubernetes kubernetes works together with very closely with docker to build and run containerized distributed applications kubernetes helps you remove the sort of constraint that all of the containers are running on the same machine kubernetes itself is a super interesting topic that is worth reading about if you're interested in distributed computing and infrastructure and scaling things up but for machine learning deployment if your only goal is to deploy ml models it's probably overkill
+
+62
+00:35:26,720 --> 00:36:01,520
+to learn a ton about kubernetes there's a number of frameworks that are built on top of kubernetes that make it easier to use for deploying models the most commonly used ones in practice tend to be kubeflow serving and selden but even if you use one of these libraries on top of kubernetes for container orchestration you're still going to be responsible for doing a lot of the infrastructure management yourself and serverless functions are an alternative that remove a lot of the need for infrastructure management and are very well suited for machine learning models the way these work is you package up your app code and your dependencies into a docker container and that docker container needs to have a single entry
+
+63
+00:36:00,079 --> 00:36:36,079
+point function like one function that you're going to run over and over again in that container so for example in machine learning this is most often going to be your model.predict function then you deploy that container to a service service like aws lambda or the equivalence in google or azure clouds and that service is responsible for running that predict function inside of that container for you over and over and over again and takes care of everything else scaling load balancing all these other considerations that if you're horizontally scaling a server would be your problem to solve on top of that there's a different pricing model so if you're running a web server then you control that whole web server and so you
+
+64
+00:36:34,400 --> 00:37:08,560
+pay for all the time that it's running 24 hours a day but with serverless you only pay for the time that these servers are actually being used to run your model you know if your model is only serving predictions or serving most of its predictions eight hours a day let's say then you're not paying for the other 16 hours where it's not serving any predictions because of all these things serverless tends to be very well suited to building model services especially if you are not an infrastructure expert and you want a quick way to get started so we recommend this as a starting point for once you get past your prototype application so the genius idea here is your servers can't actually go down if you don't have any we're doing
+
+65
+00:37:06,960 --> 00:37:41,280
+serverless serverless is not without its cons one of the bigger challenges that has gotten easier recently but is still often a challenge in practice is that the packages that you can deploy with these serverless applications tend to be limited in size so if you have an absolutely massive model you might run into those limits there's also a cold start problem what this means is serverless is designed to scale all the way down to zero so if you're not receiving any traffic if you're not receiving any requests for your model then you're not going to pay which is one of the big advantages of serverless but the problem is when you get that first request after the serverless function has been cold for a while it
+
+66
+00:37:39,520 --> 00:38:15,440
+takes a while to start up it can be seconds or even minutes to get that first prediction back once you've gotten that first prediction back it's faster to get subsequent predictions back but it's still worth being aware of this limitation another challenge practical challenge is that many of these server these serverless services are not well designed for building pipelines and models so if you have a complicated chaining of logic to produce your prediction then it might be difficult to implement that in a server-less context there's little little or no state management available in serverless functions so for example if caching is really important for your application it can be difficult to build that caching
+
+67
+00:38:13,920 --> 00:38:50,320
+in if you're deploying your model in serverless and there's often limited deployment tooling as well so rolling out new versions of the serverless function there's often not all the tooling that you'd want to make that really easy and then finally these serverless functions today are cpu only and they have limited execution time of you know a few seconds or a few minutes so if you truly need gpus for imprints then serverless is not going to be your answer but i don't think that limitation is going to be true forever in fact i think we might be pretty close to serverless gpus there's already a couple of startups that are claiming to offer serverless gpu for inference and so if you want to do inference on gpus but you
+
+68
+00:38:48,560 --> 00:39:24,880
+don't want to manage gpu machines yourself i would recommend checking out these two options from these two young startups the next topic that we'll cover in building a model service is rollouts so what do you need to think about in terms of rolling out new models if serving is how you turn your machine learning model into something that can respond to requests that lives on a web server that anyone or anyone that you want to can send a request to and get a prediction back then rollouts are how you manage and update these services so if you have a new version of a model or if you want to split traffic between two different versions to run an a b test how do you actually do that from an infrastructure perspective you probably
+
+69
+00:39:23,440 --> 00:39:56,960
+want to have the ability to do a few different things so one is to roll out new versions gradually what that means is when you have version n plus one of your model and you want to replace version n with it it's sometimes helpful to be able to rather than just instantly switching over all the traffic to n plus one instead start by sending one percent of your traffic to n plus one and then ten percent and then 50 and then once you're confident that it's working well then switch all of your traffic over to it so you'll want to be able to roll out new versions gradually on the flip side you'll want to be able to roll back to an old version instantly so if you detect a problem with the new version of the model that you deployed hey on this
+
+70
+00:39:55,200 --> 00:40:28,720
+10 of traffic that i'm sending to the new model users are not responding well to it or it's sending a bunch of errors you'll want to be able to instantly revert to sending all of your traffic to the older version of the model you want to be able to split traffic between versions a sort of a prerequisite for doing these things as well as running an av test you also want to be able to deploy pipelines of models or deploy models in a way such that they can shadow the prediction traffic they can look at the same inputs as your main model and produce predictions that don't get sent back to users so that you can test whether the predictions look reasonable before you start to show them to users this is just kind of like a
+
+71
+00:40:26,800 --> 00:41:06,720
+quick flavor of some of the things that you might want to solve for in a way of doing model rollouts this is a challenging infrastructure problem so it's beyond the scope of this lecture in this class really if you're using a managed option which we'll come to in a bit or you have infrastructure that's provided for you by your team it may take care of this for you already but if not then looking into a managed option might be a good idea so manage options take care of a lot of the scaling and roll out challenges that you'd otherwise face if you host models yourself even on something like aws lambda there's a few different categories of options here the cloud providers all provide their own sort of managed options as well as in
+
+72
+00:41:04,560 --> 00:41:42,079
+most of the end-to-end ml platforms so if you're already using one of these cloud providers or end-to-end ml platforms pretty heavily it's worth checking out their offering to see if that works for you and there's also a number of startups that have offerings here so there's a couple that are i would say more focused on developer experience like bento ml and cortex so if you find sagemaker really difficult to use or you just hate the developer experience for it it might be worth checking one of those out cortex recently was acquired by databricks so it might also start to be incorporated more into their offerings then there's startups that are have offerings that are more have good ease of use but are also really focused on performance
+
+73
+00:41:39,760 --> 00:42:17,440
+banana is a sort of popular upcoming example of that to give you a feel of what these manage options look like i want to double click on sagemaker which is probably the most popular managed offering the happy path in sagemaker is if your model is already in a digestible format a hugging face model or a scikit-learn model or something like that and in those cases deploying the sagemaker is pretty easy so you will instead of using like kind of a base hugging face class you'll instead use this sagemaker wrapper for the hogging face class and then call fit like you normally would that can also be run on the cloud and then to deploy it you just will call the dot deploy method of this hugging face wrapper and you'll specify
+
+74
+00:42:15,920 --> 00:42:52,319
+how many instances you want this to run on as well as how beefy you need the hardware to be to run it then you can just call predictor.predicts using some input data and it'll run that prediction on the cloud for you in order to return your response back you know i would say in the past sagemaker had a reputation for being difficult to use if you're just doing inference i don't think that reputation is that warranted i think it's actually like pretty easy to use and in many cases is a very good choice for deploying models because it has a lot of easy wrappers to prevent you from needing to build your own docker containers or things like that and it offers options for both deploying model to a dedicated web server like you see
+
+75
+00:42:50,960 --> 00:43:29,119
+in this example as well as to a serverless instance the main trade-offs with using sagemaker are one is you want to do something more complicated than standard huggy face or psychic learn model you'll again still need to deploy a container and the interface for deploying a container is maybe not as user friendly or straightforward as you might like it to be interestingly as of yesterday it was quite a bit more expensive for employing models to dedicated instances than raw ec2 but maybe not so much more expensive than serverless if you're going to go serverless anyway and you're willing to pay 20 overhead to have something that is a better experience for deploying most machine learning models then sagemaker is worth checking out if
+
+76
+00:43:26,960 --> 00:44:07,839
+you're already on amazon take aways from building a model service first you probably don't need to do gpu inference and if you're doing cpu inference then oftentimes scaling horizontally to more servers or even just using serverless is the simplest option is often times enough serverless is probably the recommended option to go with if you can get away with cpus and it's especially helpful if your traffic is spiky so if you have more users in the morning or if you only send your model predictions at night or if your traffic is low volume where you wouldn't max out a full beefy web server anyway sagemaker is increasingly a perfectly good way to get started if you're on aws can get expensive once you've gotten to the
+
+77
+00:44:06,400 --> 00:44:42,720
+point where that cost really starts to matter then you can consider other options if you do decide to go down the route of doing gpu inference then don't try to roll your own gpu inference instead it's worth investing in using a tool like tensorflow serving or triton because these will end up saving you time and leading to better performance in the end and lastly i think it's worth keeping an eye on the startups in this space for on-demand gpu inference because i think that could change the equation of whether gpu inference is really worth it for machine learning models the next topic that we'll cover is moving your model out of a web server entirely and pushing it to the edge so pushing it to where your users are when
+
+78
+00:44:41,520 --> 00:45:15,520
+should you actually start thinking about this sometimes it's just obvious let's say that you uh your users have no reliable internet connection they're driving a self-driving car in the desert or if you have very strict data security or privacy requirements if you're building on an apple device and you can't send the data that you need you need to make the predictions back to a web server otherwise if you don't have those strict requirements the trade-off that you'll need to consider is both the accuracy of your model and the latency of your user receiving a response from that model affect the thing that we ultimately care about which is building a good end user experience latency has a couple of different components to it one
+
+79
+00:45:13,599 --> 00:45:50,240
+component to it is the amount of time it takes the model to make the prediction itself but the other component is the network round trip so how long it takes for the user's request to get to your model service and how long it takes for the prediction to get back to the client device that your user is running on and so if you have exhausted your options for reducing the amount of time that it takes for them all to make a prediction or if your requirements are just so strict that there's no way for you to get within your latency sla by just reducing the amount of time it takes for the model to make prediction then it's worth considering moving to the edge even if you have you know reliable internet connection and don't have very
+
+80
+00:45:48,640 --> 00:46:23,119
+strict data security and privacy requirements but it's worth noting that moving to the edge adds a lot of complexity that isn't present in web development so think carefully about whether you really need this this is the model that we're considering in edge prediction where the model itself is running on the client device as opposed to running on the server or in its own service the way this works is you'll send the waste to the client device and then the client will load the model and interact with it directly there's a number of pros and cons to this approach the biggest pro is that this is the lowest latency way that you can build machine learning powered products and latency is often a pretty important
+
+81
+00:46:21,440 --> 00:46:56,240
+driver of user experience it doesn't require an internet connection so if you're building robots or other types of devices that you want to run ml on this can be a very good option it's great with data security because the data that needs to make the prediction never needs to leave the user's device and in some sense you get scale for free right because rather than needing to think about hey how do i scale up my web service to serve the needs of all my users each of those users will bring their own hardware that will be used to run the model's predictions so you don't need to think as much about how to scale up and down the resources you need for running model inference there's some pretty pronounced cons to this approach
+
+82
+00:46:54,640 --> 00:47:32,079
+as well first of all on these edge devices you generally have very limited hardware resources available so if you're used to running every single one of your model predictions on beefy modern agpu machine you're going to be in for a bit of a shock when it comes to trying to get your model to work on the devices that you needed to work on the tools that you use to do this to make models run on limited hardware are less full featured and in many cases harder to use and more error in bug prone than the neural network libraries that you might be used to working with in tensorflow and pi torch since you need to send updated model weights to the device it can be very difficult to update models in web deployment you have
+
+83
+00:47:30,480 --> 00:48:05,520
+full control over what version of the model is deployed and so there's a bug you can roll out a fix very quickly but on the edge you need to think a lot more carefully about your strategy for updating the version of the model that your users are running on their devices because they may not always be able to get the latest model and then lastly when things do go wrong so if your if your model has is making errors or mistakes it can be very difficult to detect those errors and fix them and debug them because you don't have the raw data that's going through your models available to you as a model developer since it's all on the device of your user next we're gonna give a lightning tour of the different frameworks that you can use for doing
+
+84
+00:48:04,000 --> 00:48:40,960
+edge deployment and the right framework to pick depends both on how you train your model and what the target device you want to deploy it on is so we're not going to aim to go particularly deep on any of these options but really just to give you sort of a broad picture of what are the options you can consider as you're making this decision so we'll split this up mostly by what device you're deploying to so simplest answer is if you're deploying to an nvidia device then the right answer is probably tensor rt so whether that's like a gpu like the one you train your model on or one of the nvidia's devices that's more specially designed to deploy on the edge tensorrt tends to be a go-to option there if instead
+
+85
+00:48:38,720 --> 00:49:23,359
+you're deploying not to an nvidia device but to a phone then both android and apple have libraries for deploying neural networks on their particular os's which are good options if you know that you're only going to be deploying to an apple device or to an android device but if you're using pytorch and you want to be able to deploy both on ios and on android then you can look into pytorch mobile which compiles pi torch down into something that can be run on either of those operating systems similarly tensorflow lite aims to make tensorflow work on different mobile os's as well as well as other edge devices that are neither mobile devices nor nvidia devices if you're deploying not to a nvidia device not to a phone and not to
+
+86
+00:49:21,839 --> 00:49:58,800
+some other edge device that you might consider but deploying to the browser for reasons of performance or scalability or data privacy then tensorflow.js is probably the main example to look at here i'm not aware of a good option for deploying pytorch to the browser and then lastly you know you might be thinking why is there such a large universe of options like i need to follow this complicated decision tree to pick something that depends on the way i train my model the target device i'm deploying it to there aren't even good ways of filling in some of the cells in that graph like how do you run a pi torch model on an edge device that is not a phone for example it's maybe not super clear in that case it might be
+
+87
+00:49:56,720 --> 00:50:33,680
+worth looking into this library called apache tvm apache tvm aims to be a library agnostic and target agnostic tool for compiling your model down into something that can run anywhere the idea is build your model anywhere run it anywhere patrick tvm has some adoption but is i would say at this point still pretty far from being a standard in the industry but it's an option that's worth looking into if you need to make your models work on many different types of devices and then lastly i would say pay attention to this space i think this is another sort of pretty active area for development for machine learning startups in particular there's a startup around patchy tvm called octoml which is worth looking into and there's a new
+
+88
+00:50:32,000 --> 00:51:11,839
+startup that's built by the developers of lower level library called mlir called modular which is also aiming to solve potentially some of the problems around edge deployment as well as tinyml which is a project out of google we talked about the frameworks that you can use to actually run your model on the edge but those are only going to go so far if your model is way too huge to actually put it on the edge at all and so we need ways of creating more efficient models in a previous section we talked about quantization and distillation both of those techniques are pretty helpful for designing these types of models but there's also model architectures that are specifically designed to work well on mobile or edge
+
+89
+00:51:09,760 --> 00:51:48,559
+devices and the operative example here is mobile nets the idea of mobile nets is to take some of the expensive operations in a typical comp net like convolutional layers with larger filter sizes and replace them with cheaper operations like one by one convolutions and so it's worth checking out this mobilenet paper if you want to learn a little bit more about how mobile networks and maybe draw inspiration for how to design a mobile-friendly architecture for your problem mobile desks in particular are a very good tool for a mobile deployment they tend to not have a huge trade-off in terms of accuracy relative to larger models but they are much much smaller and easier to fit on edge devices another case study
+
+90
+00:51:46,720 --> 00:52:23,200
+that i recommend checking out is looking into distilbert distilbert is an example of model distillation that works really well to get a smaller version of bert that removes some of the more expensive operations and uses model distillation to have a model that's not much less performant than bert but takes up much less space and runs faster so to wrap up our discussion on edge deployment i want to talk a little bit about some of the sort of key mindsets for edge deployment that i've learned from talking to a bunch of practitioners who have a lot more experience than i do in deploying machine learning models on the edge the first is there's a temptation i think to finding the perfect model architecture first and then figuring out how to make
+
+91
+00:52:21,119 --> 00:52:59,599
+it work on your device and oftentimes if you're pulling on a web server you can make this work because you always have the option to scale up horizontally and so if you have a huge model it might be expensive to run but you can still make it work but on the edge practitioners believe that the best thing to do is to choose your architecture with your target hardware in mind so you should not be considering architectures that have no way of working on your device and kind of a rule of thumb is you might be able to make up for a factor of let's say an order of magnitude 2 to 10x in terms of inference time or model size through some combination of distillation quantization and other tricks but usually you're not going to get much
+
+92
+00:52:58,000 --> 00:53:33,920
+more than a 10x improvement so if your model is 100 times too large or too slow to run in your target context then you probably shouldn't even consider that architecture the next mindset is once you have one version of the model that works on your edge device you can iterate locally without needing to necessarily test all the changes that you make on that device which is really helpful because deploying and testing on the edge itself is tricky and potentially expensive but you can iterate locally once the version that you're iterating on does work as long as you only gradually add to the size of the model or the latency of the model and one thing that practitioners recommended doing that is i think a step
+
+93
+00:53:32,960 --> 00:54:09,599
+that's worth taking if you're going to do this is to add metrics or add tests for model size and latency so that if you're iterating locally and you get a little bit carried away and you double the size of your model or triple the size of your model you'll at least have a test that reminds you like hey you probably need to double check to make sure that this model is actually going to run on the device that we needed to run on another mindset that i learned from practitioners of edge supplement is to treat tuning the model for your device as an additional risk in the model deployment life cycle and test it accordingly so for example always test your models on production hardware before actually deploying them to
+
+94
+00:54:07,839 --> 00:54:45,359
+production hardware now this may seem obvious but it's not the easiest thing to do in practice and so some folks that are newer to edge deployment will skip this step the reason why this is important is because since these edge deployment libraries are immature there can often be minor differences in the way that the neural network works on your edge device versus how it works on your training device or on your laptop so it's important to run the prediction function of your model on that edge device on some benchmark data set to test both the latency as well as the accuracy of the model on that particular hardware before you deploy it otherwise the differences in how your model works on that hardware versus how it works in
+
+95
+00:54:43,280 --> 00:55:24,240
+your development environment can lead to unforeseen errors or unforeseen degradations and accuracy of your deployed model then lastly since machinery models in general can be really finicky it's a good idea to build fallback mechanisms into the application in case the model fails or you accidentally roll out a bad version of the model or the model is running too slow to solve the task for your user and these fallback mechanisms can look like earlier versions of your model much simpler or smaller models that you know are going to be reliable and run in the amount of time you need them to run in or even just like rule-based functions where if your model is taking too long to make a prediction or is erroring out
+
+96
+00:55:22,799 --> 00:55:58,000
+or something you still have something that is going to return a response to your end user so to wrap up our discussion of edge deployment first thing to remind you of is web deployment is truly much easier than edge fluid so only use edge deployment if you really need to second you'll need to choose a framework to do edge deployment and the way that you'll do this is by matching the library that you use to build your neural network and the available hardware picking the corresponding edge deployment framework that matches those two constraints if you want to be more flexible like if you want your model to be able to work on multiple devices it's worth considering something like apache tvm third start considering the
+
+97
+00:55:56,480 --> 00:56:29,440
+additional constraints that you'll get from edge deployment at the beginning of your project don't wait until you've invested three months into building the perfect model to think about whether that model is actually going to be able to run on the edge instead make sure that those constraints for your edge deployment are taken into consideration from day one and choose your architectures and your training methodologies accordingly to wrap up our discussion of deploying machine learning models fully models is a necessary step of building a machine learning power product but it's also a really useful one for making your models better because only in real life do you get to see how your model actually works on the
+
+98
+00:56:27,839 --> 00:57:03,040
+task that we really care about so the mindsets that we encourage you to have here are deploy early and deploy often so you can start collecting that feedback from the real world as quickly as possible keep it simple and add complexity only as you need to because this deployment is a can be a rabbit hole and there's a lot of complexity to deal with here so make sure that you really need that complexity so start by building a prototype then once you need to start to scale it up then separate your model from your ui by either doing bath predictions or building a model service then once the like sort of naive way that you've deployed your model stops scaling then you can either learn the tricks to scale or use a managed
+
+99
+00:57:00,559 --> 00:57:29,839
+service or a cloud provider option to handle a lot of that scaling for you and then lastly if you really need to be able to operate your model on a device that doesn't have consistent access to the internet if you have very hard data security requirements or if you really really really want to go fast then consider moving your model to the edge but be aware that's going to add a lot of complexity and force you to deal with some less mature tools when you want to do that that wraps up our lecture on deployment and we'll see you next week
+

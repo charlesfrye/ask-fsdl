@@ -1,0 +1,352 @@
+1
+00:00:00,320 --> 00:00:33,120
+hey everyone welcome to the 2022 edition of full stack deep learning i'm josh tobin one of the instructors and i'm really excited about this version of the class because we've made a bunch of improvements and i think it comes at a really interesting time to be talking about some of these topics let's dive in today we're going to cover a few things first we'll talk about why this course exists and what you might hope to take away from it then we'll talk about the first question you should ask when you're starting a new ml project which is should we be using ml for this at all and then we'll talk through the high level overview of what the life cycle of a typical ml project might look like which will also give you a conceptual
+
+2
+00:00:31,840 --> 00:01:08,880
+outline for some of the things we'll talk about in this class really what is full stack deep learning about we aim to be the course and community for people who are building products that are powered by machine learning and i think it's a really exciting time to be talking about mlpowered products because machine learning is rapidly becoming a mainstream technology and you can see this in startup funding in job postings as well as in the continued investment of large companies in this technology i think it's particularly interesting to think about how this has changed since 2018 when we started teaching the class in 2018 a lot of the most exciting ml powered products were built by the biggest companies you had self-driving
+
+3
+00:01:06,880 --> 00:01:44,079
+cars that were starting to show promise you had systems like translation from big companies like google that were really starting to hit the market in a way that was actually effective but the broader narrative in the field was that very few companies were able to get value out of this technology and even on the research side right now gpt3 is becoming a mainstream technology but in 2018 gpt-1 was one of the state-of-the-art examples of language models and you know if you look at what it actually took to build a system like this it was the code and the standardization around it was still not there like these technologies were still hard to apply now on the other hand there's a much wider range of really
+
+4
+00:01:42,240 --> 00:02:20,000
+powerful products that are powered by machine learning dolly 2 is i think a great example image generation technology more on the consumer side tick tock is a really powerful example but it's not just massive companies now that are able to build machine learning powered products dscript is an application that we at full stack deep learning use all the time in fact we'll probably use it to edit this video that i'm recording right now and startups are also building things like email generation so there's a proliferation of machine learning powered products and the narrative has shifted i think a little bit as well which is that before these technologies were really hard to apply but now there's standardization
+
+5
+00:02:17,840 --> 00:02:55,519
+that's emerging both around the technology stack transformers and nlp starting to seep their way into more and more use cases as well as the practices around how to actually apply these technologies in the world one of the biggest changes in the field in the past four years has been the emergence of this term called ml ops which we'll talk a lot about in this class and so if you ask yourself why like why is this changed so rapidly i think in addition to the field just maturing and research continuing to progress i think one of the biggest reasons is that the training of models is starting to become commoditized we showed a couple of slides ago how complicated code for gpt-1 was now using something like
+
+6
+00:02:53,840 --> 00:03:28,480
+hugging face you can deploy a state-of-the-art nlp model or computer vision model in one or two lines of code on top of that automl is starting to actually work for a lot of applications i think four years ago we were pretty skeptical about it now i think it's a really good starting point for a lot of problems that you might want to solve and companies are starting to provide models really as a service where you don't even have to download open source package to use it you can just make a network call and you can have predictions from a state-of-the-art model and on the software side a lot of frameworks are starting to standardize around things like keras and pytorch lightning so a lot of the like spaghetti
+
+7
+00:03:27,200 --> 00:04:07,680
+code that you had to write to build these systems just isn't necessary anymore and so i think if you project forward a few years what's going to happen in ml i think the history of the ml is characterized by rise and fall of the public perception of the technology these were driven by a few different ai winters that happened over the history of the field where the technology didn't live up to its height live up to its promise and people became skeptical about it what's going to happen in the future of the field i think what a lot of people think is that this time is different we have real applications of machine learning that are generating a lot of value in the world and so the prospect of a true ai winter where
+
+8
+00:04:05,680 --> 00:04:46,560
+people become skeptical about ai as a technology maybe feels less likely but it's still possible a slightly more likely outcome is that the overall luster of the technology starts to wear off but certain applications are getting a ton of value out of this technology and then i think you know the upside outcome for the field is that ai continues to accelerate really rapidly and it becomes pervasive and incredibly effective and i think that's also what a lot of people believe to happen and so what i would conjecture is that the way that we as a field avoid an ai winter is by not just making progress in research but also making sure that that progress is translated to actual real world products that's how we avoid repeating
+
+9
+00:04:45,199 --> 00:05:20,639
+what's happened in the past that's caused the field to lose some of its luster but the challenge that presents is that building ml powered products requires a fundamentally different process in many ways than building the types of ml systems you create in academia the sort of process that you might use to develop a model in an academic setting i would call flat earth machine learning flat earth ml this is a process that will probably be familiar to many people you start by selecting a problem you collect some data to use to solve the problem you clean and label that data you iterate on developing a model until you have a model that performs well on the data set that you collected and then you evaluate that
+
+10
+00:05:19,120 --> 00:05:56,639
+model and if the model performs well according to your metrics then you write a report produce a jupiter notebook a paper or some slides and then you're done but in the real world the challenge is that if you deploy that model in production it's not going to perform well in the real world for long necessarily right and so ml powered products require this outer loop where you deploy the model into production you measure how that model is performing when it interacts with real users you use the real world data to build a data flywheel and then you continue this as part of an outer loop some people believe that the earth isn't round just because you can't see the outer loop in the ml system doesn't mean it's not
+
+11
+00:05:54,160 --> 00:06:32,080
+there and so this course is really about how to do this process of building ml-powered products and so what we won't cover as much is the theory and the math and the sort of computer science behind deep learning or and machine learning more broadly there are many great courses that you can check out to learn those materials we also will talk a little bit about training models and some of the practical aspects of that but this isn't meant to be your first course in training machine learning models again there's many great classes for that as well but what this class is about is the unique aspects that you need to know beyond just training models to build great ml powered products so our goals in the class are to teach you
+
+12
+00:06:30,080 --> 00:07:09,120
+a generalist skill set that you can use to build an ammo powered product and an understanding of how the different pieces of ml power products fit together we will also teach you a little bit about this concept of ml ops but this is not an ml ops class our goal is to teach you enough ml ops to get things done but not to cover the full depth of ml ops as a topic we'll also share certain best practices from what we've seen to work in the real world and try to explain some of the motivations behind them and if you're on the job market or if you're thinking about transitioning into a role in machine learning we also aim to teach you some things that might help you with ml engineering job interviews and then lastly in practice i think what we've
+
+13
+00:07:07,199 --> 00:07:42,560
+found to be maybe the most powerful part of this is forming a community that you can use to learn from your peers about what works in the real world and what doesn't we as instructors have solved many problems with ml but there's a very good chance that we haven't solved one that's like the one that you're working on but in the broader full stack deep learning community i would bet that there probably is someone who's worked on something similar and so we hope that this can be a place where folks come together to learn from each other as well as just learning from us now there are some things that we are explicitly not trying to do with this class we're not trying to teach you machine learning or software engineering from scratch if
+
+14
+00:07:40,800 --> 00:08:15,919
+you are coming at this class and you know you have an academic background in ml but you've never written production code before or you're a software engineer but i've never taken an ml class before you can follow along with this class but i would highly recommend taking these prerequisites before you dive into the material here because you'll i think get a lot more out of the class once you've learned the fundamentals of each of these fields we're also not aiming to cover the full breadth of deep learning techniques or machine learning techniques more broadly we'll talk about a lot of the techniques that are used in practice but the chances are that we won't talk about the specific model that you use for your use
+
+15
+00:08:14,240 --> 00:08:52,800
+case it's not the goal here we're also not trying to make you an expert in any single aspect of machine learning we have a project and a set of labs that are associated with this course that will allow you to spend some time working on a particular application of machine learning but there there isn't a focus on becoming an expert in computer vision or nlp or any other single branch of machine learning and we're also not aiming to help you do research in deep learning or any other ml field and similarly ml ops is this broad topic that involves everything from infrastructure and tooling to organizational practices and we're not aiming to be comprehensive here the goal of this class is to show you end to end
+
+16
+00:08:51,279 --> 00:09:28,640
+what it takes to build an ml-powered product and give you pointers to the different pieces of the field that you'll potentially need to go deeper on to solve the particular problem that you're working on so if you are feeling rusty on your prerequisites but want to get started with the class anyway here are some recommendations for classes on ml and software engineering that i'd recommend checking out if you want to remind yourself of some of the fundamentals i mentioned this distinction between ml power products and ml ops a little bit and so i wanted to dive into that a little bit more ml ops is this discipline that's emerged in the last couple of years really that is about practices for deploying and
+
+17
+00:09:26,880 --> 00:10:06,240
+maintaining and operating machine learning models and the systems that generate these machine learning models in production and so a lot of ml ops is about how do we put together the infrastructure that will allow us to build models in a repeatable and governable way how we're able to do this at scale how we're able to collaborate on these systems as a team and how we're able to really run these machine learning systems in a potentially high scale production setting super important topic if your goal is to make ml work in the real world and there's a lot of overlap with what we're covering in this class but we see mlpowered products as kind of a distinct but overlapping discipline because a lot of what it
+
+18
+00:10:04,800 --> 00:10:45,120
+takes to build a great ml powered product goes beyond the infrastructure side and the sort of repeatability and automation side of machine learning systems and it also focuses on how to fit machine learning into the context of product or the application that you're building so other topics that are in scope of this mlpowered product discipline are things like how do you understand how your users are interacting with your model and what type of model they need how do you build a team or an organization that can work together effectively on machine learning systems how do you do product management in the context of ml what are some of the best practices for designing products that use ml as part of them things like data labeling capturing
+
+19
+00:10:42,640 --> 00:11:24,240
+feedback from users etc and so this class is really focused on teaching you end to end what it takes to get a product out in the world that uses ml and we'll cover the aspects of mlaps that are most critical to understand in order to do that a little bit about us as instructors i'm josh tobin i'm co-founder and ceo of machine learning infrastructure startup called gantry previously i was a research scientist at openai and did my machine learning phd at berkeley and charles and sergey are my wonderful co-instructors who you'll be hearing from in the coming weeks on the history of full stack deep learning so we started out as a boot camp in 2018 sergey and i as well as my grad school advisor and our close collaborator peter
+
+20
+00:11:22,240 --> 00:12:00,720
+abeel had this collective realization that a lot of what we had been discovering about making ml work in the real world wasn't really well covered in other courses and we didn't really know if other people would be interested in this topic so we put it together as a one-time weekend long boot camp we got started to get good feedback on that and so it grew from there and we put the class online for the first time in 2021 and here we are so the way that this class was developed was a lot of this is from our personal experience our study and reading of materials in the field we also did a bunch of interviews with practitioners from this list of companies and at this point like a much longer list as well so we're constantly
+
+21
+00:11:58,880 --> 00:12:32,880
+out there talking to folks who are doing this who are building ml powered products and trying to fold their perspectives into what we teach in this class some logistics before we dive into the rest of the material for today first is if you're part of the synchronous cohort all of the communication for that cohort is going to happen on discord so if you're not on discord already then please reach out to us instructors and we'll make sure to get you on that if you're not on discord or if you're not checking it regularly there's a high likelihood that you're going to miss some of the value of the synchronous course we will have a course project again for folks who are participating in the synchronous option which we'll share
+
+22
+00:12:31,040 --> 00:13:11,839
+more details about on discord in the coming weeks and there's also i think one of the most valuable parts of this class is the labs which have undergone like a big revamp this time around i want to talk a little bit more about what we're covering there so the problem that we're going to be working on the labs is creating an application that allows you to take a picture of a handwritten page of text and then transcribe that into some actual text and so imagine that you have this web application where you can take a picture of your handwriting and then at the end you get the text that comes out of it and so the way this is going to work is we're going to build a web backend that allows you to send web requests decodes those images and sends
+
+23
+00:13:09,279 --> 00:13:47,920
+them to a prediction model an ocr model that will develop that will transcribe those into the text itself and those models are going to be generated by a model training system that will also show you how to build in the class and the architecture that we'll use will look something like this we'll use state-of-the-art tools that we think balance being able to really build a system like this in a principled way without adding too much complexity to what you're doing all right so just to summarize this section machine learning powered products are going mainstream and in large part this is due to the fact that it's just much much easier to build machine learning models today than it was even four or five years ago and
+
+24
+00:13:46,079 --> 00:14:21,839
+so i think the challenge ahead is given that we're able to create these models pretty easily how do we actually use the models to build great products and that's a lot of what we'll talk about in this class and i think the sort of fundamental challenge is that there's not only different tools that you need in order to build great products but also different processes and mindsets as well and that's what we're really aiming to do here in fsdl so looking forward to covering some of this material and hopefully helping create the next generation of ml powered products the next topic i want to dive into is when to use machine learning at all like what problems is this technology useful for solving and so the key points that we're
+
+25
+00:14:20,320 --> 00:14:55,920
+going to cover here are the first is that machine learning introduces a lot of complexity and so you really shouldn't do it before you're ready to do it and you should think about exhausting your other options before you introduce this to your stack on the flip side that doesn't mean that you need to a perfect infrastructure to get started and then we'll talk a little bit about what types of projects tend to lend themselves to being good applications of machine learning and we'll talk about how to know whether projects are feasible and whether they'll have an impact on your organization but to start out with when should you use machine learning at all so i think the first thing that's really critical to know
+
+26
+00:14:54,079 --> 00:15:32,000
+here is that machine learning projects have a higher failure rate than software products in general the statistic that you'll see most often floated around in blog posts or vendor pitches is that 87 percent this very precise number of machine learning projects fail i think it's also worth noting that 73 of all statistics are made up on the spot so and this one in particular i think is a little bit questionable whether this is actually a valid statistic or not anecdotally i would say that from what i've seen it's probably more like 25 it's still a very high number still a very high failure rate but maybe not the 90-ish percent that people are quoting the question you might ask is why is that the case right why is there such a
+
+27
+00:15:30,639 --> 00:16:12,639
+high failure rate for machine learning projects you know one reason that's worth acknowledging is that for a lot of applications machine learning is fundamentally still research so 100 success rate probably shouldn't be the target that we're aiming for but i do think that many machine learning projects are doomed to fail maybe even before they are undertaken and i think there's a few reasons that this can happen so oftentimes machine learning projects are technically infeasible or they're just scoped poorly and there's just too much of a lift to even get the first version of the model developed and that leads to projects failing because they just take too long to see any value another common failure mode that's becoming less and less
+
+28
+00:16:10,079 --> 00:16:50,720
+common is that a team that's really effective at developing a model may not be the right team to deploy that model into production and so there's this friction after the model is developed where you know the model maybe looks promising in a jupiter notebook but it never makes the leap to prod so hopefully you'll take things away from this class that will help you avoid being in this category another really common issue that i've seen is when you as a broader organization are not all on the same page about what we would consider to be successful here and so i've seen a lot of machine learning projects fail because you have a model that you think works pretty well and you actually know how to deploy into
+
+29
+00:16:49,120 --> 00:17:27,120
+production but the rest of the organization can't get comfortable with the fact that this is actually going to be running and serving predictions to users so how do we know when we're ready to deploy and then maybe the most frustrating of all these failure modes is when you actually have your model work well and it solves the problem that you set out to solve but it doesn't solve a big enough problem and so the organization decides hey this isn't worth the additional complexity that it's going to take to make this part of our stack you know i think this is a point i want to double click on which is that really i think the bar for your machine learning project should be that the value of the project must outweigh not just the cost of
+
+30
+00:17:25,679 --> 00:18:07,440
+developing it but the additional complexity that machine learning systems introduce into your software and machine learning introduces a lot of complexity to your software so this is kind of a quick summary of a classic paper that i would recommend reading which is the high interest credit card of technical debt paper the thesis of this paper is that machine learning as a technology tends to introduce technical debt at a much higher rate than most other software and the reasons that the authors point to are one an erosion of boundary between systems so machine learning systems often have the property for example that the predictions that they make influence other systems that they interact with if you recommend a user a particular type
+
+31
+00:18:05,120 --> 00:18:44,799
+of content that changes their behavior and so that makes it hard to isolate machine learning as a component in your system it also relies on expensive data dependencies so if your machine learning system relies on a feature that's generated by another part of your system then those types of dependencies the authors found can be very expensive to maintain it's also very common for machine learning systems to be developed with design anti-patterns somewhat avoidable but in practice very common and the systems are subject to the instability of the external world if your user's behavior changes that can dramatically affect the performance of your machine learning models in a way that doesn't typically happen with
+
+32
+00:18:42,240 --> 00:19:21,200
+traditional software so the upshot is before you start a new ml project you should ask yourself are we ready to use ml at all do we really need this technology to solve this problem and is it actually ethical to use ml to solve this problem to know if you're ready to use ml some of the questions you might ask are do we have a product at all do we have something that we can use to collect the data to know whether this is actually working are we already collecting that data and storing it in the same way if you're not currently doing data collection then it's going to be difficult to build your first ml system and do we have the team that will allow us to do this knowing whether you need ml to solve a problem i think the first question that
+
+33
+00:19:19,760 --> 00:19:58,880
+you should ask yourself is do we need to solve this problem at all or are we just inventing a reason to use ml because we're excited about the technology have we tried using rules or simple statistics to solve the problem with some exceptions i think usually the first version of a system that you deploy that will eventually use ml should be a simple rule based or statistics-based system because a lot of times you can get 80 of the benefit of your complex ml system with some simple rules now there's some exceptions to this if the system is an nlp system or a computer vision system where rules just typically don't perform very well but as a general rule i think if you haven't at least thought about whether you can use
+
+34
+00:19:57,360 --> 00:20:33,760
+a rule-based system to achieve the same outcome then maybe you're not ready to use ml yet and lastly is it ethical i won't dive into the details here because we'll have a whole lecture on this later in the course next thing i want to talk about is if we feel like we're ready to use ml in our organization how do we know if the problem that we're working on is a good fit to solving it with machine learning the sort of tl dr here is you want to look for like any other project prioritization you want to look for use cases that have high impact and low cost and so we'll talk about different heuristics that you can use to determine whether this application of machine learning is likely to be high impact and low cost and so we'll talk about
+
+35
+00:20:32,559 --> 00:21:10,240
+heuristics like friction in your products complex parts of your pipeline places where it's valuable to reduce the cost of prediction and looking at what other people in your industry are doing which is a very underrated technique for picking problems to work on and then we'll also talk about some heuristics for for assessing whether a machine learning project is going to be feasible from a cost perspective overall prioritization framework that we're going to look at here is projects that you want to select are ones that are feasible so they're low cost and they're high impact let's start with the high impact side of things so what are some mental models you can use to find high impact ml projects and these are some of the ones that we'll
+
+36
+00:21:08,000 --> 00:21:49,520
+cover so starting with a book called the economics of ai and so the question this book asks is what problems does machine learning make economically feasible to solve that were maybe not feasible to solve in the past and so the sort of core observation in this book is that really at a fundamental level what ai does is it reduces the cost of prediction before maybe you needed a person and that person would take five minutes to create a prediction it's very expensive it's very operationally complex ai can do that in a fraction of a second for the cost of essentially running your machine or running your gpu cheap prediction means that there's going to be predictions that are happening in more places even in problems whereas too
+
+37
+00:21:47,200 --> 00:22:27,360
+expensive to do before and so the upshot of this mental model for project selection is think about projects where cheap prediction will have a huge business impact like where would you hire a bunch of people to make predictions that it isn't feasible to do now um the next mental model i want to talk about for selecting high impact projects is just thinking about what is your product need and so i really like this article called three principles for designing ml-powered products from spotify and in this article they talked about the principles that they used to develop the discover weekly feature which i think is like one of the most powerful features of spotify and you know really the way they thought about it is this reduces
+
+38
+00:22:25,840 --> 00:23:06,080
+friction for our users reduces the friction of chasing everything down yourself and just brings you everything in a neat little package and so this is something that really makes their product a lot better and so that's another kind of easy way to come up with ideas for machine learning projects another angle to think about is what are types of problems that machine learning is particularly good at and one exploration of this mental model is an article called software 2.0 from andre carpathi which is also definitely worth a read and the kind of main thesis of this article is that machine learning is really useful when you can take a really complex part of your existing software system so a really messy stack of
+
+39
+00:23:04,400 --> 00:23:46,799
+handwritten rules and replace that with machine learning replace that with gradient descent and so if you have a part of your system that is complex manually defined rules then that's potentially a really good candidate for automating with ml and then lastly i think it's worth just looking at what other people in your industry are doing with ml and there's a bunch of different resources that you can look at to try to figure out what other success stories with ml are i really like this article covering the spectrum of use cases of ml at netflix there are various industry reports this is a summary of one from algorithmia which kind of covers the spectrum of what people are using ml to do and more generally i think looking at
+
+40
+00:23:44,960 --> 00:24:21,919
+papers from the biggest technology companies tends to be a good source of what those companies are trying to build with ml and how they're doing it as well as earlier stage tech companies that are still pretty ml forward and those companies i think are more likely to write these insights in blog posts than they are in papers and so here's a list that i didn't compile but i think is really valuable of case studies of using machine learning in the real world that are worth going through if you're looking for inspiration of what are types of problems you can solve and how might you solve them okay so coming back to our prioritization framework we talked about some mental models for what ml projects might be high impact
+
+41
+00:24:20,960 --> 00:24:57,760
+and the next thing that we're going to talk about is how to assess the cost of a machine learning project that you're considering so the way i like to think about the cost of machine learning power projects is there's three main drivers for how much a project is gonna cost the first and most important is data availability so how easy is it for you to get the data that you're gonna need to solve this problem the second most important is the accuracy requirement that you have for the problem that you're solving and then also important is the sort of intrinsic difficulty of the problem that you're trying to solve so let's start by talking about data availability the kind of key questions that you might ask here to assess
+
+42
+00:24:56,080 --> 00:25:36,000
+whether data availability is going to be a bottleneck for your project is do we have this data already and if not how hard is it and how expensive is it going to be to acquire how expensive is it not just to acquire but also to label if your labelers are really expensive then getting enough data to solve the problem really well might be difficult how much data will we need in total this can be difficult to assess a priori but if you have some way of guessing whether it's 5 000 or 10 000 or 100 000 data points this is an important input and then how stable is the data so if you're working on a problem where you don't really expect the underlying data to change that much over time then the project is going to be a lot more feasible than if
+
+43
+00:25:33,919 --> 00:26:15,200
+the data that you need changes on a day-to-day basis so data availability is probably the most important cost driver for a lot of machine learning powered projects because data just tends to be expensive and this is slightly less true outside of the deep learning realm it's particularly true in deep learning where you often require manual labeling but it also is true in a lot of other ml applications where data collection is expensive and lastly on data bill availability is what data security requirements do you have if you're able to collect data from your users and use that to retrain your model then that bodes well for the overall cost of the project if on the other hand you're not even able to look at the data that your
+
+44
+00:26:12,960 --> 00:26:53,760
+users are generating then that's just going to make the project more expensive because it's going to be harder to debug and harder to build a data flywheel moving on to the accuracy requirement the kinds of questions you might ask here are how expensive is it when you make a wrong prediction on one extreme you might have something like a self-driving car where a wrong prediction is extremely expensive because the prospect of that is really terrible on the other extreme is something like let's say potentially a recommender system where if a user sees a bad recommendation once it's probably not really going to be that bad maybe it affects their user experience over time and maybe and causes them to churn but certainly not
+
+45
+00:26:52,080 --> 00:27:30,320
+as bad as a wrong prediction in a self-driving car you also need to ask yourself how frequently does the system actually need to be right to be useful i like to think of systems like dolly 2 which is an image generation system as like a positive example of this where you can if you're just using dolly 2 as a creative supplement you can generate thousands and thousands of images and select the one that you like best for your use case so the system doesn't need to be right more than like once every n times in order to actually get value from it as a user on the other hand if the system needs to be 100 reliable like never ever make a wrong prediction in order for it to be useful then it's just going to be more expensive to build
+
+46
+00:27:28,640 --> 00:28:06,480
+these systems and then what are the ethical implications of your model making wrong predictions is like an important question to consider as well and then lastly on the problem difficulty questions to ask yourself are is this problem well defined enough to solve with ml are other people working on similar things doesn't necessarily need to be the exact same problem but if it's a sort of a brand new problem that no one's ever solved with mlv4 that's going to introduce a lot of technical risk another thing that's worth looking at if you're looking at other work on similar problems is how much compute did it actually take them to solve this problem and it's worth looking at that both on the training side as well as on
+
+47
+00:28:04,559 --> 00:28:42,240
+the inference side because if it's feasible to train your model but it takes five seconds to make a prediction then for some applications that will be good enough and some for some it won't and then i think like maybe the weakest heuristic here but still potentially a useful one is can a human do this problem at all if a human can solve the problem then that's a decent indication that a machine learning system might be able to solve it as well but not a perfect indication as we'll come back to so i want to double click on this accuracy requirement why is this such an important driver of the cost of machine learning projects the fundamental reason is that in my observation the project cost tends to scale like super linearly
+
+48
+00:28:40,000 --> 00:29:25,120
+in your accuracy requirement so as a very rough rule of thumb every time that you add an additional nine to your required accuracy so moving from 99.9 to 99.99 accuracy might lead to something like a 10x increase in your project costs because you might expect to need at least 10 times as much data if not more in order to actually solve the problem to that degree of accuracy required but also you might need a bunch of additional infrastructure monitoring support in order to ensure that the model is actually performing that accurately next thing i'm going to double click on is the problem difficulty so how do we know which problems are difficult for machine learning systems to solve the first point i want to make here is this is
+
+49
+00:29:23,039 --> 00:30:08,960
+like i think like a classically hard problem to really answer confidently and so i really like this comic for two reasons the first is because it gets at this core property of machine learning systems which is that it's not always intuitive which problems will be easy for a computer to solve and which ones will be hard for a computer to solve in 2010 doing gis lookup was super easy and detecting whether a photo was a bird was like a research team in five years level of difficulty so not super intuitive as someone maybe outside of the field the second reason i like this comic is because it also points to the sort of second challenge in assessing feasibility in ml which is that this field just moves so fast that if you're not keeping up with
+
+50
+00:30:07,279 --> 00:30:50,320
+what's going on in the state of the art then your understanding of what's feasible will be stale very quickly building an application to detect whether a photo is of a bird is no longer a research team in five years problem it's like a api call and 15 minutes type problem so take everything i say here with the grain of salt because the feasibility of ml projects is notoriously difficult to predict another example here is in the late 90s the new york times when they were talking about sort of ai systems beating humans at chess predicted that it might be a hundred years before a computer beats human echo or even longer and you know less than 20 years later machine learning systems from deep mind beat the best humans in
+
+51
+00:30:48,399 --> 00:31:22,000
+the world that go these predictions are notoriously difficult to make but that being said i think it's still worth talking about and so one heuristic that you'll hear for what's feasible to do with machine learning is this heuristic from andrew ing which is that anything that a normal person can do in less than one second we can automate with ai i think this is actually not a great heuristic for what's feasible to do with ai but you'll hear it a lot so i wanted to talk about it anyway there's some examples of where this is true right so recognizing the content of images understanding speech potentially translating speech maybe grasping objects with a robot and things like that are things that you could point to
+
+52
+00:31:20,320 --> 00:31:57,600
+as evidence for andrew's statement being correct but i think there's some really obvious counter examples as well machine learning systems are still no good at things that a lot of people are really good at like understanding human humor or sarcasm complex in-hand manipulation of objects generalizing to brand new scenarios that they've never seen before this is a heuristic that you'll see it's not one that i would recommend using seriously to assess whether your project is feasible or not there's a few things that we can say are definitely still hard in machine learning i kept a couple of things in these slides that we talked about being really difficult in machine learning when we started teaching the class in
+
+53
+00:31:55,120 --> 00:32:32,640
+2018 that i think i would no longer consider to be super difficult anymore unsupervised learning being one of them but reinforcement learning problems still tend to be not very feasible to solve for real world use cases although there are some use cases where with tons of data and compute reinforcement learning can be used to solve real world problems within the context of supervised learning there are also still problems that are hard so things like question answering a lot of progress over the last few years still these systems aren't perfect text summarization video prediction building 3d models another example of one that i think i would use to say is really difficult but with nerf and all the sort
+
+54
+00:32:30,640 --> 00:33:07,679
+of derivatives of that i think is more feasible than ever real world speech recognition so outside of the context of a clean data set in a noisy room can we recognize what people are saying resisting adversarial examples doing math although there's been a lot of progress on this problem as well over the last few months solving world war problems or bond guard problems this is an example by the way of a bomb card problem it's a visual analogy type problem so this is kind of a laundry list of some things that are still difficult even in supervised learning and so can we reason about this what types of problems are still difficult to do so i think one type is where not the input to the model itself but the prediction that the model is
+
+55
+00:33:06,000 --> 00:33:47,760
+making the output of the model where that is like a complex or high dimensional structure or where it's ambiguous right so for example 3d reconstruction the 3d model that you're outputting is very high dimensional and so that makes it difficult to do for ml video prediction not only high dimensional but also ambiguous just because you know what happened in the video for the last five seconds there's still maybe infinite possibilities for what the video might look like going forward so it's ambiguous and it's high dimensional which makes it very difficult to do with ml dialog systems again very ambiguous very open-ended very difficult to do with ml and uh open-ended recommender systems so a second category of problems that are
+
+56
+00:33:46,080 --> 00:34:26,720
+still difficult to do with ml are problems where you really need the system to be reliable machine learning systems tend to fail in all kinds of unexpected and hard to reason about ways so anywhere where you need really high precision or robustness is gonna be more difficult to solve using machine learning so failing safely out of distribution for example is still a difficult problem in ml robustness to adversarial attacks is still a difficult problem in ml and even things that are easier to do with low precision like estimating the position and rotation of an object in 3d space can be very difficult to do if you have a high precision requirement the last category of problems i'll point to here is problems where you need the
+
+57
+00:34:24,560 --> 00:35:04,720
+system to be able to generalize well to data that it's never seen before this can be data that's out of distribution it can be where your system needs to do something that looks like reasoning or planning or understanding of causality these problems tend to be more in the research domain today i would say one example is in the self-driving car world dealing with edge cases very difficult challenge in that field but also control problems in self-driving cars you know those stacks are incorporating more and more ml into them whereas the computer vision and perception part of self-driving cars adopted machine learning pretty early the control piece was using more traditional methods for much longer and then places where you have a small
+
+58
+00:35:02,800 --> 00:35:40,400
+amount of data again like if you're considering machine learning broadly small data is often possible but especially in the context of deep learning small data still presents a lot of challenges summing this up like how should you try to assess whether your machine learning project is feasible or not first question you should ask is do we really need to solve this problem with ml at all i would recommend putting in the work up front to define what is the success criteria that we need and doing this with everyone that needs to sign up on the project in the end not just the ml team let's avoid being an ml team that works on problems in isolation and then has those projects killed because no one actually really needed to solve
+
+59
+00:35:38,000 --> 00:36:13,440
+this problem or because the value of the solution is not worth the complexity that it adds to your product then you should consider the ethics of using ml to solve this problem and we'll talk more about this towards the end of the course in the ethics lecture then it's worth doing a literature review to make sure that there are examples of people working on similar problems trying to rapidly build a benchmark data set that's labeled so you can start to get some sense of whether your model's performing well or not then and only then building a minimum viable model so this is potentially even just manual rules or simple linear regression deploying this into production if it's feasible to do so or at least running
+
+60
+00:36:11,520 --> 00:36:50,640
+this on your existing problem so you have a baseline and then lastly it's worth just restating making sure that you once you've built this minimum viable model that may not even use ml just really asking yourself the question of whether this is good enough for now or whether it's worth putting in the additional effort to turn this into a complex ml system the next point i want to make here is that not all ml projects really have the same characteristics and so should be and so you shouldn't think about planning all ml projects in the same way i want to talk about some archetypes of different types of ml projects and the implications that they have for the feasibility of the projects and how you might run the projects
+
+61
+00:36:49,040 --> 00:37:28,560
+effectively and so the three archetypes i want to talk to are defined by how they interact with real world users and so the first archetype is software 2.0 use cases and so i would define this as taking something that software does today so an existing part of your product that you have let's say and doing it better more accurately or more efficiently with ml it's taking a part of your product that's already automated or already partially automated and adding more automation or more efficient automation using machine learning then the next archetype is human in the loop systems and so this is where you take something that is not currently automated in your system but it's something that humans are doing or
+
+62
+00:37:26,720 --> 00:38:07,839
+humans could be doing and helping them do that job better more efficiently or more accurate accurately by supplementing their judgment with ml based tools preventing them from needing to do the job on every single data point by giving them suggestions of what they can do so they can shortcut their process in a lot of places human loop systems are about making the humans that are ultimately making the decisions more efficient or more effective and then lastly autonomous systems and so these are systems where you take something that humans do today or maybe is just not being done at all today and fully automated with ml to the point where you actually don't need humans to do the judgment piece of it at all and so some
+
+63
+00:38:05,440 --> 00:38:47,200
+examples of software 2.0 are if you have an ide that has code completion can we do better code completion by using ml can we take a recommendation system that is initially using some simple rules and making it more customized can we take our video game ai that's using this rule-based system and make it much better by using machine learning some examples of human and loop systems would be building a product to turn hand-drawn sketches into slides you still have a human on the other end that's evaluating the quality of those sketches before they go in front of a customer or stakeholder so it's a human in the loop system but it's potentially saving a lot of time for that human email auto completion so if you use
+
+64
+00:38:45,359 --> 00:39:23,119
+gmail you've seen these email suggestions where it'll suggest sort of short responses to the email that you got i get to decide whether that email actually goes out to the world so it's not an automation system it's a human in the loop system or helping a radiologist do their job faster and then examples of autonomous systems are things like full self-driving right maybe there's not even a steering wheel in the car i can't interrupt the autonomous system and take over control of the car even if i wanted to or maybe it's not designed for me to do that very often fully automated customer support so if i go on a company's website and i interact with their customer support without even having the option of talking to an agent
+
+65
+00:39:21,280 --> 00:39:56,720
+or with them making it very difficult to talk to an agent that's an autonomous system or for example like fully automating website design so that to the point where people who are not design experts can just click a button and get a website designed for them and so i think some of the key questions that you need to ask before embarking on these projects are a little bit different depending on which archetype your project falls into so if you're working on a software 2.0 project then i think some of the questions you should be concerned about are how do you know that your models are actually performing improving performance over the baseline that you already have how confident are you that the type of performance improvement that
+
+66
+00:39:54,960 --> 00:40:32,560
+you might be able to get from ml is actually going to generate value for your business if it's just one percent better is that really worth the cost then do these performance improvements lead to what's called a data flywheel which i'll talk a little bit more about with human in the loop systems you might ask a different set of questions before you embark on the project like how good does the system actually need to be useful if the system you know is able to automate 10 of the work of the human that is ultimately making the decisions or producing the end product is that useful to them or does that just slow it slow them down how can you collect enough data to make it that good is it possible to actually build a data set
+
+67
+00:40:30,720 --> 00:41:08,400
+that is able to get you to that useful threshold for your system and for autonomous systems the types of questions you might ask are what is an acceptable failure rate for this system how many nines in your performance threshold do you need in order for this sort of not to cause harm in the world and how can you guarantee like how can you be really confident that one it won't exceed that failure rate and so this is something that in autonomous vehicles for example teams put a ton of effort into building the simulation and testing systems that they need to be confident that they won't exceed the failure rate that's except the very very low failure rate that's acceptable for those systems i want to double click on this data
+
+68
+00:41:06,160 --> 00:41:49,040
+flywheel concept for software 2.0 we talked about can we build a data flywheel that lead to better and better performance of the system and the way to think about a data flywheel is it's this virtuous cycle where as your model gets better you are able to use a better that better model to make a better product which allows you to acquire more users and as you have more users those users generate more data which you can use to build a better model and this creates this virtuous cycle and so the connections between each of these steps are also important in order for more users to allow you to collect more data you need to have a data loop where you need to have a way of automatically collecting data and deciding what data points to
+
+69
+00:41:46,960 --> 00:42:23,839
+label from your users or at least processes for doing these in order for more data to lead to a better model that's that's kind of on you as an ml practitioner right like you need to be able to translate more data more granular data more labels into a model that performs better for your users and then in order for the better model to lead to better users you need to be sure that better predictions are actually making your product better another point that i want to make on these project archetypes is i would sort of characterize them as having different trade-offs on this feasibility versus impact two by two that we talked about earlier software 2.0 projects since they're just taking something that you
+
+70
+00:42:22,480 --> 00:43:00,000
+already know you can automate and automating it better tend to be more feasible but since you already have an answer to the question that they're also answering they also tend to be lower impact on the other extreme autonomous systems tend to be very difficult to build because the accuracy requirements in general are quite high but the impact can be quite high as well because you're replacing something that literally doesn't exist and human in the loop systems tend to be somewhere in between where you can really like you can use this paradigm of machine learning products to build things that couldn't exist before but the impact is not quite as high because you still need people in the loop that are helping use their judgment
+
+71
+00:42:57,599 --> 00:43:40,400
+to complement the machine learning model there's ways that you can move these types of projects on the feasibility impact matrix to make them more likely to succeed so if you're working on a software 2.0 project you can make these projects have potentially higher impacts by implementing a data loop that allows you to build continual improvement data flywheel that we talked about before and potentially allows you to use the data that you're collecting from users interacting with this system to automate more tasks in the future so for example in the code completion ide example that we gave before you can you know if you're building something like github copilot then think about all the things that the data that you're collecting
+
+72
+00:43:38,560 --> 00:44:20,240
+from that could be useful for building in the future you can make human in the loop systems more feasible through good product design and we'll talk a little bit more about this in a future lecture but there's design paradigms in the product itself that can reduce the accuracy requirement for these types of systems and another way to make these projects more feasible is by adopting sort of a different mindset which is let's just make the system good enough and ship it into the real world so we can start the process of you know seeing how how real users interact with it and using the feedback that we get from our humans in the loop to make the model better and then lastly autonomous systems can be made more feasible by adding guard rails
+
+73
+00:44:18,240 --> 00:44:59,119
+or in some cases adding humans in the loop and so this is you can think of this as the approach to autonomous vehicles where you have safety drivers in the loop early on in the project or where you introduce tele operations so that a human can take control of the system if it looks like something is going wrong i think another point that is really important here is despite all this talk about what's feasible to do with ml the complexity that ml introduce is in your system i don't mean by any of this to say that you should do necessarily a huge amount of planning before you dive into using ml at all just make sure that the project that you're working on is the right project and then just dive in and get started and in particular i think a
+
+74
+00:44:57,359 --> 00:45:34,960
+failure mode that i'm seeing crop up more and more over the past couple of years that you should avoid is falling into the trap of tool fetishization so one of the great things that's happened in ml over the past couple of years is the rise of this ml ops discipline and alongside of that has been proliferation of different tools that are available on the market to help with different parts of the ml process and one thing that i've noticed that this has caused for a lot of folks is this sort of general feeling that you really need to have perfect tools before you get started you don't need perfect tools to get started and you also don't need a perfect model and in particular just because google or uber is doing
+
+75
+00:45:33,599 --> 00:46:12,400
+something like just because they have you know a feature store as part of their stack or they serve models in a particular way doesn't mean that you need to have that as well and so a lot of what we'll try to do in this class is talk about what's the middle ground be between doing things in the right way from a production perspective but not introducing too much complexity early on into your project so that's one of the reasons why fsdl is a class about building ml powered products in a practical way and not in mlaps class that's focused on what is the state of the art in the best possible infrastructure that you can use and um a talk and blog posts and associated set of things on this concept that i really
+
+76
+00:46:09,520 --> 00:46:54,960
+like is this ml offset reasonable scale push by some of the folks from kovio and the sort of central thesis of ml offs at reasonable scale is you're not google you probably have a finite compute budget not entire cloud you probably have a limited number of folks on your team you probably have not an infinite budget to spend on this and you probably have a limited amount of data as well and so those differences between what you have and what uber has or what google has have implications for what the right stack is for the problems that you're solving and so it's worth thinking about these cases separately and so if you're interested in what one company did and recommends for an ml stack that isn't designed to
+
+77
+00:46:52,000 --> 00:47:31,200
+scale to becoming uber scale then i recommend checking out this talk to summarize what we've covered so far machine learning is an incredibly powerful technology but it does add a lot of complexity and so before you embark on a machine learning project you should make sure that you're thinking carefully about whether you really need ml to solve the problem that you're solving and whether the problem is actually worth solving at all given the complexity that this adds and so let's avoid being ml teams that have their projects get killed because we're working on things that don't really matter to the business that we're a part of all right and the last topic i want to cover today is once you've sort of made this decision to embark on an ml
+
+78
+00:47:29,520 --> 00:48:07,599
+project what are the different steps that you're going to go through in order to actually execute on that project and this will also give you an outline for some of the other things you can expect from the class so the running case study that we'll use here is a modified version of a problem that i worked on when i was at open ai which is pose estimation our goal is to build a system that runs on a robot that takes the camera feed from that robot and uses it to estimate the position in 3d space and the orientation the rotation of each of the objects in the scene so that we can use those for downstream tasks and in particular so we can use them to feed into a separate model which will be used to tell the robot how it
+
+79
+00:48:06,000 --> 00:48:40,000
+actually can grasp the different objects in the scene machine learning projects start like any other project in a planning and project setup phase and so what the types of activities we'd be doing in this phase when we're working on this pose estimation project are things like deciding to work on post-estimation at all determining whether how much this is going to cost what resources we need to allocate to it considering the ethical implications and things like this right a lot of what we've been talking about so far in this lecture once we plan the project then we'll move into a data collection and labeling phase and so for pose estimation what this might look like is collecting the corpus of objects that
+
+80
+00:48:38,640 --> 00:49:18,559
+we're going to train our model on setting up our sensors like our cameras to capture our information about those objects actually capturing those objects and somehow figuring out how to annotate these images that we're capturing with ground truth like the pose of the of the objects in those images one point i want to make about the life cycle of mbl projects is that this is not like a straightforward path machine learning projects tend to be very iterative and each of these phases can feed back into any of the phases before as you learn more about the problem that you're working on so for example you might realize that actually it's way too hard for us to get data in order to solve this problem or it's really difficult for us to label
+
+81
+00:49:16,079 --> 00:49:54,559
+the pose of these objects in 3d space but what we can do is it's actually much cheaper for us to annotate like per pixel segmentation so can we reformulate the problem in a way that allows us to to use what we've learned about data collection and labeling to plan a better project once you have some data to work on then you enter the sort of training and debugging phase and so what we might do here is we might implement a baseline for our model not using like a complex neural network but just using some opencv functions and then once we have that working we might find a state-of-the-art model and reproduce it debug our implementation and iterate on our model run some hyper parameter sweeps until it performs well
+
+82
+00:49:52,720 --> 00:50:29,599
+on our task this can feed back into the data collection and labeling phase because we might realize that you know we actually need more data in order to solve this problem or we might also realize that there's something flawed in the process that we've been using to label the data that we're using data labeling process might need to be revisited but we can also loop all the way back to the project planning phase because we might realize that actually this task is a lot harder than we thought or the requirements that we specified at the planning phase trade off with each other so we need to revisit which are most important so for example like maybe we thought that we had an accuracy requirement of estimating the pose of these objects to
+
+83
+00:50:26,960 --> 00:51:06,720
+one tenth of one centimeter and we also had an a latency requirement for inference in our models of 1 100th of a second to run on robotic hardware and we might realize that hey you know we can get this really really tight accuracy requirement or we can have really fast inference but it's very difficult to do both so is it possible to relax one of those assumptions once you've trained a model that works pretty well offline for your task then your goal is going to be to deploy that model test it in the real world and then use that information to figure out where to go next for the purpose of this project that might look like piloting the grasping system in the lab so before we roll it out to actual users can we
+
+84
+00:51:04,880 --> 00:51:42,319
+test it in a realistic scenario and we might also do things like writing tests to prevent regressions and evaluate for bias in the model and then eventually rolling this out into production and monitoring it and continually improving it from there and so we can feed back here into the training and debugging stage because oftentimes what we'll find is that the model that worked really well for our offline data set once it gets into the real world it doesn't actually work as well as we thought whether that's because the accuracy requirement that we had for the model was wrong like we actually needed it to be more accurate than we thought or maybe the metric that we're looking at the accuracy is not actually the metric
+
+85
+00:51:39,760 --> 00:52:17,920
+that really matters for success at the downstream task that we're trying to solve because that could cause us to revisit the training phase we also could loop back to the data collection and labeling phase because common problem that we might find in the real world is that there's some mismatch between the training data that we collected and the data that we actually saw when we went out and tested this we could use what we learned from that to go collect more data or mine for hard cases like mine for the failure cases that we found in production and then finally as i alluded to before we could loop all the way back to the project planning phase because we realized that the metric that we picked doesn't really drive the downstream
+
+86
+00:52:15,920 --> 00:52:51,599
+behavior that we desired just because the grasp model is accurate doesn't mean that the robot will actually be able to successfully grasp the object so we might need to use a different metric to really solve this task or we might realize that the performance in the real world isn't that great and so we maybe need to add additional requirements to our model as well maybe it just needs to be faster to in order to run on a real robot so these are kind of like what i think of as the activities that you do in any particular machine learning project that you undertake but there's also some sort of cross project things that you need in order to be successful which we'll talk about in the class as well you need to be able to work on
+
+87
+00:52:49,920 --> 00:53:25,040
+these problems together as a team and you need to have the right infrastructure and tooling to make these processes more repeatable and these are topics that we'll cover as well so this is like a broad conceptual outline of the different topics that we'll talk about in this class and so to wrap up for today what we covered is machine learning is a complex technology and so you should use it because you need it or because you think it'll generate a lot of value but it's not a cure-all it doesn't solve every problem it won't automate every single thing that you wanted to automate so let's pick projects that are going to be valuable but in spite of this you don't need a perfect setup to get started and let's
+
+88
+00:53:23,440 --> 00:53:34,760
+spend the rest of this course walking through the project lifecycle and learning about each of these stages and how we can how we can use them to build great ml powered products
+

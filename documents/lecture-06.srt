@@ -1,0 +1,440 @@
+1
+00:00:00,080 --> 00:00:38,960
+hi everybody welcome back to full stack deep learning this week we're going to talk about continual learning which is in my opinion one of the most exciting topics that we cover in this class continual learning describes the process of iterating on your models once they're in production so using your production data to retrain your models for two purposes first to adapt your model to any changes in the real world that happen after you train your model and second to use data from the real world to just improve your model in general so let's dive in the sort of core justification for continual learning is that unlike in academia in the real world we never deal with static data distributions and so the implication of
+
+2
+00:00:36,719 --> 00:01:14,640
+that is if you want to use ml in production if you want to build a good machine learning powered product you need to think about your goal as building a continual learning system not just building a static model so i think how we all hope this would work is the data flywheel that we've described in this class before so as you get more users those users bring more data you can use the data to make better model that better model helps you attract even more users and build a better model over time and the most automated version of this the most optimistic version of it was described by andre karpathy as operation vacation if we make our continual learning system good enough then it'll just get better on its own
+
+3
+00:01:12,880 --> 00:01:47,920
+over time and we as machine learning engineers can just go on vacation and when we come back the model will be better but the reality of this is actually quite different i think it starts out okay so we gather some data we clean and label that data we train a model on the data then we evaluate the model we loop back to training the model to make it better based on the evaluations that we made and finally we get to the point where we're done we have a minimum viable model and we're ready to ship it into production and so we deploy it the problem begins after we deploy it which is that we generally don't really have a great way of measuring how our models are actually performing in production so often what
+
+4
+00:01:46,159 --> 00:02:21,440
+we'll do is we'll just spot check some predictions to see if it looks like it's doing what it's supposed to be doing and if it seems to be working then that's great we probably move on and work on some other project that is until the first problem pops up and now unfortunately i as a machine learning engineer and probably not the one that discovers that problem to begin with it's probably you know some business user or some pm that realizes that hey we're getting complaints from a user or we're having a metric that's dipped and this leads to an investigation this is already costing the company money because the product and the business team are having to investigate this problem eventually they are able to
+
+5
+00:02:19,440 --> 00:02:53,280
+point this back to me and to the model that i am responsible for and at this point you know i'm kind of stuck doing some ad hoc analyses because i don't really know what the cause of the model of the failure of the model is maybe i haven't even looked at this model for a few weeks or a few months you know maybe eventually i'm able to like run a bunch of sql queries you know paste together some jupiter notebooks and figure out what i think the problem is so i'll retrain the model i'll redeploy it and if we're lucky we can run an a b test and if that a b test looks good then we'll deploy it into production and we're sort of back where we started not getting ongoing feedback about how the model is really doing in production the
+
+6
+00:02:51,519 --> 00:03:29,040
+upshot of all this is that continual learning is really the least well understood part of the production machine learning lifecycle and very few companies are actually doing this well in production today and so this lecture in some ways is going to feel a little bit different than some of the other lectures a big part of the focus of this lecture is going to be being opinionated about how we think you should think about the structure of continual learning problems this is you know some of what we say here will be sort of well understood industry best practices and some of it will be sort of our view on what we think this should look like i'm going to throw a lot of information at you about each of the different steps of the
+
+7
+00:03:27,120 --> 00:04:06,000
+continual learning process how to think about improving how you do these parts once you have your first model in production and like always we'll provide some recommendations for how to do this pragmatically and how to adopt it gradually so first i want to give sort of an opinionated take on how i think you should think about continual learning so i'll define continual learning as training a sequence of models that is able to adapt to a continuous stream of data that's coming in in production you can think about continual learning as an outer loop on your training process on one end of the loop is your application which consists of a model as well as some other code users interact with that application by submitting
+
+8
+00:04:03,840 --> 00:04:41,440
+requests getting predictions back and then submitting feedback about how well the model did at providing that prediction the continual learning loop starts with logging which is how we get all the data into the loop then we have data curation triggers for doing the retraining process data set formation to pick the data to actually retrain on and we have the training process itself then we have offline testing which is how we validate whether the retrained model is good enough to go into production after it's deployed we have online testing and then that brings the next version of the model into production where we can start the loop all over again each of these stages passes an output to the next step and the way that output is defined is by
+
+9
+00:04:39,040 --> 00:05:17,360
+using a set of rules and all these rules together roll up into something called a retraining strategy next we'll talk about what the retraining strategy defines for each stage and what the output looks like so the logging stage the key question that's answered by the retraining strategy is what data should we actually store and at the end of this we have an infinite stream of potentially unlabeled data that's coming from production and is able to be used for downstream analysis at the curation stage the key rules that we need to define are what data from that infinite stream are we going to prioritize for labeling and potential retraining and at the end of the stage we'll have a reservoir of a finite number of
+
+10
+00:05:15,919 --> 00:05:52,880
+candidate training points that have labels and are fully ready to be fed back into a training process at the retraining trigger stage the key question to answer is when should we actually retrain how do we know when it's time to hit the retrain button and the output of the stage is a signal to kick off a retraining job at the data set formation stage the key rules we need to define are from among this entire reservoir of data what specific subset of that data are we actually going to train on for this particular training job you can think of the output of this as a view into that reservoir of training data that specifies the exact data points that are going to go into this training job at the offline testing
+
+11
+00:05:50,960 --> 00:06:28,800
+stage the key rules that we need to define are what is good enough look like for all of our stakeholders how are we going to agree that this model is ready to be deployed and the output of the stage looks like something like the equivalent of a pull request a report card for your model that has a clear sign-off process that once you're signed off the new model will roll out into prod and then finally at the deployment online testing stage the key rules that we need to find are how do we actually know if this deployment was successful and the output of the stage will be the signal to actually roll this model out fully to all of your users in an idealized world the way i think we should think of our role as machine
+
+12
+00:06:26,720 --> 00:07:07,360
+learning engineers once we've deployed the first version of the model is not to retrain the model directly but it's to sit on top of the retraining strategy and babysit that strategy and try to improve the strategy itself over time so rather than training models day-to-day we're looking at metrics about how well the strategy is working how well it's solving the task of improving our model over time in response to changes to the world and the input that we provide is by tuning the strategy by changing the rules that make up the strategy to help the strategy do a better job of solving that task that's a description of the goal state of our role as an ml engineer in the real world today for most of us our job doesn't really feel like this at
+
+13
+00:07:05,520 --> 00:07:39,759
+a high level because for most of us our retraining strategy is just retraining models whenever we feel like it and that's not actually as bad as it seems you can get really good results from ad hoc retraining but when you start to be able to get really consistent results when you retrain models and you're not really working on the model day-to-day anymore then it's worth starting to add some automation alternatively if you find yourself needing to retrain the model more than you know once a week or even more frequently than that to deal with changing results in the real world then it's also worth investing in automation just to save yourself time the first baseline retraining strategy that you should consider after you move
+
+14
+00:07:38,240 --> 00:08:18,479
+on from ad hoc is just periodic retraining and this is what you'll end up doing in most cases in the near term so let's describe this periodic retraining strategy so at the logging stage we'll simply log everything a curation will sample uniformly at random from the data that we've logged up until we get the max number of data points that we're able to handle we're able to label or we're able to train on and then we'll label them using some automated tool our retraining trigger will just be periodic so we'll train once a week but we'll do it on the last month's data for example and then we will compute the test set accuracy after each training set a threshold on that or more likely manually review the results each time and spot check some of
+
+15
+00:08:16,400 --> 00:08:51,600
+the predictions and then when we deploy the model we'll do spot evaluations of that deployed model on a few individual predictions just to make sure things look healthy and we'll move on this baseline looks something like what most companies do for automated retraining in the real world retraining periodically is a pretty good baseline and in fact it's what i would suggest doing when you're ready to start doing automated retraining but it's not going to work in every circumstance so let's talk about some of the failure modes the first category of failure modes has to do with when you have more data than you're able to log or able to label if you have a high volume of data you might need to be more careful about what data you sample
+
+16
+00:08:48,640 --> 00:09:30,160
+and enrich particularly if either that data comes from a long tail distribution where you have edge cases that your model needs to perform well on but those edge cases might not be caught by just doing standard uniform random sampling or if that data is expensive to label like in a human in the loop scenario where you need custom labeling rules or labeling is part of the product in either of those cases long tail distribution or human in the loop setup you probably need to be more careful about what subset of your data that you log and enrich to be used down the road second category of where this might fail has to do with managing the cost of retraining if your model is really expensive to retrain then
+
+17
+00:09:28,720 --> 00:10:01,600
+retraining it periodically is probably not going to be the most cost efficient way to go especially if you do it on a rolling window of data every single time let's say that you retrain your model every week but your data actually changes a lot every single day you're going to be leaving a lot of performance on the table by not retraining more frequently you could increase the frequency and retrain say every few hours but this is going to increase costs even further the final failure mode is situations where you have a high cost of bad predictions one thing that you should think about is every single time you retrain your model it introduces risk that risk comes from the fact that the data that you're training
+
+18
+00:10:00,320 --> 00:10:38,480
+the model on might be bad in some way it might be corrupted it might have been attacked by an adversary or it might just not be representative anymore of all the cases that your model needs to perform well on so the more frequently you retrain and the more sensitive you are to failures of the model the more thoughtful you need to be about how do we make sure that we're carefully evaluating this model such that we're not unduly taking on risk too much risk from retraining frequently when you're ready to move on from periodic retraining it's time to start iterating on your strategy and this is the part of the lecture where we're going to cover a grab box of tools that you can use to help figure out how to iterate on your strategy and what
+
+19
+00:10:36,959 --> 00:11:10,320
+changes the strategy to make you don't need to be familiar in depth with every single one of these tools but i'm hoping to give you a bunch of pointers here that you can use when it's time to start thinking about how to make your model better so the main takeaway from this section is going to be we're going to use monitoring and observability as a way of determining what changes we want to make to our retraining strategy and we're going to do that by monitoring just the metrics that actually matter the most important ones for us to care about and then using all of their metrics and information for debugging when we debug an issue with our model that's going to lead to potentially retraining our model but more broadly
+
+20
+00:11:09,040 --> 00:11:45,760
+than that we can think of it as a change to the retraining strategy like changing our retraining triggers changing our offline tests our sampling strategies the metrics we use for observability etc and then lastly another principle for iterating on your strategy is as you get more confident in your monitoring as you get more confident that you'll be able to catch issues with your model if they occur then you can start to introduce more automation into your system so do things manually at first and then as you get more confident in your monitoring start to automate them let's talk about how to monitor and debug models in production so that we can figure out how to improve our retraining strategy the tldr here is like many parts of this
+
+21
+00:11:43,839 --> 00:12:18,160
+lecture there's no real standards or best practices here yet and there's also a lot of bad advice out there the main principles that we're gonna follow here are we're gonna focus on monitoring things that really matter and also things that tend to break empirically and we're going to also compute all the other signals that you might have heard of data drift all these other sorts of things but we're primarily going to use those for debugging and observability what does it mean to monitor a model in production the way i think about it is you have some metric that you're using to assess the quality of your model like your accuracy let's say then you have a time series of how that metric changes over time and the question that you're
+
+22
+00:12:16,240 --> 00:12:51,839
+trying to answer is is this bad or is this okay do i need to pay attention to this degradation or do i not need to pay attention so the questions that we'll need to answer are what metrics should we be looking at when we're doing monitoring how can we tell if those metrics are bad and it warrants an intervention and then lastly we'll talk about some of the tools that are out there to help you with this process choosing the right metric to monitor is probably the most important part of this process and here are the different types of metrics or signals that you can look at ranked in order of how valuable they are if you're able to get them the most valuable thing that you can look at is outcome data or feedback from your users
+
+23
+00:12:50,160 --> 00:13:26,079
+if you're able to get access to this signal then this is by far the most important thing to look at unfortunately there's no one-size-fits-all way to do this because it just depends a lot on the specifics of the product that you're building for example if you're building a recommender system then you might measure feedback based on did the user click on the recommendation or not but if you're building a self-driving car that's not really a useful or even feasible signal to gather so you might instead gather data on whether the user intervened and grabbed the wheel to take over autopilot from the car and this is really more of a product design or product management question of how can you actually design your product in such
+
+24
+00:13:24,480 --> 00:13:59,279
+a way that it that you're able to capture feedback from your users as part of that product experience and so we'll come back and talk a little bit more about this in the ml product management lecture the next most valuable signal to look at if you can get it is model performance metrics these are your offline model metrics things like accuracy the reason why this is less useful than user feedback is because of loss mismatch so i think a common experience that many ml practitioners have is you spend let's say a month trying to make your accuracy one or two percentage points better and then you deploy the new version of the model and it turns out that your users don't care they react just the same way they did
+
+25
+00:13:57,360 --> 00:14:35,120
+before or even worse to that new theoretically better version of the model there's often very little excuse for not doing this at least to some degree you can just label some production data each day it doesn't have to be a ton you can do this by setting up an on-call rotation or just throwing a labeling party each day where you spend 30 minutes with your teammates you know labeling 10 or 20 data points each even just like that small amount will start to give you some sense of how your model's performance is trending over time if you're not able to measure your actual model performance metrics then the next best thing to look at are proxy metrics proxy metrics are metrics that are just correlated with bad model performance
+
+26
+00:14:33,199 --> 00:15:07,279
+these are mostly domain specific so for example if you're building text generation with a language model then two examples here would be repetitive outputs and toxic outputs if you're building a recommender system then an example would be the share of personalized responses if you're seeing fewer personalized responses then that's probably an indication that your model is doing something bad if you're looking for ideas for proxy metrics edge cases can be good proxy metrics if there's certain problems that you know that you have with your model if those increase in prevalence then that might mean that your model's not doing very well that's the practical side of proxy metrics today they're very domain specific
+
+27
+00:15:06,000 --> 00:15:44,720
+either you're going to have good proxy metrics or you're not but i don't think it has to be that way there's an academic direction i'm really excited about that is aimed at being able to take any metric that you care about like your accuracy and approximate it on previously unseen data so how well do we think our model is doing on this new data which would make these proxy metrics a lot more practically useful there's a number of different approaches here ranging from training an auxiliary model to predict how well your main model might do on these on this offline data to heuristics to human loop methods and so it's worth checking these out if you're interested in seeing how people might do this in two or three years one unfortunate
+
+28
+00:15:43,519 --> 00:16:21,440
+result from this literature though that's worth pointing out is that it's probably not going to be possible to have a single method that you use in all circumstances to approximate how your model is doing on out of distribution data so the way to think about that is let's say that you have you're looking at the input data to predict how the model is going to perform on those input points and then the label distribution changes if you're only looking at the input points then how would you be able to take into account that label distribution change in your approximate metric but there's more theoretical rounding for this result as well all right back to our more pragmatic scheduled programming the next signal that you can look at is data
+
+29
+00:16:19,519 --> 00:16:59,680
+quality and data quality testing is just a set of rules that you can apply to measure the quality of your data this is dealing with questions like how well does the data reflect reality um how comprehensive is it and how consistent is it over time some common examples of data quality testing include checking whether the data has the right schema whether the values in each of the columns are in the range that you'd expect that you have enough columns that you don't have too much missing data simple rules like that the reason why this is useful is because data problems tend to be the most common issue with machine learning models in practice so this is a report from google where they covered 15 years of different pipeline outages
+
+30
+00:16:57,600 --> 00:17:37,840
+with a particular machine learning model and their main finding was that most of the outages that happened with that model did not really a lot to do with ml at all they were often distributed systems problems or also really commonly there were data problems one example that they give is a common type of failure where a data pipeline lost the permissions to read the data source that it depended on and so was starting to fail so these types of data issues are often what will cause models to fail spectacularly in production the next most helpful signal to look at is distribution drift even though distribution drift is a less useful signal than say user feedback it's still really important to be able to measure whether your data
+
+31
+00:17:35,840 --> 00:18:17,679
+distributions change so why is that well your model's performance is only guaranteed if the data that it's evaluated on is sampled from the same distribution as it was trained on and this can have a huge impact in practice recent examples include total change in model behavior during the pandemic as words like corona took on new meeting or bugs and retraining pipelines that cause millions of dollars of losses for companies because they led to changing data distributions distribution drift manifests itself in different ways in the wild there's a few different types that you might see so you might have an instantaneous drift like when a model is deployed in a new domain or a bug is introduced in a re in a pre-processing
+
+32
+00:18:15,039 --> 00:18:53,120
+pipeline or some big external shift like covid you could have a gradual drift like if user preferences change over time or new concepts keep getting added to your corpus you could have periodic drifts like if your user preferences are seasonal or you could have a temporary drift like if a malicious user attacks your model and each of these different types of drifts might need to be detected in slightly different ways so how do you tell if your distribution is drifted the approach we're going to take here is we're going to first select a window of good data that's going to serve as a reference going forward how do you select that reference well you can use a fixed window of production data that you believe to be healthy so
+
+33
+00:18:51,200 --> 00:19:30,080
+if you think that your model was really healthy at the beginning of the month you can use that as your reference window some papers advocate for sliding this window of production data to use as your reference but in practice most of the time what most people do is they'll use something like their validation data as their reference once you have that reference data then you'll select your new window of production data to measure your distribution distance on there isn't really a super principal approach for how to select the window of data to measure drift on and it tends to be pretty problem specific so a pragmatic solution that what a lot of people do is they'll just pick one window size or even they'll just pick a few window
+
+34
+00:19:27,679 --> 00:20:08,160
+sizes with some reasonable amount of data so that's not too noisy and then they'll just slide those windows and lastly once you have your reference window and your production window then you'll compare these two windows using a distribution distance metric so what metrics should you use let's start by considering the one-dimensional case where you have a particular feature that is one-dimensional and you are able to compute a density of that feature on your reference window and your production window then the way to think about this problem is you're going to have some metric that approximates the distance between these two distributions there's a few options here the ones that are commonly recommended are the kl divergence and
+
+35
+00:20:06,160 --> 00:20:39,679
+the ks test unfortunately those are commonly recommended but they're also bad choices sometimes better options would be things like using the infinity norm or the one norm which are what google advocates for using or the earth mover's distance which is a bit more of a statistically principled approach and i'm not going to go into details of these metrics here but check out the blog post at the bottom if you want to learn more about why the commonly recommended ones are not so good and the other ones are better so that's the one-dimensional case if you just have a single input feature that you're trying to measure distribution distance on but in the real world for most models we have potentially many input features or
+
+36
+00:20:37,840 --> 00:21:13,919
+even unstructured data that is very high dimensional so how do we deal with detecting distribution drift in those cases one thing you could consider doing is just measuring drifts on all of the features independently problem that you'll run into there is if you have a lot of features you're going to hit the multiple hypothesis testing problem and secondly this doesn't capture cross correlation so if so if you have two features and the distributions of each of those features stay the same but the correlation between the features changed then that wouldn't be captured using this type of system another common thing to do would be to measure drift only on the most important features one heuristic here is that generally
+
+37
+00:21:11,919 --> 00:21:49,039
+speaking it's a lot more useful to measure drift on the outputs of the model than the inputs the reason for that is because inputs change all the time your model tends to be robust to some degree of distribution shift of the inputs but if the outputs change then that might be more indicative that there's a problem and also outputs tend to be for most machine learning models tend to be lower dimensional so it's a little bit easier to monitor you can also rank the importance of your input features and measure drift on the most important ones you can do this just heuristically using the ones that you think are important or you can compute some notion of feature importance and use that to rank the features that you want to monitor lastly
+
+38
+00:21:47,440 --> 00:22:27,679
+there are metrics that you can look at that natively compute or approximate the distribution distance between high dimensional distributions and the two that are most worth checking out there are the maximum mean discrepancy and the approximate earth mover's distance the caveat here is that these are pretty hard to interpret so if you have a maximum mean discrepancy alert that's triggered that doesn't really tell you much about where to look for the potential failure that caused that distribution drift a more principled way in my opinion to measure distribution drift for high dimensional inputs to the model is to use projections the idea of a projection is you take some high dimensional input to the model or output
+
+39
+00:22:25,440 --> 00:23:08,240
+an image or text or just a really large feature vector and then you run that through a function so each data point that your model makes a prediction on gets tagged by this projection function and the goal of the projection function is to reduce the dimensionality of that input then once you've reduced the dimensionality you can do your drift detection on that lower dimensional representation of the high dimensional data and the great thing about this approach is that it works for any kind of data whether it's images or text or anything else no matter what the dimensionality is or what the data type is and it's highly flexible there's many different types of projections that can be useful you can define analytical projections that are
+
+40
+00:23:05,039 --> 00:23:46,880
+just functions of your input data and so these are things like looking at the mean pixel value of an image or the length of a sentence that's an input to the model or any other function that you can think of analytical projections are highly customizable they're highly interpretable and can often detect problems in practice if you don't want to use your domain knowledge to craft projections by writing analytical functions then you can also just do generic projections like random projections or statistical projections like running each of your inputs through an auto encoder something like that this is my recommendation for detecting drift for high dimensional and unstructured data and it's worth also just taking note of
+
+41
+00:23:44,799 --> 00:24:24,720
+this concept of projections because we're going to see this concept pop up in a few other places as we discuss other aspects of continual learning distribution drift is an important signal to look at when you're monitoring your models and in fact it's what a lot of people think of when they think about model monitoring so why do we rank it so low on the list let's talk about the cons of looking at distribution drift i think the big one is that models are designed to be robust to some degree of distribution drift the figure on the left shows sort of a toy example to demonstrate this point which is we have a classifier that's trained to predict two classes and we've induced a synthetic distribution shift just
+
+42
+00:24:22,880 --> 00:24:59,039
+shifting these points from the red ones on the top left to the bottom ones on the bottom right these two distributions are extremely different the marginal distributions in the chart on the bottom and then chart on the right-hand side have very large distance between the distributions but the model performs actually equally well on the training data as it does on the production data because the shift is just shifted directly along the classifier boundary so that's kind of a toy example that demonstrates that you know distribution shift is not really the thing that we care about when we're monitoring our models because just knowing that the distribution has changed doesn't tell us how the models has reacted to that
+
+43
+00:24:57,440 --> 00:25:35,520
+distribution change and then another example that's worth illustrating is some of my research when i was in grad school was using data that was generated from a physics simulator to solve problems on real world robots and the data that we used was highly out of distribution for the test case that we cared about the data looked like these kind of very low fidelity random images like on the left and we found that by training on a huge variety of these low fidelity random images our model was able to actually generalize to real world scenario like the one on the right so huge distribution shifts intuitively between the data the model was trained on and the data it was evaluated on but it was able to perform well on both
+
+44
+00:25:33,760 --> 00:26:15,039
+beyond the theoretical limitations of measuring distribution drift this can also just be hard to do in practice you have to pick window sizes correctly you have to keep all this data around you need to choose metrics you need to define projections to make your data lower dimensional so it's not a super reliable signal to look at and so that's why we advocate for looking at ones that are more correlated with the thing that actually matters the last thing you should consider looking at is your standard system metrics like cpu utilization or how much gpu memory your model is taking up things like that so those don't really tell you anything about how your model is actually performing but they can tell you when something is going
+
+45
+00:26:12,880 --> 00:26:49,840
+wrong okay so this is a ranking of all the different types of metrics or signals that you could look at if you're able to compute them but to give you a more concrete recommendation here we also have to talk about how hard it is to compute these different signals in practice we'll put the sort of value of each of these types of signals on the y-axis and on the x-axis we'll talk about the feasibility like how easy is it to actually measure these things measuring outcomes or feedback has pretty wide variability in terms of how feasible it is to do depends a lot on how your product is set up and the type of problem that you're working on measuring model performance tends to be the least feasible thing to do because
+
+46
+00:26:47,360 --> 00:27:26,799
+it does involve collecting some labels and so things like proxy metrics are a little bit easier to compute because they don't involve labels whereas system metrics and data quality metrics are highly feasible because there's you know great off-the-shelf libraries and tools that you can use for them and they don't involve doing anything sort of special from a machine learning perspective so the practical recommendation here is getting basic data quality checks is effectively zero regret especially if you are in the phase where you're retraining your model pretty frequently because data quality issues are one of the most common causes of bad model performance in practice and they're very easy to implement the next
+
+47
+00:27:24,000 --> 00:28:02,000
+recommendation is get some way of measuring feedback or model performance or if you really can't do either of those things than a proxy metric even if that way of measuring model performance is hacky or not scalable this is the most important signal to look at and is really the only thing that will be able to reliably tell you if your model is doing what it's supposed to be doing or not doing what it's supposed to be doing and then if your model is producing low dimensional outputs like if you're doing binary classification or something like that then monitoring the output distribution the score distribution also tends to be pretty useful and pretty easy to do and then lastly as you evolve your system like once you have these
+
+48
+00:28:00,000 --> 00:28:45,120
+basics in place and you're iterating on your model and you're trying to get more confident about evaluation i would encourage you to adopt a mindset about metrics that you compute that's borrowed from the concept of observability so what is the observability mindset we can think about monitoring as measuring the known unknowns so if there's four or five or ten metrics that we know that we care about accuracy latency user feedback the monitoring approach would be to measure each of those signals we might set alerts on even just a few of those key metrics on the other hand observability is about measuring the unknown unknowns it's about having the power to be able to ask arbitrary questions about your system when it
+
+49
+00:28:42,640 --> 00:29:19,520
+breaks for example how does my accuracy break out across all of the different regions that i've been considering what is my distribution drift for each of my features not signals that you would necessarily set alerts on because you don't have any reason to believe that these signals are things that are going to cause problems in the future but when you're in the mode of debugging being able to look at these things is really helpful and if you choose to adopt the observability mindset which i would highly encourage you to do especially in machine learning because it's just very very critical to be able to answer arbitrary questions to debug what's going on with your model then there's a few implications first
+
+50
+00:29:17,919 --> 00:29:55,760
+you should really keep around the context or the raw data that makes up the metrics that you're computing because you're gonna want to be able to drill all the way down to potentially the data points themselves that make up the metric that has degraded it's also as a side note helpful to keep around the raw data to begin with for things like retraining the second implication is that you can kind of go crazy with measurement you can define lots of different metrics on anything that you can think of that might potentially go wrong in the future but you shouldn't necessarily set alerts on each of those or at least not very or at least not very precise alerts because you don't want to have the problem of getting too
+
+51
+00:29:54,399 --> 00:30:31,120
+many alerts you want to be able to use these signals for the purpose of debugging when something is going wrong drift is a great example of this it's very useful for debugging because let's say that your accuracy was lower yesterday than it was the rest of the month well one way that you might debug that is by trying to see if there's any input fields or projections that look different that distinguish yesterday from the rest of the month those might be indicators of what is going wrong with your model and the last piece of advice i have on model monitoring and observability is it's very important to go beyond aggregate metrics let's say that your model is 99 accurate and let's say that's really good but for one
+
+52
+00:30:29,120 --> 00:31:06,799
+particular user who happens to be your most important user it's only 50 accurate can we really still consider that mobs to be good and so the way to deal with this is by flagging important subgroups or cohorts of data and being able to slice and dice performance along those cohorts and potentially even set alerts on those cohorts some examples of this are categories of users that you don't want your model to be biased against or categories of users that are particularly important for your business or just ones where you might expect your model to perform differently on them like if you're rolled out in a bunch of different regions or a bunch of different languages it might be helpful to look at how your performance breaks
+
+53
+00:31:04,799 --> 00:31:44,399
+out across those regions or languages all right that was a deep dive in different metrics that you can look at for the purpose of monitoring the next question that we'll talk about is how to tell if those metrics are good or bad there's a few different options for doing this that you'll see recommended one that i don't recommend and i alluded to this a little bit before is two sample statistical tests like aks test the reason why i don't recommend this is because if you think about what these two sample tests are actually doing they're trying to return a p-value for the likelihood that this data and this data are not coming from the same distribution and when you have a lot of data that just means that even really tiny shifts
+
+54
+00:31:42,399 --> 00:32:21,679
+in the distribution will get very very small p values because even if the distributions are only a tiny bit different if you have a ton of samples you'll be able to very confidently say that those are different distributions but that's not actually what we care about since models are robust to small amounts of distribution shift better options than statistical tests include the following you can have fixed rules like there should never be any null values in this column you can have specific ranges so your accuracy should always be between 90 and 95 there can be predicted ranges so the accuracy is within what an off-the-shelf anomaly detector thinks is reasonable or there's also unsupervised detection of
+
+55
+00:32:19,600 --> 00:32:55,200
+just new patterns in this signal and the most commonly used ones in practice are the first two fixed rules and specified ranges but predicted ranges via anomaly detection can also be really useful especially if there's some seasonality in your data the last topic i want to cover on model monitoring is the different tools that are available for monitoring your models the first category is system monitoring tools so this is a pretty mature category with a bunch of different companies in it and these are tools that help you detect problems with any software system not just machine learning models and they provide functionality for setting alarms when things go wrong and most of the cloud providers have pretty decent
+
+56
+00:32:53,679 --> 00:33:31,440
+solutions here but if you want something better you can look at one of the observability or monitoring specific tools like honeycomb or datadog you can monitor pretty much anything in these systems and so it kind of raises the question of whether we should just use systems like this for monitoring machine learning metrics as well there's a great blog post on exactly this topic that i recommend reading if you're interested in learning about why this is feasible but pretty painful thing to do and so maybe it's better to use something that's ml specific here in terms of ml specific tools there's some open source tools the two most popular ones are evidently ai and y logs and these are both similar in that you provide them
+
+57
+00:33:29,120 --> 00:34:07,200
+with samples of data and they produce a nice report that tells you where is their distribution shifts how have your model metrics changed etc the big limitation of these tools is that they don't solve the data infrastructure and the scale problem for you you still need to be able to get all that data into a place where you can analyze it with these tools and in practice that ends up being one of the hardest parts about this problem the main difference between these tools is that why logs is a little bit more focused on gathering data from the edge and the way they do that is by aggregating the data into statistical profiles at inference time itself so you don't need to transport all the data from your inference devices back to your
+
+58
+00:34:05,600 --> 00:34:44,960
+cloud which in some cases can be very helpful and lastly there's a bunch of different sas vendors for ml monitoring and observability my startup gantry has some functionality around this and there's a bunch of other options as well all right so we've talked about model monitoring and observability and the goal of monitoring and observability in the context of continual learning is to give you the signals that you need to figure out what's going wrong with your continual learning system and how you can change the strategy in order to influence that outcome next we're going to talk about for each of the stages in the continual learning loop what are the different ways that you might be able to go beyond the basics and
+
+59
+00:34:43,520 --> 00:35:19,040
+use what we learned from monitoring and observability to improve those stages the first stage of the continual learning loop is logging as a reminder the goal of logging is to get data from your model to a place where you can analyze it and the key question to answer is what data should i actually log for most of us the best answer is just to log all of your data storage is cheap and it's better to have data than not have it but there's some situations where you can't do that for example if you have just too much traffic going through your model to the point where it's too expensive to log all of it um if you have data privacy concerns if you're not actually allowed to look at your users data or if you're running
+
+60
+00:35:16,880 --> 00:35:56,400
+your model at the edge and it's too expensive to get all that data back because you don't have enough network bandwidth if you can't log all of your data there's two things that you can do the first is profiling the idea of profiling is that rather than sending all the data back to your cloud and then using that to do monitoring or observability or retraining instead you can compute statistical profiles of your data on the edge that describe the data distribution that you're seeing so the nice thing about this is it's great from a data security perspective because it doesn't require you to send all the data back home it minimizes your storage cost and lastly you don't miss things that happen in the tails which is an issue for the
+
+61
+00:35:55,040 --> 00:36:30,560
+next approach that we'll describe the place to use this really is primarily for security critical applications the other approach is sampling in sampling you'll just take certain data points and send those back home the advantage of sampling is that it has minimal impact on your inference resources so you don't have to actually spend the computational budget to compute profiles and you get to have access to the raw data for debugging and retraining and so this is what we recommend doing for pretty much every other application should describe in a little bit more detail how statistical profiles work because it's kind of interesting let's say that you have a stream of data that's coming in from two classes cat and dog and you
+
+62
+00:36:28,800 --> 00:37:13,200
+want to be able to estimate what is the distribution of cat and dog over time without looking at all of the raw data so for example maybe in the past you saw three examples of a dog and two examples of a cat a statistical profile that you can store that summarizes this data is just a histogram so the histogram says we saw three examples of a dog and two a cat and over time as more and more examples stream in rather than actually storing those data we can just increment the histogram and keep track of how many total examples of each category that we've seen over time and so like a neat fact of statistics is that for a lot of the statistics that you might be interested in looking at quantiles means accuracy other statistics you can
+
+63
+00:37:10,720 --> 00:37:49,280
+compute you can approximate those statistics pretty accurately by using statistical profiles called sketches that have minimal size so if you're interested in going on a tangent and learning more about an interesting topic in computer science that's one i'd recommend checking out next step in the continual learning loop is curation to remind you the goal of curation is to take your infinite stream of production data which is potentially unlabeled and turn this into a finite reservoir of data that has all the enrichments that it needs like labels to train your model on the key question that we need to answer here is similar to the one that we need to answer when we're sampling data at log time which is what data
+
+64
+00:37:47,280 --> 00:38:25,760
+should we select for enrichment the most basic strategy for doing this is just sampling data randomly but especially as your model gets better most of the data that you see in production might not actually be that helpful for improving your model and if you do this you could miss rare classes or events like if you have an event that happens you know one time in every 10 000 examples in production but you are trying to improve your model on it then you might not sample any examples of that at all if you just sample randomly a way to improve on random sampling is to do what's called stratified sampling the idea here is to sample specific proportions of data points from various subpopulations so common ways that you might stratify for
+
+65
+00:38:23,200 --> 00:39:05,520
+sampling in ml could be sampling to get a balance among classes or sampling to get a balance among categories that you don't want your model to be biased against like gender lastly the most advanced and interesting strategy for picking data to enrich is to curate data points that are somehow interesting for the purpose of improving your model and there's a few different ways of doing this that we'll cover the first is to have this notion of interesting data be driven by your users which will come from user feedback and feedback loops the second is to determine what is interesting data yourself by defining error cases or edge cases and then the third is to let an algorithm define this for you and this is a category of techniques known as
+
+66
+00:39:04,079 --> 00:39:40,800
+active learning if you already have a feedback loop or a way of gathering feedback from your users in your machine learning system which you really should if you can then this is probably the easiest and potentially also the most effective way to pick interesting data for the purpose of curation and the way this works is you'll pick data based on signals that come from your users that they didn't like your prediction so this could be the user churned after interacting with your model it could be that they filed a support ticket about a particular prediction the model made it could be that they you know click the thumbs down button that you put in your products that they changed the label that your model produced for them or
+
+67
+00:39:38,880 --> 00:40:19,599
+that they intervened with an automatic system like they grab the wheel of their autopilot system if you don't have user feedback or if you need even more ways of gathering interesting data from your system then probably the second most effective way of doing this is by doing manual error analysis the way this works is we will look at the errors that our model is making we will reason about the different types of failure modes that we're seeing we'll try to write functions or rules that help capture these error modes and then we'll use those functions to gather more data that might represent those error cases two sub-categories of how to do this one is what i would call similarity-based curation and the way this works is if
+
+68
+00:40:17,359 --> 00:40:57,119
+you have some data that represents your errors or data that you think might be an error then you can pick an individual data point or a handful of data points and run a nearest neighbor similarity search algorithm to find the data points in your stream that are the closest to the one that your model is maybe making a mistake on the second way of doing this which is potentially more powerful but a little bit harder to do is called projection based curation the way this works is rather than just picking an example and grabbing the nearest neighbors of that example instead we are going to find an error case like the one on the bottom right where there's a person crossing the street with a bicycle and then we're gonna write a
+
+69
+00:40:54,400 --> 00:41:35,599
+function that attempts to detect that error case and this could just be trading a simple neural network or it could be just writing some heuristics the advantage of doing similarity-based curation is that it's really easy and fast right like you just have to click on a few examples and you'll be able to get things that are similar to those examples this is beginning to be widely used in practice thanks to the explosion of vector search databases on the market it's relatively easy to do this and what this is particularly good for is events that are rare they don't occur very often in your data set but they're pretty easy to detect like if you had a problem with your self-driving car where you have llamas crossing the road a
+
+70
+00:41:33,760 --> 00:42:10,480
+similarity search-based algorithm would probably do a reasonably good job of detecting other llamas in your training set on the other hand projection-based curation requires some domain knowledge because it requires you to think a little bit more about what is the particular error case that you're seeing here and write a function to detect it but it's good for more subtle error modes where a similarity search algorithm might be too coarse-screened it might find examples that look similar on the surface to the one that you are detecting but don't actually cause your model to fail the last way to curate data is to do so automatically using a class of algorithms called active learning the way active learning works
+
+71
+00:42:08,240 --> 00:42:42,640
+is given a large amount of unlabeled data what we're going to try to do is determine which data points would improve model performance the most if you were to label those data points next and train on them and the way that these algorithms work is by defining a sampling strategy or a query strategy and then you rank all of your unlabeled examples using a scoring function that defines that strategy and take the ones with the highest scores and send them off to be labeled i'll give you a quick tour of some of the different types of scoring functions that are out there and if you want to learn more about this then i'd recommend the blog post linked on the bottom you have scoring functions that sample data points that the model
+
+72
+00:42:40,560 --> 00:43:16,800
+is very unconfident about you have scoring functions that are defined by trying to predict what is the error that the model would make on this data point if we had a label for it you have scoring functions that are designed to detect data that doesn't look anything like the data that you've already trained on so can we distinguish these data points from our training data if so maybe those are the ones that we should sample and label we have scoring functions that are designed to take a huge data set of points and boil it down to the small number of data points that are most representative of that distribution lastly there's scoring functions that are designed to detect data points that if we train on them we
+
+73
+00:43:15,119 --> 00:43:49,839
+think would have a big impact on training so where they would have a large expected gradient or would tend to cause the model to change its mind so that's just a quick tour of different types of scoring functions that you might implement uncertainty based scoring tends to be the one that i see the most in practice largely because it's very simple to implement and tends to produce pretty decent results but it's worth diving a little bit deeper into this if you do decide to go down this route if you're paying close attention you might have noticed that there's a lot of similarity between some of the ways that we do data curation the way that we pick interesting data points and the way that we do monitoring i
+
+74
+00:43:47,359 --> 00:44:25,839
+think that's no coincidence monitoring and data curation are two sides of the same coin they're both interested in solving the problem of finding data points where the model may not be performing well or where we're uncertain about how the model is performing on those data points so for example user driven curation is kind of another side of the same coin of monitoring user feedback metrics both of these things look at the same metrics stratified sampling is a lot like doing subgroup or cohort analysis making sure that we're getting enough data points from subgroups that are important or making sure that our metrics are not degrading on those subgroups projections are used in both data curation and monitoring to
+
+75
+00:44:23,599 --> 00:45:05,200
+take high dimensional data and break them down into distributions that we think are interesting for some purpose and then in active learning some of the techniques also have mirrors in monitoring like predicting the loss on an unlabeled data point or using the model's uncertainty on that data point next let's talk about some case studies of how data curation is done in practice the first one is a blog post on how openai trained dolly2 to detect malicious inputs to the model there's two techniques that they used here they used active learn learning using uncertainty sampling to reduce the false positives for the model and then they did a manual curation actually they did it kind of an automated way but they did
+
+76
+00:45:02,319 --> 00:45:41,599
+similarity search to find similar examples to the ones that the model was not performing well on the next example from tesla this is a talk i love from andre carpathi about how they build a data flywheel of tesla and they use two techniques here one is feedback loops so gathering information about when users intervene with the autopilot and then the second is manual curation via projections for edge case detection and so this is super cool because they actually have infrastructure that allows ml engineers when they discover a new edge case to write an edge case detector function and then actually deploy that on the fleet that edge case detector not only helps them curate data but it also helps them decide which data to sample
+
+77
+00:45:40,000 --> 00:46:17,280
+which is really powerful the last case study i want to talk about is from cruz they also have this concept of building a continual learning machine and the main way they do that is through feedback loops that's kind of a quick tour of what some people actually use to build these data curation systems in practice there's a few tools that are emerging to help with data curation scale nucleus and aquarium are relatively similar tools that are focused on computer vision and they're especially good at nearest neighbor based sampling at my startup gantry we're also working on some tools to help with this across a wide variety of different applications concrete recommendations on data curation random sampling is probably a fine starting
+
+78
+00:46:14,400 --> 00:46:51,359
+point for most use cases but if you have a need to avoid bias or if there's rare classes in your data set you probably should start even with stratified sampling or at the very least introduce that pretty soon after you start sampling if you have a feedback loop as part of your machine learning system and i hope you're taking away from this that how helpful it is to have these feedback loops then user-driven curation is kind of a no-brainer this is definitely something that you should be doing and is probably going to be the thing that is the most effective in the early days of improving your model if you don't have a feedback loop then using confidence-based active learning is a next best bet because it's pretty easy
+
+79
+00:46:49,599 --> 00:47:25,680
+to implement and works okay in practice and then finally as your model performance increases you're gonna have to look harder and harder for these challenging training points at the end of the day if you want to squeeze the maximum performance out of your model there's no avoiding manually looking at your your data and trying to find interesting failure modes there's no substitute for knowing your data after we've curated our infinite stream of unlabeled data down to a reservoir of labeled data that's ready to potentially train on the next thing that we'll need to decide is what trigger are we going to use to retrain and the main takeaway here is that moving to automated retraining is not always necessary in many cases just
+
+80
+00:47:23,839 --> 00:47:59,520
+manually refraining is good enough but it can save you time and lead to better better model performance so it's worth understanding when it makes sense to actually make that move the main prerequisite for moving to automated retraining is just being able to reproduce model performance when retraining in a fairly automated fashion so if you're able to do that and you are not really working on this model very actively anymore then it's probably worth implementing some automated retraining if you just find yourself retraining this model super frequently then it'll probably save you time to implement this earlier when it's time to move to automated training the main recommendation is just keep it simple and retrain periodically like once a
+
+81
+00:47:57,280 --> 00:48:32,319
+week rerun training on that schedule the main question though is how do you pick that training schedule so what i recommend doing here is doing a little bit of like measurement to figure out what is a reasonable retraining schedule you can plot your model performance over time and then compare to how the model would have performed if you had retrained on different frequencies you can just make basic assumptions here like if you retrain you'll be able to reach the same level of accuracy and what you're going to be doing here is looking at these different retraining schedules and looking at the area between these curves like on the chart on the top right the area between these two curves is your opportunity cost in
+
+82
+00:48:30,880 --> 00:49:09,920
+terms of like how much model performance you're leaving on the table by not retraining more frequently and then once you have a number of these different opportunity costs for different retraining frequencies you can plot those opportunity costs and then you can sort of run the ad hoc exercise of trying to balance you know where is the rate trade-off point for us between the performance gain that we get from retraining more frequently and the cost of that retraining which is both the cost of running the retraining itself as well as the operational cost that we'll introduce by needing to evaluate that model more frequently that's what i'd recommend doing in practice a request i have for research is i think it'd be great i think it's
+
+83
+00:49:08,240 --> 00:49:43,839
+very feasible to have a technique that would automatically determine the optimal retraining strategy based on how performance tends to decay how sensitive you are to that performance decay your operational costs and your retraining costs so i think you know eventually we won't need to do the manual data analysis every single time to determine this retraining frequency if you're more advanced then the other thing you can consider doing is retraining based on performance triggers this looks like setting triggers on metrics like accuracy and only retraining when that accuracy dips below a predefined threshold some big advantages to doing this are you can react a lot more quickly to unexpected changes that
+
+84
+00:49:42,160 --> 00:50:16,240
+happen in between your normal training schedule it's more cost optimal because you can skip a retraining if it wouldn't actually improve your model's performance but the big cons here are that since you don't know in advance when you're gonna be retraining you need to have good instrumentation and measurement in place to make sure that when you do retrain you're doing it for the right reasons and that the new model is actually doing well these techniques i think also don't have a lot of good theoretical justification and so if you are the type of person that wants to understand you know why theoretically this should work really well i don't think you're going to find that today and probably the most important con is
+
+85
+00:50:14,720 --> 00:50:50,800
+that this adds a lot of operational complexity because instead of just knowing like hey at 8 am i know my retraining is going live and so i can check in on that instead this retraining could happen at any time so your whole system needs to be able to handle that and that just introduces a lot of new infrastructure that you'll need to build and then lastly an idea that probably won't be relevant to most of you but is worth thinking about because i think it's it could be really powerful in the future is online learning where you train on every single data point as it comes in it's not very commonly used in practice but one sort of relaxation of this idea that is used fairly frequently in practice is online adaptation the way
+
+86
+00:50:48,160 --> 00:51:28,319
+online adaptation works is it operates not the level of retraining the whole model itself but it operates on the level of adapting the policy that sits on top of the model what is a policy a policy is the set of rules that takes the raw prediction that the model made like the score or the raw output of the model and then turns that into the actual thing that the user sees so like a classification threshold is an example of a policy or if you have many different versions of your model that you're ensembling what are the weights of those ensembles or even which version of the model is this particular request going to be routed to in online adaptation rather than retraining the model on each new data point as it comes
+
+87
+00:51:26,000 --> 00:52:07,359
+in instead we use an algorithm like multi-arm bandits to tune the weights of this policy online as more data comes in so if your data changes really frequently in practice or you are have a hard time training your model frequently enough to adapt to it then online adaptation is definitely worth looking into next we've fired off a trigger to start a training job and the next question we need to answer is among all of the labeled data in our reservoir of data which specific data points should we train on for this particular training job most of the time in deep learning we'll just train on all the data that we have available to us but if you have too much data to do that then depending on whether recency of data is
+
+88
+00:52:05,680 --> 00:52:43,599
+an important signal to determine whether that data is useful you'll either slide a window to make sure that you're looking at the most recent data therefore in many cases the most useful data or we'll use techniques like sampling or online batch selection if not and a more advanced technique to be aware of that is hard to execute in practice today is continual fine-tuning we'll talk about that as well so the first option is just to train on all available data so you have a data set that you'll keep track of that your last model was trained on then over time between your last training and your next training you'll have a bunch of new data come in you'll curate some of that data then you'll just take all that data
+
+89
+00:52:42,160 --> 00:53:20,240
+you'll add it to the data set and you'll train the new model on the combined data set so the keys here are you need to keep this data version controlled so that you know which data was added to each training iteration and it's also important if you want to be able to evaluate the model properly to keep track of the rules that you use to curate that new data so if you're sampling in a way that's not uniform from your distribution you should keep track of the rules that you use to sample so that you can determine where that data actually came from second option is to bias your sampling toward more recent data by using a sliding window the way this works is at each point when you train your model you look
+
+90
+00:53:17,119 --> 00:53:55,760
+backward and you gather a window of data that leads up to the current moment and then at your next training you slide that window forward and so there might be a lot of overlap potentially between these two data sets but you have all the new data or like a lot of the new data and you get rid of the oldest data in order to form the new data set couple key things to do here are it's really helpful to look at the different statistics between the old and new data sets to catch bugs like if you have a large change in a particular distribution of one of the columns that might be indicative of a new bug that's been introduced and one challenge that you'll find here is just comparing the old and the new versions of the models
+
+91
+00:53:52,960 --> 00:54:30,960
+since they are not trained on data that is related in a very straightforward way if you're working in a setting where you need to sample data you can't train on all of your data but there isn't any reason to believe that recent data is much better than older data then you can sample data from your reservoir using a variety of techniques the most promising of which is called online batch selection normally if we were doing stochastic gradient descent then what we do is we would sample mini batches on every single training iteration until we run out of data or until we run out of compute budget in online batch selection instead what we do is before each training step we sample a larger batch like much larger than the mini batch
+
+92
+00:54:29,359 --> 00:55:08,480
+that we ultimately want to train on we rank each of the items in the mini batch according to a label aware selection function and then we take the top n items according to that function and train on those the paper on the right describes a label aware selection function called the reducible holdout loss selection function that performs pretty well on some relatively large data sets and so if you're going to look into this technique this is probably where i would start the last option that we'll discuss which is not recommended to do today is continual fine-tuning the way this works is rather than retraining from scratch every single time instead just only train your existing model on just new data the reason why you might
+
+93
+00:55:06,880 --> 00:55:41,839
+want to do this primarily is because it's much more cost effective the paper on the right shares some findings from grubhub where they found a 45x cost improvement by doing this technique relative to sliding windows but the big challenge here is that unless you're very careful it's easy for the model to forget what it learned in the past so the upshot is that you need to have pretty mature evaluation to be able to be very careful that your model is performing well on all the types of data that it needs to perform well on before it's worth implementing something like this so now we've triggered a retraining we have selected the data points that are going to go into the training job we've trained our model you know run our
+
+94
+00:55:39,839 --> 00:56:13,839
+hyperparameter sweeps if we want to and we have a new candidate model that we think is ready to go into production the next step is to test that model the goal of this stage is to produce a report that our team can sign off on that answers the question of whether this new model is good enough or whether it's better than the old model and the key question here is what should go into that report again this is a place where there's not a whole lot of standardization but the recommendation we have here is to compare your current model with the previous version of the model on all the following all the metrics that you care about all of the slices or subsets of data that you've flagged is important all of the edge
+
+95
+00:56:11,520 --> 00:56:47,760
+cases that you've defined and in a way that's adjusted to account for any sample and bias that you might have introduced by your curation strategy an example of what such a report could look like is the following across the top we have all of our metrics in this case accuracy precision and recall and then all on the left are all of the data sets and slices that we're looking at so the things to notice here are we have our main validation set which is like what most people use for evaluating models but rather than just looking at that those numbers in the aggregate we also break it out across a couple of different categories in this case the age of the user and the age of the account that belongs to that user and
+
+96
+00:56:45,680 --> 00:57:25,200
+then below the main validation set we also have more specific validation sets that correspond to particular error cases that we know have given our model trouble or a previous version of our model trouble in the past these could be like just particular edge cases that you've found in the past like maybe your model handles examples of poor grammar very poorly or it doesn't know what some gen z slang terms mean like these are examples of failure modes you've found for your model in the past that get rolled into data sets to test the next version of your model in continual learning just like how training sets are dynamic and change over time evaluation sets are dynamic as well as you curate new data you should add some of it to
+
+97
+00:57:23,440 --> 00:57:58,400
+your training sets but also add some of it to your evaluation sets for example if you change how you do sampling you might want to add some of that newly sampled data to your eval set as well to make sure that your eval set represents that new sampling strategy or if you discover a new edge case instead of only adding that edge case to the training set it's worth holding out some examples of that edge case as a particular unit test to be part of that offline evaluation suite two corollaries to note of the fact that evaluation sets are dynamic the first is that you should also version control your evaluation sets just like you do your training sets the second is that if your data is evolving really quickly then part of the
+
+98
+00:57:56,559 --> 00:58:36,079
+data that you hold out should always be the most recent data the data from you know the past day or the past hour or whatever it is to make sure that your model is generalizing well to new data once you have the basics in place a more advanced thing that you can look into here that i think is pretty promising is the idea of expectation tests the way that expectation tests work are you take pairs of examples where you know the relationship so let's say that you're doing sentiment analysis and you have a sentence that says my brother is good if you make the positive word in that sentence more positive and instead say my brother is great then you would expect your sentiment classifier to become even more positive about that sentence these types
+
+99
+00:58:33,200 --> 00:59:16,400
+of tests have been explored in nlp as well as recommendation systems and they're really good for testing whether your model generalizes in predictable ways and so they give you more granular information than just aggregate performance metrics about how your model does on previously unseen data one observation to make here is that just like how data curation is highly analogous to monitoring so is offline testing just like in monitoring we want to observe our metrics not just in aggregate but also across all of our important subsets of data and across all of our edge cases one difference between these two is that you will in general have different metrics available in offline testing and online testing for
+
+100
+00:59:13,440 --> 00:59:51,520
+example you are much more likely to have labels available offline in fact you always have labels available offline because that is uh how you're going to train your model but online you're much more likely to have feedback and so even though these two ideas are highly analogous and should share a lot of metrics and definitions of subsets and things like that one point of friction that you that will occur between online monitoring and offline testing is that the metrics are a little bit different so one direction for research that i think would be really exciting to see more of is using offline metrics like accuracy to predict online metrics like user engagement and then lastly once we've tested our candidate model offline
+
+101
+00:59:49,359 --> 01:00:28,319
+it's time to deploy it and evaluate it online so we talked about this last time so i don't want to reiterate too much but as a reminder if you have the infrastructural capability to do so then you should do things like first running your model in shadow mode before you um actually roll it out to real users then running an a b test to make sure that users are responding to it better than they did the old model then once you have a successful av test rolling it out to all of your users but doing so gradually and then finally if you see issues during that rollout just to roll it back to the old version of the model and try to figure out what went wrong so we talked about the different stages of continual learning from
+
+102
+01:00:25,280 --> 01:01:07,440
+logging data to curating it to triggering retraining testing the model and rolling out to production and we also talked about monitoring and observability which is about giving you a set of rules that you can use to tell whether your retraining strategy needs to change and we observed that in a bunch of different places the fundamental elements that you study in monitoring like projections and user feedback and model uncertainty are also useful for different parts of the continual learning process and that's no coincidence i see monitoring and continual learning as two sides of the same coin we should be using the signals that we monitor to very directly change our retraining strategy so the last thing i want to do is just try to
+
+103
+01:01:05,839 --> 01:01:42,160
+make this a little bit more concrete by walking through an example of a workflow that you might have from detecting an issue in your model to altering the strategy this section describes more of a feature state until you've invested pretty heavily in infrastructure it's going to be hard to make it feel as seamless as this in practice but i wanted to mention it anyway because i think it provides like a nice end state for what we should aspire to in our continual learning workflows the thing you would need to have in place before you're able to actually execute what i'm going to describe next is a place to store and version all of the elements of your strategy which include metric definitions for both online and offline
+
+104
+01:01:40,319 --> 01:02:20,240
+testing performance thresholds for those metrics definitions of any of the projections that you want to use for monitoring and also for data curation subgroups or cohorts that you think are particularly important to break out your metrics along the logic that defines how you do data curation whether it's sampling rules or anything else and then finally the specific data sets that you use for each different run of your training or evaluation our example continue improvement loop starts with an alert and in this case that alert might be our user feedback got worse today and so our job is now to figure out what's going on so the next thing we'll use is some of our observability tools to investigate what's going on here and we
+
+105
+01:02:18,720 --> 01:02:56,079
+might you know run some subgroup analyses and look at some raw data and figure out that the problem is really mostly isolated to new users the next thing that we might do is do error analysis so look at those new users and the data points that they're sending us and try to reason about why those data points are performing worse and what we might discover is something like our model was trained assuming that people were going to write emails but now users are submitting a bunch of text that has things that aren't normally found in emails like emojis and that's causing our model problems so here's where we might make the first change to our retraining strategy we could define new users as a cohort of interest because we
+
+106
+01:02:54,400 --> 01:03:30,160
+never want performance to decline on new users again without getting an alert about that then we could define a new projection that helps us detect data that has emojis and add that projection to our observability metrics so that anytime in the future if we want as part of an investigation to see how our performance differs between users that are submitting emojis and ones that are not we can always do that without needing to rewrite the projection next we might search our reservoir for historical examples that contain emojis so that we can use them to make our model better and then adjust our strategy by adding that subset of data as a new test case so now whenever we test the model going forward we'll
+
+107
+01:03:27,839 --> 01:04:03,920
+always see how it performs on data with emojis in addition to adding emoji examples to as a test case we would also curate them and add them back into our training set and do a retraining then once we have the new model that's trained we'll get this new model comparison report which will include also the new cohort that we defined as part of this process and the new emoji edge case data set that we defined and then finally if we're doing manual deployment we can just deploy that model and that completes the continual improvement loop so to wrap up what do i want you to take away from this continual learning is a complicated rapidly evolving and poorly understood topic so this is an area to pay attention to if you're interested in
+
+108
+01:04:02,640 --> 01:04:39,599
+seeing how the cutting edge of production machine learning is evolving and the main takeaway from this lecture is we broke down the concept of a retraining strategy which consists of a number of different pieces definitions of metrics subgroups of interest projections that help you break down and analyze high dimensional data performance thresholds for your metrics logic for curating new data sets and the specific data sets that you're going to use for retraining and evaluation at a high level the way that we can think about our role as machine learning engineers once we've deployed the first version of the model is to use rules that we define as part of our observability and monitoring suite to iterate on the strategy for many of you
+
+109
+01:04:37,920 --> 01:05:13,280
+in the near term this won't feel that different from just using that data to retrain the model however you'd like to but i think thinking of this as a strategy that you can tune at a higher level is a productive way of understanding it as you move towards more and more automated retraining lastly just like every other aspect of the ml life cycle that we talked about in this course our main recommendation here is to start simple and add complexity later in the context of continual learning what that means is it's okay to retrain your models manually to start as you get more advanced you might want to automate retraining and you also might want to think more intelligently about how you sample data to make sure that you're
+
+110
+01:05:11,119 --> 01:05:19,200
+getting the data that is most useful for improving your model going forward that's all for this week see you next time
+

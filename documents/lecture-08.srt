@@ -1,0 +1,416 @@
+1
+00:00:00,179 --> 00:00:40,500
+hey everybody welcome back this week we're going to talk about something a little bit different than we do most weeks most weeks we talk about specific technical aspects of building machine learning powered products but this week we're going to focus on some of the organizational things that you need to do in order to work together on ml-powered products as part of an interdisciplinary team so the the reality of building ml Power Products is that building any product well is really difficult you have to figure out how to hire grade people you need to be able to manage those people and get the best out of them you need to make sure that your team is all working together towards a shared goal you need to make good
+
+2
+00:00:38,399 --> 00:01:20,280
+long-term technical choices manage technical debt over time you need to make sure that you're managing expectations not just of your own team but also of leadership of your organization and you need to be able to make sure that you're working well within the confines of the requirements of the rest of the org that you're understanding those requirements well and communicating back to your progress to the rest of the organization against those requirements but machine learning adds even more additional complexity to this machine learning Talent tends to be very scarce and expensive to attract machine learning teams are not just a single role but today they tend to be pretty interdisciplinary which makes
+
+3
+00:01:18,659 --> 00:02:00,600
+managing them an even bigger challenge machine learning projects often have unclear timelines and there's a high degree of uncertainty to those timelines machine learning itself is moving super fast and machine learning as we've covered before you can think of as like the high interest credit card of technical debt so keeping up with making good long-term decisions and not incurring too much technical debt is especially difficult in ml unlike traditional software ml is so new that in most organizations leadership tends not to be that well educated in it they might not understand some of the core differences between ML and other technology that you're working with machine learning products tend to fail in ways that are really hard for Lay
+
+4
+00:01:58,799 --> 00:02:36,360
+people to understand and so that makes it very difficult to help the rest of the stakeholders in your organization understand what they could really expect from the technology that you're building and what is realistic for us to achieve so throughout the rest rest of this lecture we're going to kind of touch on some of these themes and cover different aspects of this problem of working together to build ml Power Products as an organization so here are the pieces that we're going to cover we're going to talk about different roles that are involved in building ml products we're going to talk about some of the unique aspects involved in hiring ml Talent we're going to talk about organization of teams and how the ml team tends to
+
+5
+00:02:34,739 --> 00:03:16,140
+fit into the rest of the org and some of the pros and cons of different ways of setting that up we'll talk about managing ml teams and ml product management and then lastly we'll talk about some of the design considerations for how to design a product that is well suited to having a good ml model that backs it so let's dive in and talk about rules the most common ml rules that you might hear of are things like ml product manager ml Ops or ml platform or ml info teams machine learning Engineers machine learning researchers or ml scientists data scientists so there's a bunch of different roles here and one kind of obvious question is what's the difference between all these different things so let's break down the job
+
+6
+00:03:14,400 --> 00:03:57,900
+function that each of these roles plays within the context of building the ml product starting with the ml product manager their goal is to work with the NL team the business team the users and any other stakeholders to prioritize projects and make sure that they're being executed well to meet the requirements of the rest of the organization so what they produce is things like design docs wireframes and work plans and they're using tools like jira like notion to help sort of organize the work of the rest of the team the ml Ops or ml platform team are focused on building the infrastructure needed in order to make models easier to deploy more scalable or generally reduce the workload of individual contributors
+
+7
+00:03:56,159 --> 00:04:38,160
+who are working on different ml models the output of what they build is some infrastructure some shared tools that can be used across the ml teams in your company and they're working with tools like AWS like Kafka or other data infrastructure tools and potentially working with ML infrastructure vendors as well to sort of bring best in breed from traditional data and software tools and this new category of ml vendors that are providing like mlops tools together to create this sort of best solution for the specific problems that your company is trying to solve then we have the ml engineer the ml engineer is kind of a catch-all role and the way that I like to think of their responsibilities is they're the person who is responsible
+
+8
+00:04:36,000 --> 00:05:15,660
+for training and deploying and maintaining the prediction model that powers the mlpark product they're not just the person who is you know solely training the model and then handing it off to someone else but they're also responsible for deploying it and then maintaining it once it's in production and so they need to know Technologies like tensorflow for training models but also like Docker for packaging models and making sure that they run on production infrastructure the next role is the ml researcher so this is a role that exists in some organizations that the responsibility stops after the model has been trained and so oftentimes these models are either handed off to some other team to productionize or these
+
+9
+00:05:13,800 --> 00:05:54,660
+folks are focused on building models that are not yet production critical or forward-looking maybe they're prototyping some use cases that might be useful down the line for the organization and their work product is a trained model and oftentimes it's a report or a code repo that describes what this model does how to use it and how to reproduce their results so they're working with ML trading tools and also prototyping tools like jupyter notebooks to produce a version of a model that just needs to work once to sort of show that the thing that they're trying to do is possible and then lastly we get the data scientist data scientist is kind of a patch-all term for potentially any of the things above in some organizations data science is quite
+
+10
+00:05:53,220 --> 00:06:31,319
+distinct from what we've been thinking of as a machine learning role in this class and these are folks in some organizations that are responsible for answering business questions using analytics so in some organizations a data scientists is you know the same as an ml researcher or an ml engineer and other organizations data science is a distinct function that is responsible for answering business questions using data the ml work is the responsibility of an ml team so the next thing we'll talk about is what are the different skills that you actually need to be successful in these roles we're going to plot this on a two by two on the x-axis is the amount of skill that you need in machine learning like how much ml do you
+
+11
+00:06:28,979 --> 00:07:07,500
+really need to know on the y-axis is the software engineering skill needed and then the size of the bubble is a requirement on communication or technical writing how good do you have to be at communicating your ideas to other people so starting with ML Ops or ml platform teams this is really primarily a software engineering role and oftentimes where these folks will come into the organization is through their you know traditional software engineering or data engineering hiring pipeline or even moving over from a data engineering role in another part of the organization another common pattern for how organizations find ml Ops or ml platform Engineers is they Source them from mles at their organization it's
+
+12
+00:07:05,580 --> 00:07:43,740
+oftentimes like an ml engineer who used to just work on one model and then got frustrated by the lack of tooling so decided to move into more of a platform role the ml engineer since this is someone who is required to understand the models deeply and also be able to productionize them this tends to be a rare mix of ml skills and software engineering skills so there's sort of two paths that I typically see for folks becoming ml Engineers oftentimes these are software Engineers who have a pretty significant amount of self-teaching or on the other hand maybe they are someone who's trained in machine learning traditionally like they have a science or engineering PhD but then they switch careers into software engineering after
+
+13
+00:07:41,460 --> 00:08:25,220
+grad school or after undergrad and then later decided to fuse those two skill sets ml researchers these are your ml experts so this is kind of the only role on this list that I would say it's pretty typical still to see a graduate degree or another path to these roles are these industrial Fellowship programs like Google brain residency that are explicitly designed to train people without a PhD in in this distinct skill of research since data science is kind of like a catch-all term for a bunch of different roles in different organizations it also admits a variety of different backgrounds and oftentimes these are undergrads who went to a data science specific program or their science phds who are making the
+
+14
+00:08:23,039 --> 00:09:05,220
+transition into industry and then lastly mlpms oftentimes these folks come from a traditional product management background but they do need to have a deep understanding of the specifics of the ml development process and that can come from having you know work closely with ML teams for a long time having just a really strong independent interest in ml or oftentimes what I see is folks who are you know former data scientists or ml Engineers who make the switch into PM it can be really effective at pming ml projects because they have a deep understand in the technology one other distinction that I think is worth covering when talking about the variety of different roles in ml organizations is the distinction between a task ml
+
+15
+00:09:02,880 --> 00:09:44,100
+engineer and a platform ml engineer this is a distinction that was coined by Shreya Shankar in blog post that's linked below and the distinction is that some ml Engineers are really responsible for like one ml pipeline or maybe a handful of ml pipelines that they're assigned to and so they're the ones that are day in and day out responsible for making sure that this model is healthy making sure that it's being updated frequently and that any failures are sort of being accounted for these folks are often like very overburdened this can be a very sort of expansive role because they have to be training models and deploying them and understanding where they break since mlgiers are often spread so thin some ml Engineers end up
+
+16
+00:09:41,100 --> 00:10:22,260
+taking on a role that looks more like a ml platform team or ml Ops Team where they work across teams to help ml Engineers automate tedious parts of their jobs and so we in our parlance this is called an ml platform engineer or ml Ops engineer but you'll also hear this referred to as an ml engineer or a platform ml engineer so we've talked a little bit about what are some of the different roles in the process of building ml Power Products now let's talk about hiring so how to think about hiring ml Specialists and if you are an ml specialist looking for a job how to think about making yourself more attractive as a job candidate so a few different things that we'll cover here the first is the AI Talent gap which is
+
+17
+00:10:20,339 --> 00:10:59,519
+sort of the reality of ml hiring these days and we'll talk about how to source for ML Engineers if you're hiring folks we'll talk about interviewing and then lastly we'll talk about finding a job four years ago when we started teaching full stack deep learning the AI Talent Gap was the main story in many cases for what teams found Difficult about building with ML there was just so so few people that understood this technology that the biggest thing blocking a lot of organizations was just they couldn't find people who are good at machine learning four years later the AI Talent Gap persists and there's still you know news stories every few months that are being written about how difficult it is for companies to find ml
+
+18
+00:10:57,120 --> 00:11:38,279
+talent but my observation day to day in the field is that it tends to be less of a blocker than it used to be because you know we've had four years of folks switching careers into ML and four years of you know software Engineers emerging from undergrad with at least a couple of ml classes in many cases under their belts so there's more and more people now that are capable of doing ml but there's still a gap and in particular that Gap tends to be in folks that understand more than just the underlying technology but also have experience in seeing how seeing how it fails and how to make it successful when it's deployed so that's the reality of how difficult it is to hire machine learning folks today especially those who have
+
+19
+00:11:36,360 --> 00:12:14,459
+production experience so if you are hiring ml folks how should you think about finding people if you're hiring ml product managers or ml platform or ml Ops Engineers the main skill set that you need to look for is still the sort of core underlying skill set for those roles so product management or data engineering or platform Engineering in general but it is critical to find folks who have experience at least interacting with teams that are building production ml systems because I think one sort of failure mode that I've seen relatively frequently especially for ML platform teams is if you just bring in folks with pure software engineering background a lot of times it's difficult for them to understand the user requirements well
+
+20
+00:12:12,660 --> 00:12:52,920
+enough in order to engineer things that actually solve the user's problems users here being the task mles who are you know the ones who are going to be using the infrastructure data that we'll focus for the rest of the section mostly on these two roles ml engineer and ml scientist so there's a right and a wrong way to hire ml engineers and the wrong way oftentimes looks maybe something like this so you see a job description for the Unicorn machine learning engineer the duties for this person are they need to keep up with seed of the art they need to implement new models from scratches that come out they need a deep understanding of the underlying mathematics and ability to invent new models for new tasks as it arises they
+
+21
+00:12:51,480 --> 00:13:30,060
+need to also be able to build tooling and infrastructure for the ml team because ml teams need tooling to do their jobs they need to be able to build data pipelines as well because without data ml is nothing they need to deploy these models and monitor them in production because without deploying models you're not actually solving a problem so in order to fulfill all these duties you need these requirements as this unicorn mle role you of course need a PhD you need at least four years of tensorflow experience four years as a software engineer you need to have Publications and nurips or other top ml conferences experience building large-scale distributed systems and so when you add all this up hopefully it's becoming
+
+22
+00:13:28,500 --> 00:14:09,720
+clear why this is the wrong way to hire ml Engineers there's just not really very many people that fit this description today if any and so the implication is the right way to hire ml Engineers is to be very very specific about what you actually need from these folks and in most cases the right answer is to primarily hire for software engineering skills not ml skills you do need folks that have at least a background in ml and a desire to learn ML and you can teach people how to do ml if they have a strong interest in it they know the basics and they're really strong in the software engineering side another approach instead of hiring for software engineering skills and training people in the on the ml side is to go
+
+23
+00:14:07,380 --> 00:14:46,680
+more Junior most undergrads in computer science these days graduate with ML experience and so these are folks that have traditional computer science training and some theoretical ml understanding so they have sort of the seeds of being good at both ML and software engineering but maybe not a lot of experience in either one and then the third way that you can do this more effectively is to be more specific about what you really really need for not the ml engineering function in general but for this particular role right so not every ml engineer needs to be a devops expert to be successful not every ml engineer needs to be able to implement new papers from scratch to be successful either for many of the MLS years that
+
+24
+00:14:45,240 --> 00:15:25,440
+you're hiring what they really need to do is something along the lines of taking a model that is you know pretty established as something that works while pulling it off the shelf or training it using a pretty robust library and then being able to deploy that model into production so focus on hiring people to have those skills not these aspirational skills that you don't actually really need for your company NeXT let's talk about a couple things I've found to be important for hiring ml researchers the first is a lot of folks when they're hiring ml researchers they look first at the number of Publications they have in top conferences I think it's really critical to focus entirely on the Quant the quality of public
+
+25
+00:15:23,160 --> 00:16:01,019
+locations not the quantity and this unfortunately requires a little bit of judgment about what high quality research looks like but hopefully there's someone on your team that can provide that judgment it's more interesting to me to find machine learning researchers who have you know one or two Publications that you think are really creative or very applicable to the field that you're working in or have really really strong promising results then to find someone who's you know published 20 papers but each of them are just sort of an incremental Improvement to the state of the art if you're working in the context of a company where you're trying to build a product and you're hiring researchers then I think another really important
+
+26
+00:15:59,339 --> 00:16:34,079
+thing to filter for is looking for researchers who have an eye for working on problems that really matter a lot of researchers maybe through no fault of their own just because of the incentives and Academia focus on problems that are trendy if everyone else is publishing about reinforcement learning then they'll publish about reinforcement learning if everyone else is publishing about generative models then they'll make an incremental improvements to generative models to get them a publication but what you really want to to look for I think is folks that have an independent sense of what problems are important to work on because in the context of your company no one's going to be telling these folks like hey this
+
+27
+00:16:33,300 --> 00:17:08,400
+is what everyone's going to be publishing about this year oftentimes experience outside of Academia can be a good proxy for this but it's not really necessary it's just sort of one signal to look at if you already have a research team established then it's worth considering hiring talented people from adjacent Fields hiring from physics or statistics or math at open AI they did this with to really strong effects they would look for sort of folks that were really technically talented but didn't have a lot of ml expertise and they would train them in them out this works a lot better if you do have experienced researchers who can provide mentorship and guidance for folks I probably wouldn't hire like a first
+
+28
+00:17:06,780 --> 00:17:47,280
+researcher that doesn't have ml experience and then it's also worth remembering that especially these days you really don't need a PhD to do ml research many undergrads have a lot of experience doing ml research and graduates of some of these industrial Fellowship programs like Googles or Facebooks or open AIS have learned the basics of how to do research regardless of whether they have a PhD so that's how to think about evaluating candidates for ML engineering or ml research roles the next thing I want to talk about is how to actually find those candidates so your standard sources like LinkedIn or recruiters or on campus recruiting all work but another thing that can be really effective if you want to go
+
+29
+00:17:44,280 --> 00:18:26,580
+deeper is every time there's a new dump of papers on archive or every year at nurips and other top conferences just keep an eye on what you think are the most exciting papers and flag mostly the first authors of those papers because those are the ones that tend to be doing most of the work and are generally more recruitable because they tend to be more Junior in their careers Beyond looking at papers you can also do something similar for good re-implementations of papers that like so if you are you know looking at some hot new paper and a week later there's a re-implementation of that paper that has high quality code and hits the main results then chances are whoever wrote that implementation is probably pretty good and so they could
+
+30
+00:18:24,960 --> 00:19:01,919
+be worth recruiting you can do a lot of this in person now that ml research conferences are back in person or you can just reach out to folks that you are interested in talking to over the Internet since there's a talent shortage in ml it's not enough just to know how to find good ml candidates and evaluate them you also need to know how to think about attracting them to your company I want to talk a little bit about from what I've seen what a lot of ml practitioners are interested in the roles they take and then talk about ways that you can make your company Stand Out along those axes so one thing a lot of ml practitioners want is to work with Cutting Edge tools and techniques to be working with latest state of the art
+
+31
+00:19:00,419 --> 00:19:36,780
+research another thing is to build knowledge in an exciting field to like a more exciting branch of ml or application of ml working with excellent people probably pretty consistent across many technical domains but certainly true in ml working on interesting data sets this is kind of one unique thing in ml since the work that you can do is constrained in many cases the data sets that you have access to being able to offer unique data sets can be pretty powerful probably again true in general but I've noticed for a lot of ml folks in particular it's important for them to feel like they're doing work that really matters so how do you stand out on these axes you can work on Research oriented projects even if the sort of mandate of
+
+32
+00:19:35,580 --> 00:20:12,780
+your team is primarily to help your company doing some research work that you can publicize and that you could point to as being indicative of working on The Cutting Edge open source libraries things like that can really help attract top candidates if you want to emphasize the ability of folks to sort of build skills and knowledge in an exciting field you can build a team culture around learning so you can host reading groups in your company you can organize learning days which is something that we did at open AI where we would dedicate back then a day per week just to be focused on learning new things but you can do it less frequently than that professional development budgets conference budgets things like
+
+33
+00:20:11,340 --> 00:20:50,820
+this that you can emphasize and this is probably especially valuable if your strategy is to hire more Junior folks or more software engineering oriented folks and train them up in machine learning emphasize how much they'll be able to learn about MLA company one sort of hack to being able to hire good ml people is to have other good ml people on the team this is maybe easier said than done but one really high profile hire can help attract many many other people in the field and if you don't have the luxury of having someone high profile on your team you can help your existing team become more high profile by helping them publish blogs and papers so that other people start to know how talented your team actually is when you're attracting
+
+34
+00:20:48,240 --> 00:21:27,419
+ml candidates you can focus on sort of emphasizing the uniqueness of your data set in recruiting materials so if you have know the best data set for a particular subset of the legal field or the medical field emphasize how interesting that is to work with how much data you have and how unique it is that you have it and then lastly you know just like any other type of recruiting selling the mission of the company and the potential for ML to have an impact on that mission can be really effective next let's talk about ml interviews what I would recommend testing for if you are on the interviewer side of an ml interview is to try to hire for strengths and meet a minimum bar for everything else and this can help you avoid falling into the Trap
+
+35
+00:21:24,780 --> 00:22:01,380
+of looking for unicorn mles so some things that you can test are you want to validate your hypotheses of candidate strengths so if it's a researcher you want to make sure that they can think creatively about new ml problems and one way you can do this is to probe how thoughtful they were about previous projects if they're Engineers if they're mles then you want to make sure that they're great generalist software Engineers since that's sort of the core skill set in ml engineering and then you want to make sure they meet a minimum bar on weaker areas so for researchers I would advocate for only hiring researchers in Industry contexts who have at least the very basics in place about software engineering knowledge and
+
+36
+00:21:59,220 --> 00:22:33,299
+the ability to write like decent code if not you know really high quality production ready code because in context of working with a team other people are going to need to use their code and it's not something that everyone learns how to do when they're in grad school for ML for software Engineers you want to make sure that they at least meet a minimum bar on machine learning knowledge and this is really testing for like are they passionate about this field that they have put in the requisite effort to learn the basics of ml that's a good indication that they're going to learn ml quickly on the job if you're hiring them mostly for their software engineering skills so what do ml interviews actually consist of so this
+
+37
+00:22:31,320 --> 00:23:10,380
+is today much less well defined than your software engineering interviews some common types of Assessments that I've seen are your normal sort of background and culture fit interviews whiteboard coding interviews similar to you'd see in software engineering pair coding like in software engineering but some more ml specific ones include pair debugging where you and an interviewer will sit down and run some ml code and try to find Hey where's the bug in this code oftentimes this is ml specific code and the goal is to test for how well is this person able to find bugs in ml code since bugs tend to be where we spend most of our time in machine learning math puzzles are often common especially involving things like linear algebra
+
+38
+00:23:08,340 --> 00:23:46,080
+take-home projects other types of Assessments include applied ml questions so typically this will have the flavor of hey here's a problem that we're trying to solve with ML let's talk through the sort of high level pieces of how we'd solve it what type of algorithm we'd use what type of system them we need to build to support it another Common Assessment is probing the past projects that you've listed on your resume or listed as part of the interview process asking you about things you tried will work what didn't work and trying to assess what role you played in that project and how thoroughly you thought through the different alternative paths that you could have considered and then lastly ml Theory questions are also pretty common
+
+39
+00:23:43,919 --> 00:24:20,880
+in these interview type assessments that's sort of the universe of things that you might consider interviewing for if you're trying to hire ml folks or that you might expect to find on an ml interview if you are on the the other side and trying to interview for one of these jobs and the last thing I'll say on interviews is there's a great book from chipwin the introduction to machine learning interviews book which is available for free online which is especially useful I think if you're preparing to interview for machine learning roles speaking of which what else should you be doing if your goal is to find new job in machine learning the first question I typically hear is like where should I even look for ML jobs
+
+40
+00:24:19,080 --> 00:24:51,059
+your standard sources like LinkedIn and recruiters all work ml Research Conference references can also be a fantastic place just go up and talk to the folks that are standing around the booths at those conferences they tend to be you know looking for candidates and you can also just apply directly and this is sort of something that people tell you not to do for most roles but remember there's a talent Gap in machine learning so this can actually be more effective than you might think when you're applying what's the best way to think about how to stand out for these roles so I think like sort of a baseline thing is for many companies they really want to see that you're expressing some sort of interest in ml you've been
+
+41
+00:24:49,260 --> 00:25:29,460
+attending conferences you've been taking online courses you've been doing something to sort of put get your foot in the door for getting into the field better than that is being able to demonstrate that you have some software engineering skills again for many ml organizations hiring for software engineering is in many ways more important than hiring for ML skills if you can show that you have a broad knowledge of ml so writing blog posts that synthesize a particular research area or articulating a particular algorithm in a way that is that is new or creative or compelling can be a great way to stand out but even better than that is demonstrating an ability to you know ship ml projects and the best way to do this I think if you are not
+
+42
+00:25:27,600 --> 00:26:04,980
+working in ml full-time right now is through side projects these can be ideas of whatever you want to work on they can be paper re-implementation so they can be your project for this course and then probably if you really want to stand out maybe the most impressive thing that you can do is to prove that you can think creatively in ml right think Beyond just reproducing things that other people have done but be able to you know win kaggle competitions or publish papers and so this is definitely not necessary to get a job in ml but this will sort of put your resume at the top of the stack so we've talked about some of the different roles that are involved in building ml products and how to think about hiring for those roles or being
+
+43
+00:26:03,419 --> 00:26:43,320
+hired for those roles the next thing that we're going to talk about is how machine learning teams fit into the context of the rest of the organization since we're still in the relatively early days of adopting this technology there's no real consensus yet in terms of the best way to structure an ml team but what we'll cover today is taxonomy of some of the best practices for different security levels of organizations and how they think about structuring their ml teams and so we'll think about this as scaling a mountain from least mature ml team to most mature so the bottom of the mountain is the nascent or ad hoc ml archetype so what this looks like is you know your company has just started thinking about mL no
+
+44
+00:26:41,940 --> 00:27:20,460
+one's really doing it yet or maybe there's a little of it being done on an ad hoc basis by the analytics team or one of the product teams and most smaller medium businesses are at most in this category but some of the less technology for larger organizations still fall in this category as well so the great thing about being at this stage is that there's a ton of low hanging fruit often for ML to come in and help solve but the disadvantage if you're going to go in and work in an organization at this stage is that there's often little support available for ML projects you probably won't have any infrastructure that you can rely on and it can be difficult to hire and retain good talent plus leadership in the company may not really be bought
+
+45
+00:27:18,419 --> 00:27:59,940
+into how useful ml could be so that's some of the things to think about if you're going to go take a role role in one of these organizations once the company has decided hey this ml thing is something exciting something that we should invest in typically they'll move up to an ml r d stage so what this looks like is they'll have a specific team or specific like subset of their r d organization that's focused on machine learning they'll typically hire researchers or phds and these folks will be focused on building prototypes internally or potentially doing external facing research so some of the larger oil and gas companies manufacturing companies telecom companies were in the stage even just a few years ago although
+
+46
+00:27:58,260 --> 00:28:36,000
+they've in many cases moved on from it now if you're going to go work in one of these organizations one of the big advantages is you can get away with being less experienced on the research side and since the ml team isn't really going to be on the hook today for any sort of meaningful business outcomes another big Advantage is that these teams can work on long-term business priorities and they can focus on trying to get to what would be really big wins for the organization but the disadvantage to be aware of if you're thinking about joining a team at this stage or building a team at this stage is that oftentimes since the ml team is sort of siled off into an R D part of the organization or a separate team from
+
+47
+00:28:34,080 --> 00:29:11,580
+the different products initiatives it can be difficult for them to get the data that they need to solve the problems that they need to solve it's just not a priority in many cases for other parts of the business to give them the data and then probably the biggest disadvantage of this stage is that you know it doesn't usually work it doesn't usually translate to business value for the organization and so oftentimes ml teams kind of get stuck at this stage where they don't invest very much in ml and ml is kind of siled and so they don't see strong results and they can't really justify doubling down the next evolution of ml organizations oftentimes is embedding machine learning directly into business and product teams so what
+
+48
+00:29:09,900 --> 00:29:52,140
+this looks like is you'll have some product teams within the organization that have a handful of ml people side by side with their software or analytics teams and these ml teams will report up into the sort of engineering or Tech organizations directly instead of being in their own sort of reporting arm a lot of tech companies when they start adopting ml sort of pretty quickly get to this category because they're pretty agile software organizations and pretty Tech forward organizations anyway and a lot of the financial services company is tend towards this model as well the big sort of overwhelming advantage of this organizational model is that when these ml teams ship stuff successfully it almost always is able to translate
+
+49
+00:29:50,159 --> 00:30:27,419
+pretty directly to business value since the people that are doing ml sit side by side with the folks that are you know building the product or building the feature that the ml is going to be part of and this gives them a really tight feedback cycle between new ideas that they have for how to make the ml better how to make the product better with ml into actual results as part of the products the disadvantages of building ml this way are oftentimes it can be hard to hire and develop really really great ml people because great ml people often want to work with other great ml people it can also be difficult to get these ml folks access to the resources that they need to be really successful so that's the infrastructure they need
+
+50
+00:30:25,620 --> 00:31:03,360
+the data they need or the compute they need because they don't have sort of a central team that reports high up in the organization to ask for help and one other disadvantage of this model is that oftentimes this is where you see conflicts between the way that ml projects are run the sort of iterative process that is high risk and the way that the software teams that these ml folks are a part of are organized sometimes you'll see conflict between folks getting frustrated with the ml folks on their team for not shipping quickly or not being able to sort of commit to a timeline that they promised the next ml organization architect will cover is independent machine learning's function what this looks like is you'll
+
+51
+00:31:01,799 --> 00:31:42,960
+have a machine learning division of the company that reports up to senior leadership so they report to the CEO or the CTO or something along those lines this is what distinguishes it from the mlr D archetype where the ml team is often you know reporting to someone more Junior in the organization often a foreigner as sort of a smaller bet this is the organization making a big bet to investing in machine learning so oftentimes this is also the archetype where you'll start to see mlpms or platform nlpms that work with researchers and ml engineers and some of these other roles in order to deliver like a cross-functional product the big advantage of this model is access to resources so since you have a centralized ml team you can often hire
+
+52
+00:31:40,679 --> 00:32:18,960
+really really talented people and build a talent density in the organization and you can also train people more easily since you have more ml people sitting in a room together or in a zoom room together in some cases since you report to senior leadership you can also often like Marshal more resources in terms of data from the rest of the organization or budget for compute than you can in other archetypes and it makes it a lot easier when you have a centralized organization to invest in things like tooling and infrastructure and culture and best practices around developing ml in your organization the big disadvantage of this model is that it leads to handoffs and that can add friction to the process that you as an
+
+53
+00:32:16,980 --> 00:32:54,720
+ml team need to run in order to actually get your models into production and the last ml organization archetype the the end State the goal if you're trying to build ml the right way in your organization is to be an ml first organization so what this looks like is you have buy-in up and down the organization that ml is something that you as a company want to invest in you have an ml division that works on the most challenging long-term projects and invests in sort of centralized data and centralized infrastructure but you also have expertise in ml in every line of business that focuses on quick wins and working with the central ml division to sort of translate the ideas they have the implementations they make into
+
+54
+00:32:52,320 --> 00:33:30,480
+actual outcomes for the products that the company is building so you'll see this in the biggest tech companies like the Googles and Facebooks of the world as well as startups that were founded with ML as a core guiding principle for how they want to build the products and these days more and more you're starting to see other tech companies who began investing in ml four or five years ago start to become closer to this archetype there's mostly advantages to this model you have great access to data It's relatively easy to recruit and most importantly it's probably easiest in this archetype out of all them to get value out of ml because the products teams that you're working with understand machine learning and really
+
+55
+00:33:28,799 --> 00:34:07,740
+the only disadvantage of this model is that it's difficult and expensive and it takes a long time for organizations that weren't born with this mindset to adopt it because you have to recruit a lot of really good ml people and you need to culturally embed ml thinking into your organization the next thing that we'll talk about is some of the design choices you need to make if you're building an ml team we'll talk about how those depend on the archetype of the organization that you fit into the first question is software engineering versus research so to what extent is the mltm responsible for building software versus just training models the second question is data ownership so is the ml team also responsible for creating publishing data
+
+56
+00:34:06,240 --> 00:34:43,379
+or do they just consume that from other teams and the last thing is model ownership the ml team are they the ones that are going to productionize models or is that the responsibility of some other team in the mlr D archetype typically you'll prioritize research over software engineering skills and the MLT won't really have any ownership over the data or oftentimes even the skill sets to build data pipelines themselves and similarly they won't be responsible for deploying models either and in particular models will rarely make it into production so that won't really be a huge issue embedded ml teams typically they'll prioritize software engineering skills over research skills and all researchers if they even have
+
+57
+00:34:42,060 --> 00:35:21,359
+researchers will need to have strong software engineers skills because everyone's expected to deploy it ml teams still generally doesn't own data because they are working with data Engineers from the rest of the organizations to build data pipelines but since the expectation in these types of organizations is that everyone deploys typically ml Engineers will own maintenance of the models that they deploy in the ml function archetype typically the requirement will be that you'll need to have a team that has a strong mix of software engineering research and data skills so the team size here starts to become larger a minimum might be something like one data engineer one ml engineer potentially a platform engineer or a devops engineer
+
+58
+00:35:18,839 --> 00:35:57,420
+and potentially a PM but these teams are often working with a bunch of other functions so they can in many cases get much larger than that and you know in many cases in these organizations you'll have both software engineers and researchers working closely together within the context of a single team usually at this stage ml teams will start to have a voice in data governance discussions and they'll probably also have some strong internal data engineering functions as well and then since the ml team is centralized at this stage they'll hand off models to a user but in many cases they'll still be responsible for maintaining them although that line is blurry in a lot of organizations that run this model finally in ml first organizations
+
+59
+00:35:55,320 --> 00:36:32,700
+there's no real standardization around how teams are research oriented or not but research teams do tend to work pretty closely with software engineering teams to get things done in some cases the ml team is actually the one that owns company-wide data infrastructure because ml is such a central bet for the company that it makes sense for the ml team to make some of the sort of main decisions about how data will be organized then finally if the ml team is the one that actually built the model they'll typically hand it off to a user who since they have the basic ml skills and knowledge to do this they'll actually be the one to maintain the model and here's all this on one slide if you want to look at it all together
+
+60
+00:36:31,140 --> 00:37:06,720
+all right so we've talked about machine learning teams and organizations and how these come together and the next thing that we're going to talk about is team management and product management for machine learning so the first thing to know about product management and team management for ML is that it tends to be really challenging there's a few reasons for this the first is that it's hard to tell in advance how easy or hard something is going to be so this is an example from a blog post by Lucas B Walt where they ran a kaggle competition and in the first week of that kago competition they saw a huge increase in the accuracy of the best performing model they went from 35 to 70 accuracy within one week and they were thinking
+
+61
+00:37:04,859 --> 00:37:42,359
+this is great like we're gonna hit 95 accuracy and this contest is going to be a huge success but then if you zoom out and look at the entire course of the project over three months it turns out that most of that accuracy gain came in the first week and the improvements thereafter were just marginal and that's not because of a lack of effort the number of participating teams was still growing really rapidly over the course of that time so the upshot is it's really hard to tell in advance how easier or hard something is in ml and looking at signals like how quickly are we able to make progress on this project can be very misleading or related challenge is that progress on ML projects tends to be very non-linear so
+
+62
+00:37:40,260 --> 00:38:17,460
+it's very common for projects to stall for weeks or longer because the ideas that you're trying just don't work or because you hit some sort of unforeseen snag with not having the right data or something like that that causes you to really get stuck and on top of that in the earliest stages of doing the project it can be very difficult to plan and to tell how long the project is going to take because it's unclear what approach will actually work for training a model that's good enough to solve the problem and the upshot of all this is that estimating the timeline for a project when you're in the project planning phase can be very difficult in other words production ml is still somewhere between research and Engineering another
+
+63
+00:38:14,700 --> 00:38:54,540
+challenge for managing ml teams is that there's cultural gaps that exist between research and Engineering organizations these folks tend to come from different backgrounds they have different training they have different values goals and norms for example oftentimes you know stereotypically researchers care about novelty and about how exciting the approach is that they took to solve a problem whereas you know again stereotypically oftentimes software Engineers care about did we make the thing work and in more toxic cultures these two sides often can class and even if they don't Clash directly they might not really value each other as much as they should because both sides are often necessary to build the thing that you
+
+64
+00:38:53,099 --> 00:39:28,740
+want to build to make batteries worse when you're managing a team as part of an organization you're not just responsible for making sure the team does what they're supposed to do but you'll also have to manage up to help leadership understand your progress and what the Outlook is for the thing that you're building since ml is such a new technology many leaders and organizations even in good technology organizations don't really understand it so next I want to talk about some of the ways that you can manage machine learning projects better and the first approach that I'll talk about is doing project planning probabilistically so oftentimes when we think about project planning for software projects we think
+
+65
+00:39:26,520 --> 00:40:07,740
+about it as sort of a waterfall right where you have a set of tasks and you have a set of time estimates for those tasks and a set of dependencies for those tasks and you can plan these out one after another so if task G depends on tasks D and F then task G will happen once those are done if task D depends on C which depends on task a you'll start Task D after a and C are done Etc but in machine learning this can lead to frustration and badly estimated timelines because each of these projects has a higher chance of failure than it does in a typical software project what we ended up doing at open AI was doing project planning probabilistically so rather than assuming that like a particular task is going to take a
+
+66
+00:40:06,060 --> 00:40:45,540
+certain amount of time instead we assign probabilities to let the likelihood of completion of each of these tasks and potentially pursue alternate tasks that allow us to unlock the same dependency in parallel so in this example you know maybe task fee and task C are both alternative approaches to unlocking task D so we might do both of them at the same time and so if we realize all of a sudden that task C is not going to work and task B is taking longer than we expected then we can adjust the timeline appropriately and then we can start planning the next wave of tasks once we know how we're going to solve the prerequisite tasks that we needed a coral area of doing machine learning project planning probabilistically is
+
+67
+00:40:43,560 --> 00:41:20,700
+that you you shouldn't have any path critical projects that are fundamentally research research projects have a very very high rate of failure rather than just saying like this is how we're going to solve this problem instead you should be willing to try a variety of approaches to solve that problem that doesn't necessarily mean that you need to do them all in parallel but many good machine learning organizations do so one way to think about this is you know if you know that you need to build like a model that's never been built in your organization before you can have like a friendly competition of ideas if you have a culture that's built around working together as a team to get to the right answer and not just rewarding the
+
+68
+00:41:19,140 --> 00:41:55,079
+one person who solves the problem correctly another corollary to this idea that that many machine learning ideas can and will fail is that when you're doing Performance Management it's important not to get hung up on just who is the person whose ideas worked in the long term it's important for people to do things that work like over the course of you know many many months or years if nothing that you try works then that's maybe an indication that you're not trying the right things you're not executing effectively but on at any given project object like on a timeline of weeks or a quarter then the success measure that you should be looking at is how well you executed on the project not whether the project happened to be one
+
+69
+00:41:53,579 --> 00:42:29,820
+of the ones that worked one failure mode that I've seen in organizations that hire both researchers and Engineers is implicitly valuing one side more than the other so thinking engineering is more important than research which can lead to things getting stuck on the ml side because the ml side is not getting the resources or attention that they deserve or thinking that research is more important than engineering which can lead to creating ml innovations that are not actually useful so oftentimes the way around this is to have engineers and researchers work very closely together in fact like sometimes uncomfortably close together like working together on the same code base for the same project and understanding
+
+70
+00:42:28,320 --> 00:43:05,700
+that these folks bring different skill sets to the table another key to success I've seen is trying to get quick wins so rather than trying to build a perfect model and then deploy it trying to ship something quickly to demonstrate that this thing can work and then iterate on it over time and then the last thing that you need to do if you're in a position of being the product manager or the engineering manager for an ml team is to put more emphasis than you might think that you need on educating the rest of your organization on how ml Works diving into that a bit more if your organization is relatively new to adopting ml I'd be willing to bet that a lot of people in the organization don't understand one or more of these things
+
+71
+00:43:03,359 --> 00:43:43,260
+for us as like ml practitioners it can be really natural to think about where ml can and can't be used but for a lot of technologists or Business Leaders that are new to ml the uses of ml that are practical can be kind of counter-intuitive and so they might have ideas for ML projects that are feasible and they might miss ideas for ML projects that are pretty easy that don't fit their mental model of what ml can use another common point of friction in dealing with the rest of the organization is convincing the rest of the organization that the ml that you built actually works Business Leaders and folks from product teams typically the same metrics that convince us as ml practitioners that this model is useful
+
+72
+00:43:41,460 --> 00:44:18,780
+won't convince them like just looking at an F1 score or an accuracy score doesn't really tell them what they need to know about whether this model is really solving the task that it needs to solve for the business outcome that they're aiming for and one particular way that this presents itself pretty frequently is in Business Leaders and other stakeholders not really sort of wrapping their heads around the fact that ml is inherently probabilistic and that means that it will fail in production and so a lot of times where ml efforts get hung up is in the same stakeholders potentially that champion the project to begin with not really being able to get comfortable with the fact that once the model is out in the world it's you know
+
+73
+00:44:17,339 --> 00:44:57,780
+the users are going to start to see failures that it makes in almost all cases and the last common failure mode in working with the rest of the organization is the rest of the organization treating ml projects like other software projects and not realizing that they need to be managed differently than other software projects too and one particular way that I've seen this become a problem is when leadership gets frustrated at ml team because they're not able to really accurately convey how long projects are going to take to complete so educating leadership and other stakeholders on the probabilistic nature of ml projects is important to maintaining your sanity as an ml team if you want to share some resources with your execs that they can
+
+74
+00:44:55,500 --> 00:45:37,079
+use to learn more about how these projects play out in the practice of real organizations I would recommend Peter beale's AI strategy class from the business school at UC Berkeley and Google's people in AI guidebook which we'll be referring to a lot more in the rest of the lecture as well the last thing I'll say on educating the rest of the organization on ml is that mlpms I think play like one of the most critical roles in doing this effectively to illustrate this I'm going to make an analogy to the two types of ml engineers and describe two prototypal types of mlpms that I see in different organizations so on one hand we have our task mlpms these are like a PM that's responsible for a specific product or
+
+75
+00:45:35,280 --> 00:46:16,680
+specific product feature that heavily uses ml these folks will need to have a pretty specialized knowledge of ML and how it applies to the particular domain that they're working on so for example they might be the PM for the trust and safety product for your team or particular recommendation product for your team and these are probably the more common type of mlpms in Industry today but an emerging type of mlpm is the platform mlpm platform mlpms tend to start to make sense when you have a centralized ml team and that centralized ml team needs to play some role in educating the rest of the organization in terms of like what are productive uses of ml in all the products that the organization is building because these
+
+76
+00:46:14,640 --> 00:46:55,260
+folks are responsible for managing the workflow in and out of the ml team so helping filter out projects that aren't really high priority for the business or aren't good uses of ml helping proactively find projects that might have a big impact on the the product or the company by spending a lot of time with PMS from the rest of the organization and communicating those priorities to the ml team and outward to the rest of the organization this requires a broad knowledge of ml because a lot of what this role entails is trying to really understand where ml tan and should and shouldn't be applied in the context of all the things the organization is doing and one of the other critical roles that platform MLT
+
+77
+00:46:52,619 --> 00:47:30,720
+and PMs could play is spreading ml knowledge and culture throughout the rest of the organization not just going to PMs and business stakeholders from the other product functions and Gathering requirements from them but also helping educate them on what's possible to do with ML and helping them come up with ideas to use ml in their areas of responsibility that they find exciting so that they can over time really start to build their own intuition about what types of things they should be considering ml to be used for and then another really critical role that these platform mlpms can play is mitigating the risks of you know we've built a model but we can't convince the rest of the organization to actually use it by being really crisp
+
+78
+00:47:28,920 --> 00:48:07,440
+about what are the requirements that we actually need this model to fulfill and then proactively communicating with the other folks that need to be bought in about the model's performance to help them understand all the things that they'll need to understand about them also really trust its performance so platform mlpms are or I think a newer Trend in ml organizations but I think one that can have a big impact on the success of ml organizations when you're in this phase starting to build a centralized ml team or trans transition from a centralized ml team to becoming an ml first organization one question I get a lot about ml product management is what's the equivalent of agile or any of these established development
+
+79
+00:48:05,280 --> 00:48:46,980
+methodologies for software in ml is there something like that that we can just take off the shelf and apply and deliver successful ml products and the answer is there's a couple of emerging ml project management methodologies the first is Chris DM which is actually an older methodology but it was originally focused on Data Mining and has been subsequently applied to data science and ML and the second is the team data science process tdsp from Microsoft what these two things have in common is that they describe the stages of ml projects as sort of a loop where you start by trying to understand the problem that you're trying to solve acquiring data building a model evaluating it and then finally deploying it so the main reason
+
+80
+00:48:45,180 --> 00:49:24,960
+to use one of these methodologies would be if you really want standardization for what you call the different stages of the Project Life Cycle if you're choosing between these two tdsp tends to be a little bit more structured it provides like sort of more granular list of roles responsibilities templates that you can use to actually execute on this process crisp DM is a bit higher level so if you need an actual like granular project management framework then I would start by trying tdsp but I'll see more generally it's reasonable to use these if you truly have a large scale coordination problem if you're trying to get a large ml team working together successfully for the first time but I would otherwise recommend skipping these
+
+81
+00:49:23,280 --> 00:50:03,660
+because they're more focused on traditional data mining or data science processes and they'll probably slow you down so I would sort of exercise caution before implementing one of these methodologies in full the last thing I want to talk about is designing products that lend themselves well to being powered by Machine learning so I think the fundamental challenge in doing this is a gap between in what users expect when they're ended in AI powered products and what they actually get and so what users tend to think when they're given an AI powered product is you know their mental model is often human intelligence but better and in Silicon so they think it um has this knowledge of the world that it as achieved by
+
+82
+00:50:02,099 --> 00:50:41,099
+reading the whole internet oftentimes they think that this product knows me better than I know myself because it has all the data about me from every interaction I've ever had with software they think that AI Power Products learn from their mistakes and that they generalize to new problems right because it's intelligence it's able to learn from new examples to solve new tasks but I think a better mental model for what you actually get with an ml powered products is a dog that you train to solve a puzzle right so it's amazing that it can solve the puzzle and it's able to solve surprisingly hard puzzles but at the end of the day it's just a dog solving a puzzle and in particular dogs are weird little guys right they
+
+83
+00:50:39,000 --> 00:51:18,180
+tend to fail and strange and unexpected ways that you know we as people with like human intelligence might not expect they also get distracted easily right like if you take them outside they might not be able to solve the same problem that they're able to solve inside they don't generalize outside of a narrow domain The Stereotype is that you can't teach an old dog new tricks and in ml it's often hard to adapt general knowledge should new tasks or new contexts dogs are great at learning tricks but they can't do it if you don't give them treats and similarly machine Learning Systems don't tend to learn well without feedback or rewards in place to help understand where they're performing well and where they're not
+
+84
+00:51:16,020 --> 00:51:54,240
+performing well and lastly both dogs learning tricks and machine Learning Systems might misbehave if you leave them unattended the implication is that there's a big gap between users mental model for machine learning products and what they actually get from machine learning products so the upshot is that the goal of good ml product design is to bridge the user's expectation with reality and there's a few components to that the first is helping users understand what they're actually getting from the model and also its limitations the the second is that since failures are inevitable we need to be able to handle those failures gracefully which means not over relying on Automation and being able to fall back in many cases
+
+85
+00:51:52,260 --> 00:52:37,140
+too human in the loop and then the final goal of ml product design is to build in feedback loops that help us use data from our users to actually improve the system one of the best practices for ML product design is explaining the benefits and limitations of the system to users one way that you can do that is since users tend to have misconceptions about what AI can and can't do focus on what problem the product is actually solving for the user not on the fact that it's AI powered and similarly the more open-ended and human feeling you make the product experience like allowing users to enter any information that they want to or ask questions in whatever natural language that they want to the more they're going to treat it as
+
+86
+00:52:34,980 --> 00:53:15,240
+human-like and expose some of the failure modes that the system still has so one example of this was when Amazon Alexa was first released one of the sort of controversial decisions that they made was they limited it to a very specific set of prompts that you could say to it rather than having it be an open-ended language or dialogue system and that allowed them to really focus on training users to interact with the system in a way that it was likely to be able to understand and then finally the reality is that your model has limitations and so you should explain those limitations to users and consider actually just baking those limitations into the model as guardrails so not letting your users provide input to your
+
+87
+00:53:13,680 --> 00:53:53,880
+model that you know the model is not going to perform well on so that could be as simple as you know if your NLP system was designed to perform well on English text then detecting if users input text in some other language and you know either warning them or not allowing them to input text in a language where your model is not going to perform well the next best practice for ML product design is to not over rely on Automation and instead try to design where possible for a human in the loop automation is great but failed automation can be worse than automation at all so it's worth thinking about even if you know what the right answer is for your users how can you add low friction ways to let users confirm the model's
+
+88
+00:53:52,140 --> 00:54:28,920
+predictions so that they don't have a terrible experience when the model does something wrong and they have no way to fix it one example of this was back when Facebook had an auto tagging feature of you know recognizing your face and pictures and suggesting who the person was they didn't just assign the tag to the face even though they almost always knew exactly who that person was because it'd be a really bad experience if all of a sudden you were tagged in some picture of someone else instead they just add like simple yes no that lets you confirm that they in fact got the prediction that this is your face correctly in order to mitigate the effect of when the model inevitably does make some bad predictions there's a
+
+89
+00:54:27,720 --> 00:55:06,300
+couple of patterns that can help there the first is it's a really good idea to always bake in some way of letting users take control of the system like in a self-driving car to be able to grab the wheel and steer the car back on track if it makes a mistake and another pattern for mitigating the cost so bad predictions is looking at how confident the model is in its response and maybe being prudent about only showing responses to users that are pretty high confidence potentially falling back to a rules-based system or just telling the user that you don't have a good answer to that question the third best practice for ML product design is building in feedback loops with your users so let's talk about some of the different types
+
+90
+00:55:04,859 --> 00:55:42,000
+of feedback that you might collect from your users on the x-axis is how easy it is to use the feedback that you get in order to actually directly make your model better on the y-axis is how much friction does it add to your users to collect this feedback so roughly speaking you could think about like above this line on the middle of the chart is implicit feedback that you collect from your users without needing to change their behavior and on the right side of the chart are signals that you can train on directly without needing to have some human intervention the type of feedback that introduces the least friction to your user is just collecting indirect implicit feedback on how well the prediction is working for
+
+91
+00:55:40,079 --> 00:56:17,520
+them so these are signals about user behavior that tend to be a proxy for mobile performance like did the user churn or not these tend to be super easy to collect because they're often instrumented in your product already and they're really useful because they correspond to important outcomes for our products the challenge in using these is that it's often very difficult to tell whether the model is the cause because these are high level sort of business outcomes that may depend on many other things other than just your model's prediction so to get more directly useful signals from your users you can consider collecting direct implicit feedback where you collect signals from the products that measure how useful
+
+92
+00:56:15,240 --> 00:56:51,240
+this prediction is to the user directly rather than indirectly for example if you're giving the user a recommendation you can measure whether they clicked on the recommendation or if you're suggesting an email for them to send did they send that email or did they copy the suggestion so they can use it in some other application oftentimes these take the form of did the user take the next step in whatever process that they're running that they take the prediction you gave them and use it Downstream for whatever tasks they're trying to do the great thing about this type of feedback is that you can often train on directly because it gives you a signal about you know which predictions the model made that were actually good
+
+93
+00:56:48,900 --> 00:57:27,119
+at solving the task for the user but the challenge is that not every setup of your product lends itself to collecting this type of feedback so you may need to redesign your products in order to collect feedback like this next we'll move on to explicit types of user feedback explicit feedback is where you ask your user directly to provide feedback on the model's performance and the lowest friction way to do this for users tends to be to give them some sort of binary feedback mechanism which can be like a thumbs up or thumbs down button in your product this is pretty easy for users because it just requires them to like click one button and it can be a decent training signal there's some research and using signals like this in
+
+94
+00:57:24,660 --> 00:58:03,960
+order to guide the learning process of models to be more aligned with users preferences if you want a little bit more signal than just was this prediction good or bad you can also ask users to help you categorize the feedback that they're giving they could for example like flag certain predictions as incorrect or offensive or irrelevant or not useful to me you can even set this up as a second step in the process after binary feedback so users will still give you binary feedback even if they don't want to spend the time to categorize that feedback and these signals can be really useful for debugging but it's difficult to set things up in such a way that you can train on them directly another way you can get more granular feedback on Mall's
+
+95
+00:58:02,220 --> 00:58:38,040
+predictions is to have like some sort of free text input where users can tell you what they thought about in prediction this often manifests itself in support tickets or support requests for your model this requires a lot of work on the part of your users and it can be very difficult to use as a model developer because you have to parse through this like unstructured feedback about your model's predictions yet it tends to be quite useful sometimes in practice because since it's high friction to actually provide this kind of feedback the feedback that users do provide can be very high signal it can highlight in some cases like the highest friction predictions since users are willing to put in the time to complain about them
+
+96
+00:58:36,180 --> 00:59:19,200
+and then finally the gold standard for user feedback if it's possible to do in the context of your products and your user experience is is to have users correct the predictions that your model actually makes so if you can get users to label stuff for you directly then that's great then you're in a really good spot here and so one way to think about like where this can actually be feasible is if the thing that you're making a prediction for is useful to the user Downstream within the same product experience that you're building not is this useful for them to copy and use in a different app but is it useful for them to use within my app so one example of this is in product called great scope which Sergey built there is a model that
+
+97
+00:59:16,020 --> 00:59:59,700
+when students submit their exams it tries to match the handwritten name on the exam with the name of the student in the student registry now if the model doesn't really know who that student is if it's low confidence or if it gets the prediction wrong then the instructor can go in and re-categorize that to be the correct name that's really useful to them because they need to have the exam categorized to the correct student anyway but it's also very direct supervisory signal for the model so it's Best of Both Worlds whenever you're thinking about building explicit feedback into your products it's always worth keeping in mind that you know users are not always as altruistic as we might hope that they would be and so you
+
+98
+00:59:57,720 --> 01:00:35,460
+should also think about like how is it going to be worthwhile for users to actually spend the time to give us feedback on this the sort of most foolproof way of doing this is as we described before to gather feedback as part of an existing user workflow but if that's not possible if the goal of users providing the feedback is to make the model better then one way you can encourage them to do that is to make it explicit how the feedback will make their user experience better and generally speaking like the more explicit you can be here and the shorter the time interval is between when they give the feedback and when they actually see the product get better the more of a sort of positive feedback loops this
+
+99
+01:00:33,900 --> 01:01:14,040
+creates for that the more likely is that they're actually going to do it a good example here is to acknowledge user feedback and adjust automatically so so if your user provided you feedback saying hey I really like running up hills then sort of good response to that feedback might be great here's another hell that you can run up in 1.2 kilometers they see the results of that feedback immediately and it's very clear how it's being used to make the product experience better less good is the example to the right of that where the response to the feedback just says thank you for your feedback because I as a user when I give that feedback there's no way for me to know whether that feedback is actually making the product
+
+100
+01:01:12,000 --> 01:01:50,520
+experience better so it discourages me from getting more feedback in the future the main Takeaway on product design for machine learning is that great ml powered products and product experiences are not just you know take an existing product that works well in both and then on top of it they're actually designed from scratch with machine learning and the particularities of machine learning in mind and some reasons for that include that unlike what your users might think machine learning is not superhuman intelligence encoded in Silicon and so your product experience needs to help users understand that in the context of the particular problem that you are solving for them it also needs to help them interact safely with
+
+101
+01:01:48,420 --> 01:02:25,079
+this model that has failure modes via human in the loop and guard rails around the experience with interacting with that model and finally great ml products are powered by great feedback loops right because the perfect version of the model doesn't exist and certainly it doesn't exist in the first version of the model that you deployed and so one important thing to think about when you're designing your product is how can you help your users make the product experience better by collecting the right feedback from them this is a pretty young and underexplored topic and so here's a bunch of resources that I would recommend checking out if you want to learn more about this many of the examples that we used in the previous
+
+102
+01:02:23,579 --> 01:02:59,880
+slides are pulled from these resources and in particular the resource from Google in the top bullet point is really good if you want to understand the basics of this field so to wrap up this lecture we talk about a bunch of different topics related to how to build machine learning products as a team and the first is machine learning roles and the sort of takeaway here is that there's many different skills involved in production machine learning machine production ml is inherently interdisciplinary so there's an opportunity for lots of different skill sets to help contribute when you're building machine learning teams since there's a scarcity of talent especially talent that is good at both software engineering and machine learning it's
+
+103
+01:02:58,140 --> 01:03:32,339
+important to be specific about what you really need for these roles but paradoxically as an outsider it can be difficult to break into the field and the sort of main recommendation that we had for how to get around that is by using projects to build awareness of your thinking about machine learning the next thing that we talk about is how machine learning teams fit into the broader organization we covered a bunch of different archetypes for how that can work and we looked at how machine learning teams are becoming more Standalone and more interdisciplinary in how they function next we talk about managing ml teams and managing ml products managing ml teams is hard and there's no Silver Bullet here but one
+
+104
+01:03:30,900 --> 01:04:01,400
+sort of concrete thing that we looked at is probabilistic Project planning as a way to help alleviate some of the challenges of understanding how long it's going to take to finish machine learning projects and then finally we talk about product design in the context of of machine learning and the main takeaway there is that today's machine learning systems are not AGI right they're Limited in many ways and so it's important to make sure that your users understand that and that you can use the interaction that you build with your users to help mitigate those limitations so that's all for today and we'll see you next week
+

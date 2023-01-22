@@ -1,0 +1,488 @@
+1
+00:00:00,539 --> 00:00:45,660
+hey everyone welcome to the ninth and final lecture of full stack deep learning 2022. today we'll be talking about ethics after going through a little bit of context of what it is that we mean by ethics what I mean by ethics when I talk about it we'll go through three different areas where ethics comes up both Broad tech ethics ethics that anybody who works in the tech industry broadly needs to think about and care about what ethics has meant specifically for the machine learning industry what's happened in the last couple of years as ethical concerns have come to the Forefront and then finally what ethics might mean in a future where true artificial general intelligence exists so first let's do a little bit of
+
+2
+00:00:42,899 --> 00:01:33,000
+context setting even more so than other topics all lectures on ethics are wrong but some of them are useful and they're more useful if we admit and state what our assumptions or biases or approaches are before we dive into the material and then I'll also talk about three kind of General themes that I see coming up again and again when ethical concerns are raised in Tech and in machine learning themes of alignment themes of trade-off and the critical theme of humility so in this lecture I'm going to approach ethics on the basis of concrete cases specific instances where people have raised concerns so we'll talk about cases where people have taken actions that have led to claims and counter claims of ethical or unethical Behavior
+
+3
+00:01:29,040 --> 00:02:13,680
+the use of automated weapons the use of machine learning systems for making decisions like sentencing and bail and the use of machine learning algorithms to generate art in each case one criticism has been raised part of the criticism has been that the technology Awards impact is unethical so approaching ethics in this way allows me to give my favorite answer to the question of what is ethics which is to quote one of my favorite philosophers Ludwig wickenstein and say that the meaning of a word is its use in the language so we'll be focusing on times when people have used the word ethics to describe what they like or dislike about some piece of technology and this approach to definition is an interesting
+
+4
+00:02:11,940 --> 00:02:51,959
+one if you want to try it out for yourself you should check out the game something something soup something which is a browser game at the link in the bottom left of this slide in which you presented with a bunch of dishes and you have to decide whether they are soup or not soup whether they can be served to somebody who ordered soup and by playing a game like this you can discover both how difficult it is to really put your finger on a concrete definition of soup and how poorly maybe your working definition of soup fits with any given soup theory because of this sort of case-based approach we won't be talking about ethical schools and we won't be doing any trolley problems so this article here from current affairs asks
+
+5
+00:02:50,400 --> 00:03:34,800
+you to consider this particular example of a of an ethical dilemma where an asteroid containing all of the universe's top doctors who are working on a cure for all possible illnesses is hurtling towards the planet of Orphans and you can destroy the asteroid and save the orphans but if you do so the hope for a cure for all diseases will be lost forever and the question posed by the authors of this article is is this hypothetical useful at all for Illuminating any moral truths so rather than considering these hypothetical scenarios about trolley cars going down rails and fat men standing on Bridges we'll talk about concrete specific examples from the last 10 years of work in our field and adjacent Fields but
+
+6
+00:03:32,580 --> 00:04:11,040
+this isn't the only way of talking about or thinking about ethics it's the way that I think about it is the way that I prefer to talk about it is not the only one and it might not be the one that works for you so if you want another point of view and one that really emphasizes and loves trolley problems then you should check out sergey's lecture from the last edition of the course from 2021 it's a really delightful talk and presents some similar ideas from a very different perspective coming to some of the same conclusions and some different conclusions a useful theme team from that lecture that I think we should all have in mind when we're pondering ethical dilemmas and the related questions that they bring up is the
+
+7
+00:04:09,060 --> 00:04:52,080
+theme of what is water from last year's lecture so this is a famous little story from a commencement speech by David Foster Wallace where an older fish swing by two younger fish says morning boys how's the water and after he swims away one of the younger fish turns the other and says wait what the hell is water the idea is that if we aren't thoughtful if we aren't paying attention some things that are very important can become background can become assumption and can become invisible and so when I share these slides with Sergey he challenged me to answer this question for myself about how we were approaching ethics this time around and I'll say that this approach of relying on prominent cases risks replicating a lot of social biases
+
+8
+00:04:50,520 --> 00:05:33,060
+some people's ethical claims are Amplified and some fall on unhearing ears some stories travel more because the people involved have more resources and are better connected and using these forms of case-based reasoning where you explain your response or your beliefs in terms of these concrete specifics can end up hiding the principles that are actually in operation maybe you don't even realize that that's how you're making the decision maybe some of the true ethical principles that you're operating under can disappear like water to these fish so don't claim that the approach I'm taking here is perfect but in the end so much of Ethics is deeply personal that we can't expect to have a perfect approach we can just do the best
+
+9
+00:05:30,479 --> 00:06:18,120
+we can and hopefully better every day so we're gonna see three themes repeatedly come up throughout this talk two different forms of conflict that give rise to ethical disputes one when there is conflict between what we want and what we get and another when there is conflict between what we want and what others want and then finally a theme of maybe an appropriate response a response of humility when we don't know what we want or how to get it the problem of alignment where what we want and what we get differ we'll come up over and over again and one of the primary drivers of this is what you might call the proxy problem which is in the end we are often optimizing or maximizing some proxy of the thing that we really care about and
+
+10
+00:06:15,720 --> 00:06:52,080
+if the alignment or Loosely the correlation between that proxy and the thing that we actually care about is poor enough then by trying to maximize that proxy we can end up hurting the thing that we originally cared about there is a nice paper that came out just very recently doing a mathematical analysis of this idea that's actually been around for quite some time excuse you can see these kinds of proxy problems everywhere once you're looking for them on the top right I have a train and validation loss chart from one of the training runs for the full stack deep learning text recognizer the thing that we can actually optimize is the training loss that's what we can use to calculate gradients and improve the
+
+11
+00:06:50,639 --> 00:07:35,400
+parameters of our network but the thing that we really care about is the performance of the network on data points it hasn't seen like the validation set or the test set or data in production if we optimize our training lost too much then we can actually cause our validation loss to go up similarly there was an interesting paper that suggested that increasing your accuracy on classification tasks can actually result in a decrease in the utility of your embeddings in Downstream tasks and you can find these proxy problems outside of machine learning as well there's a famous story involving a Soviet Factory and nails that turned out to be false but in looking up a reference for it I was able to find an actual example where a factory that was
+
+12
+00:07:33,300 --> 00:08:18,120
+making chemical machines rather than creating a machine that was cheaper and better chose not to adopt producing that machine because their output was measured in weight so the thing that that the planners actually cared about economic efficiency and output was not what was being optimized for because it was too difficult to measure and one reason why these kinds of proxy problems arise so frequently is due to issues of information the information that we're able to measure is not the information that we want so the training loss is the information that we have but the information that we want is the validation loss but then at a higher level we often don't even know what it is that we truly need so we may want the
+
+13
+00:08:15,360 --> 00:09:03,660
+validation loss but what we need is the loss in production or really the value our users will derive from this model but even when we do know what it is that we want or what it is that we need we're likely to run into the second kind of problem the problem of a trade-off between stakeholders going back to our hypothetical example with the asteroid of doctors hurtling towards the planet of Orphans what makes this challenging is the need to determine a trade-off between the wants and needs of the people on the asteroid the wants and needs of the orphans on the planet and the wants and needs of future people who cannot be reached for comment and to weigh in on this concern is some sometimes said that this need to
+
+14
+00:09:02,040 --> 00:09:40,920
+negotiate trade offices one of the reasons why Engineers don't like thinking about some of these problems around ethics I don't think that's quite right because we do accept trade-offs as a key component of engineering there's this nice O'Reilly book on the fundamentals of software architecture the first thing that they State at the very beginning is that everything in software architecture is a trade-off and even this satirical oh really book says that every programming question has the answer it depends so we're comfortable negotiating trade-offs take for example this famous chart comparing the different convolutional networks on the basis of their accuracy and the number of operations that it takes to run them
+
+15
+00:09:38,580 --> 00:10:22,080
+thinking about these kinds of trade-offs between speed and correctness is exactly the sort of thing that we have to do all the time in our job as engineers and one part of it that is maybe easier is at least selecting What's called the Pareto front for the metrics that we care about my favorite way of remembering what a Pareto front is is this definition of a data scientist from Josh Wills which is a data scientist who's better at Stats than any software engineer and better at software engineering than any statistician so this Pareto front that I've drawn here is the models that have are more accurate than anybody who takes fewer flops and use fewer flops than anybody who is more accurate so I think rather than fundamentally being about
+
+16
+00:10:20,100 --> 00:11:02,640
+trade-offs one of the reasons why Engineers maybe dislike thinking about these problems is that it's really hard to identify the axes for a chart like the one that I just showed it's very hard to quantify these things and if we do quantify things like the utility or the rights of people involved in a problem we know that those quantifications are far away from what what they truly want to measure there's a proxy problem in fact but even further ones measured where on that front do we fall as Engineers we maybe develop an expertise in knowing whether we want high accuracy or low latency or computational load but we are not as comfortable deciding how many current orphans we want to trade for what amount
+
+17
+00:11:01,260 --> 00:11:45,120
+of future health so this raises questions both in terms of measurement and in terms of decision making that are outside of our expertise so the appropriate response here is humility because we don't explicitly train these skills the way that we do many of the other skills that are critical for our job and many folks engineers and managers in technology seem to kind of deepen their bones prefer optimizing single metrics making a number go up so there's no trade-offs to think about and those metrics are they're not proxies they're the exact same thing that you care about my goal within this company my objective for this quarter my North Star is user growth or lines of code and by God I'll make that go up so when we
+
+18
+00:11:43,380 --> 00:12:28,800
+encounter a different kind of problem it's important to bring a humble mindset a student mindset to the problems to ask for help to look for experts and to recognize that the help that you get and the experts that you find might not be immediately obviously which you want or what you're used to additionally one form of this that we'll see repeatedly is that when attempting to intervene because of an ethical concern it's important to remember this same humility it's easy to think when you are on the good side that this humility is not necessary but even trying to be helpful is a delicate and dangerous undertaking one of my favorite quotes from the systems Bible so we want to make sure as we resolve the ethical concerns that
+
+19
+00:12:26,220 --> 00:13:06,000
+people raise about our technology that we come up with solutions that are not just part of the problem so the way that I resolve all of these is through user orientation by getting feedback from users we maintain alignment between ourselves and the system that we're creating and the users that it's meant to serve and then when it's time to make trade-offs we should resolve them in consultation with users and in my opinion we should tilt the scales in their favor and away from the favor of other stakeholders including within our own organization and then humility is one of the reasons why we actually listen to users at all all because we are humble enough to recognize that we don't have the answers to all of these
+
+20
+00:13:03,720 --> 00:13:46,260
+questions all right with our context and our themes under our belt let's dive into some concrete cases and responses we'll start by considering ethics in the broader world of technology that machine learning fights itself in so the key thing that I want folks to take away from this section is that the tech industry cannot afford to ignore ethics as public trust in Tech declines we need to learn from other nearby industries that have done a better job on professional ethics and then we'll talk about some contemporary topics some that I find particularly interesting and important throughout the past decade the technology industry has been plagued by Scandal whether that's how technology companies interface with national
+
+21
+00:13:43,680 --> 00:14:30,839
+governments at the largest scale over to how technological systems are being used or manipulated by people creating disinformation or fake social media accounts or targeting children with automatically generated content that hacks the YouTube recommendation system and the impact effect of this has been that distrust in tech companies has risen markedly in the last 10 years so this is from the public affairs pulse survey just last year the tech industry went from being in 2013 one of the industries that the fewest people felt was less trustworthy than average to rubbing elbows with famously much distrusted Industries like energy and pharmaceuticals and the tech industry doesn't have to win elections so we
+
+22
+00:14:29,220 --> 00:15:16,079
+don't have to care about public polling as much as politicians but politicians care quite a bit about those public opinion polls and just in the last few years the fraction of people who believe that the large tech companies should be more regulated has gone up a substantial amount and comparing it to 10 years ago it's astronomically higher so there will be substantial impacts on our industry due to this loss of public trust so as machine learning engineers and researchers we can learn from nearby Fields so I'll talk about two of them one a nice little bit about the culture of professional ethics in Engineering in Canada and then a little bit about ethical standards for human subjects research so one of the worst
+
+23
+00:15:12,779 --> 00:15:57,899
+construction disasters in modern history was the collapse of the Quebec bridge in 1907. 75 people who were working on the bridge at the time were killed and a parliamentary inquiry placed the blame pretty much entirely on two engineers in response there was the development of some additional rituals that many Canadian Engineers take part in when they finish their education that are meant to impress upon them the weight of their responsibility so one component of this is a large iron ring which literally impresses that weight upon people and then another is an oath that people take a non-legally binding oath that includes saying that I will not hence forward suffer or pass or be privy to the passing of bad workmanship or
+
+24
+00:15:56,100 --> 00:16:37,800
+faulty material I think the software would look quite a bit different if software Engineers took an oath like this and took it seriously one other piece I wanted to point out is that it includes within it some built-in humility asking pardon ahead of time for the assured failures lots of machine learning is still in the research stage and so some people may say that oh well that's important for the people who are building stuff but I'm working on R D for fundamental technology so I don't have to worry about that but research is also subject to regulation so this is something I was required to learn because I did my PhD in a neuroscience Department that was funded by the National Institutes of Health which
+
+25
+00:16:34,500 --> 00:17:18,360
+mandates training in ethics and in the ethical conduct of research so these regulations for human subjects research date back to the 1940s when there were medical experiments on unwilling human subjects by totalitarian regimes this is still pretty much the Cornerstone for laws on human subjects research around the world through the Helsinki declaration which gets regularly updated in the US the Touchstone bit of regulation on this the 9 1973 research act requires among other things informed consent from people who are participating in research and there were two major revelations in the late 60s and early 70s that led to this legislation not dissimilar to the scandals that have plagued the technology industry recently one was the
+
+26
+00:17:16,740 --> 00:18:04,860
+infliction of hepatitis on mentally disabled children in New York in order to test hepatitis treatments and the other was the non-treatment of syphilis in black men at Tuskegee in order to study the progression of the disease in both cases these subjects did not provide informed consent and seemed to be selected for being unable to advocate for themselves or to get legal redress for the harms they were suffering and so if we are running experiments and those experiments involve humans evolve our users we are expected to adhere to the same principles and one of the famous instances of mismatch between the culture in our industry and the culture of human subjects research was was when some researchers at Facebook studied
+
+27
+00:18:02,760 --> 00:18:49,440
+emotional contagion by altering people's news feeds either adding more negative content or adding more positive content and they found a modest but robust effect that introducing more positive content caused people to post more positively when people found out about this they were very upset the authors noted that Facebook's data use policy includes that the user's data and interactions can be used for this but most people who were Facebook users and the editorial board of pnas where this was published did not see it that way so put together I think we are at the point where we need a professional code of ethics for software hopefully many codes of Ethics developed in different communities that can Bubble Up compete
+
+28
+00:18:48,000 --> 00:19:35,700
+with each other and merge to finally something that most of us or all of us can agree on and that is incorporated into our education and acculturation of new members into our field and into more aspects of how we build to close out this section I wanted to talk about some particular ethical concerns that arise in Tech in general first around carbon emissions and then second around dark patterns and user hostile designs the good news with carbon emissions is that because they scale with cost it's only something that you need to worry about when the costs of what you're building what you're working on are very large at which time you both won't be alone in making these decisions and you can move a bit more deliberately and make these
+
+29
+00:19:32,760 --> 00:20:19,440
+choices more thoughtfully so first what are the ethical concerns with carbon emissions anthropogenic climate change driven by CO2 emissions raises a classic trade-off which was dramatized in this episode of Harvey Birdman Attorney at Law in which George Jetson travels back from the future to sue the present for melting the ice caps and destroying his civilization so unfortunately we don't have future Generations present now to advocate for themselves the other view is that this is an issue that arises from a classic alignment problem which is many organizations are trying to maximize their profit that raw profit is based off of prices for goods that don't include externalities like the environmental damage caused by carbon
+
+30
+00:20:16,740 --> 00:21:06,960
+dioxide emissions leading to increased temperatures and climactic change so the primary Dimension along which we have to worry about carbon emissions is in compute jobs that require power that power has to be generated somehow and that can result in the emission of carbon and so there was a nice paper Linked In This slide that walked through how much carbon dioxide was emitted using typical us-based Cloud infrastructure and the top headline from this paper was that training a large Transformer model with neural architecture search produces as much carbon dioxide as five cars create during their lifetime so that sounds like quite a bit of carbon dioxide and it is in fact but it's important to remember that power is not free and so
+
+31
+00:21:05,160 --> 00:21:49,200
+there is a metric that we're quite used to tracking that is at least correlated with our carbon emissions our compute spend and if you look for the cost runs between one and three million dollars to run the neural architecture search that emitted five cars worth of CO2 and one to three million dollars is actually a bit more than it would cost to buy five cars and provide their fuel so the number that I like to use is that four us-based Cloud infrastructure like the US West one that many of us find ourselves in ten dollars of cloud spend is roughly equal to one dollar worth of air travel costs so that's on the basis of something like the numbers in the chart indicating air travel across the United States from New York to San
+
+32
+00:21:47,220 --> 00:22:28,799
+Francisco I've been taking care to always say us-based cloud infrastructure because just changing Cloud regions can actually reduce your emissions quite a bit there's actually a factor of nearly 50x from some of the some of the cloud regions that have have the most carbon intensive power generation like AP Southeast 2 and the regions that have the the least carbon intensive power like ca Central one that chart comes from a nice talk from hugging face that you can find on YouTube part of their course that talks a little bit more about that paper and about managing carbon emissions interest in this problem has led to some nice new tooling one code carbon dot IO allows you to track power consumption and therefore
+
+33
+00:22:26,820 --> 00:23:12,419
+CO2 emissions just like you would any of your other metrics and then there's also this mlco2 impact tool that's oriented a little bit more directly towards machine learning the other ethical concern in Tech that I wanted to bring up is deceptive design and how to recognize it an unfortunate amount of deception is tolerated in some areas of software the example on the left comes from an article by Narayanan at all that shows a fake countdown timer that claims that an offer will only be available for an hour but when it hits zero nothing the offer is still there there's also a possibly apocryphal example on the right here you may have seen these numbers next to products when online shopping saying that some number of people are currently
+
+34
+00:23:10,799 --> 00:23:57,059
+looking at this product this little snippet of JavaScript here produces a random number to put in that spot so that example on the right may not be real but because of real examples like the one on the left it strikes a chord with a lot of developers and Engineers there's a kind of slippery slope here that goes from being unclear or maybe not maximally upfront about something that is a source of friction or a negative user experience in your product and then in trying to remove that friction or sand that edge down you slowly find yourself being effectively deceptive to your users on the left is a nearly complete history of the way Google displays ads in its search engine results it started off very clearly
+
+35
+00:23:54,960 --> 00:24:38,039
+colored and separated out with a bright color from the rest of the results and then a about 10 years ago that colored background was removed and replaced with just a tiny little colored snippet that said add and now as of 2020 that small bit there is no longer even colored it's just bolded and so this makes it difficult for users to know which content is being served to them because somebody paid for them to see it versus being served up organically so a number of patterns of deceptive design also known as dark patterns have emerged over the last 10 years you can read about them on this website deceptive.design there's also a Twitter account at dark patterns where you can share examples that you find in the wild so some
+
+36
+00:24:36,360 --> 00:25:19,980
+examples that you might be familiar with are the roach motel named after a kind of insect trap where you can get into a situation very easily but then it's very hard to get out of it if you've ever attempted to cancel a gym membership or delete your Amazon account then you may have found yourself a roach in a motel another example is trick questions where forms intentionally make it difficult to choose the option that most use users want for example using negation in a non-standard way like check this box to not receive emails from our service one practice in our industry that's on very shaky ethical and legal ground is growth hacking which is a set of techniques for achieving really rapid growth in user
+
+37
+00:25:17,820 --> 00:26:00,659
+base or revenue for a product and has all the connotations you might expect from the name hack LinkedIn was famously very spammy when it first got started I'd like to add you to my Professional Network on LinkedIn became something of a meme and this was in part because LinkedIn made it very easy to unintentionally send LinkedIn invitations to every person you'd ever emailed they ended up actually having to pay out in a class action lawsuit because they were sending multiple follow-up emails when user only clicked to send an invitation once and the structure of their emails made it seem like they were being sent by the user rather than LinkedIn and the use of these growth hacks goes back to the very Inception of email Hotmail Market itself
+
+38
+00:25:58,200 --> 00:26:43,860
+in part by attacking on a signature to the bottom of every email that said PS I love you get your free email at Hotmail so this seemed like it was being sent by the actual user I grabbed a snippet from a top 10 growth hacks article that said that the personal sounding nature of the message and the fact that it came from a friend made this a very effective growth hack but it's fundamentally deceptive to add this to messages in such a way that it seems personal and to not tell users that this change is being made to the emails that they're sending so machine learning can actually make this problem worse if we are optimizing short-term metrics these growth acts and deceptive designs can often Drive user and revenue
+
+39
+00:26:41,460 --> 00:27:25,679
+growth in the short term but they do that by worsening user experience and drawing down on Goodwill towards the brand in a way that can erode the long-term value of customers when we incorporate machine learning into the design of our products with a B testing we have to watch out to make sure that the the metrics that we're optimizing don't encourage this kind of deception so consider these two examples on the right the top example is a very straightforwardly implemented and direct and easy to understand form for users to indicate whether they want to receive emails from the company and from its Affiliates in example B the wording of the first message has been changed so that it indicates that the first hitbox
+
+40
+00:27:23,520 --> 00:28:05,760
+should be checked to not receive emails while the second one should not be ticked in order to not receive emails and if you're a b testing these two designs against each other and your metric is the number of people who sign up to receive emails then it's highly likely that the system is going to select example B so taking care and setting up a b tests such that either they're tracking longer term metrics or things that correlate with them and that the variant generation system that generates all the different possible designs can't generate any designs that we would be unhappy with as we would hopefully be unhappy with the deceptive design in example B and I think it's also important to call out that this
+
+41
+00:28:03,840 --> 00:28:46,679
+problem arises inside of another alignment problem we were considering the case where the long-term value of customers and the company's interests were being harmed by these deceptive designs but unfortunately that's not always going to be the case the private Enterprises that build most technology these days are able to deliver Broad Social value to make the world a better place as they say but the way that they do that is generally by optimizing metrics that are at best a very weak proxy for that value that they're delivering like their market capitalization and so there's the possibility of an alignment problem where companies pursuing and maximizing their own profit and success can lead to net negative production of value and
+
+42
+00:28:44,880 --> 00:29:23,700
+this misalignment is something that if you spend time at the intersection of capital and funding leadership and Technology development you will encounter it so it's important to consider these questions ahead of time and come to your own position whether that's trade reading this as the price of doing business or the way the world Works seeking ways to improve this alignment or considering different ways to build technology but on the shorter term you can push for longer term thinking within your organization to allow for better alignment between the metrics that you're measuring and the goals that you're setting and between the goals that you're setting and what is overall good for our industry and for
+
+43
+00:29:21,960 --> 00:30:06,480
+the broader world and you can also learn to recognize these user hostile design patterns call them out when you see them and you can advocate for a More user-centered Design instead so to wrap up our section on ethics for Building Technology broadly we as an industry should learn from other disciplines if we want to avoid a trust crisis or if we want to avoid the crisis getting any worse and we can start by educating ourselves about the common user hostile practices in our industry and how to avoid them now that we've covered the kinds of ethical concerns and conflicts that come up when Building Technology in general let's talk about concerns that are specific to machine learning just in the past couple of years there have been
+
+44
+00:30:04,200 --> 00:30:42,480
+more and more ethical concerns raised about the uses of machine learning and this has gone beyond just the ethical questions that can get raised about other kinds of technology so we'll talk about some of the common ethical questions that have been raised repeatedly over the last couple of years and then we'll close out by talking about what we can learn from a particular sub-discipline of machine learning medical machine learning so the fundamental reason I think that ethics is different for machine learning and maybe more Salient is that machine learning touches human lives more intimately than a lot of other kinds of technology so many machine learning methods especially deep learning methods make human legible data into computer
+
+45
+00:30:40,320 --> 00:31:22,860
+legible data so we're working on things like computer vision on processing natural language and humans are more sensitive to errors in and have more opinions about this kind of data about images like this puppy than they do about the other kinds of data manipulated by computers like abstract syntax trees so because of of this there are more stakeholders with more concerns that need to be traded off in machine learning applications and then more broadly machine learning involves being wrong pretty much all the time there's the famous statement that all models are wrong though some are useful and I think the first part applies at least particularly strongly to machine learning our models are statistical and
+
+46
+00:31:20,760 --> 00:32:01,320
+include in them Randomness the way that we frame our problems the way that we frame our optimization in terms of cross entropies or divergences and Randomness is almost always an admission of ignorance even the quintessential examples of Randomness like random number generation in computers and the flipping of a coin are things that we know in fact are not random truly they are in fact predictable and if we knew the right things and had the right laws of physics and the right computational power then we could predict how a coin would land we could control it we could predict what the next number to come out of a random number generator would be whether it's pseudorandom or based on some kind of Hardware Randomness and so
+
+47
+00:31:59,760 --> 00:32:41,520
+we're admitting a certain degree of ignorance in our models and that means our models are going to be wrong and they're going to misunderstand situations that they are put into and it can be very upsetting and even harmful to be misunderstood by a machine learning model so against this backdrop of Greater interest or higher Stakes a number of common types of ethical concern have coalesced in the last couple of years and there are somewhat established camps of answers to these questions and you should at least know where it is you stand on these core questions so for four really important questions that you should be able to answer about about anything that you build with machine learning are is the model fair and what does that mean in
+
+48
+00:32:39,840 --> 00:33:20,039
+this situation is the system that you're building accountable who owns the data involved in this system and finally and perhaps most importantly an undergirding all of these questions is should this system be built at all so first is the model we're building Fair the classic case on this comes from Criminal Justice from the compass system for predicting before trial whether a defendant will be arrested again so if they're arrested again that's just they committed a crime during that time and so this is assessing a certain degree of risk for additional harm while the justice system is deciding what to do about a previous arrest and potential crime so the operationalization here was a 10-point rearrest probability based off of past
+
+49
+00:33:17,640 --> 00:34:07,799
+data about this person and they set a goal from the very beginning to be less biased than human judges so they operationalize that by calibrating these arrest probabilities and making sure that if say a person received a 2 2 on this scale they had a 20 chance of being arrested again and then critically that those probabilities were calibrated across subgroups so racial bias is one of the primary concerns around bias in criminal justice in the United States and so they took care to make sure that these probabilities of rearrest were calibrated for all racial groups the system was deployed in it is actually used all around the United States it's proprietary so it's difficult to analyze but using the Freedom of Information Act
+
+50
+00:34:05,519 --> 00:34:53,820
+and by colliding together a bunch of Records some people at propublica were able to run their own analysis of this algorithm and they determined that though this calibration that Compass claimed for arrest probabilities was there so the model was not more or less wrong for one racial group or another the way that the model tended to fail was different across racial groups so the model had more false positives for black defendants so saying that somebody was higher risk but then them not going on to reoffend and had more false negatives for white defendants so labeling them as low risk and then them going on to reoffend so despite North Point the creators of compass taking into account bias from the beginning
+
+51
+00:34:51,599 --> 00:35:31,260
+they ended up with an algorithm with this undesirable property of being more likely to effectively falsely accuse defendants who were black than defendants who were white this report touched off a ton of controversy and back and forth between propublica the creator of the article and North Point Craters of compass and also a bunch of research and it turned out that some quick algebra revealed that some form of race-based bias is inevitable in this setting so the things that we care about when we're building a binary classifier are relatively simple you can write down all of these metrics directly so we care about things like the false positive rate which means we've imprisoned somebody with no need the false negative
+
+52
+00:35:29,760 --> 00:36:16,380
+rate which means we missed an opportunity to event a situation that led to an arrest and then we also care about the positive predictive value which is this rearrest probability that Compass was calibrated on so because all of these metrics are related to each other and related to The Joint probability distribution of our model's labels and the actual ground truth if the probability of rearrest differs across groups then we have to have that some of these numbers are different across groups and that is a form of racial bias so the basic way that this argument works just involves rearranging these numbers and saying that if the numbers on the left side of this equation are different for Group 1 and group two then it can't possibly be the
+
+53
+00:36:14,280 --> 00:36:54,900
+case that all three of the numbers on the right hand side are the same for Group 1 and group two and I'm presenting this here as though it only impacts these specific binary classification metrics but there are are in fact a very large number of definitions of fairness which are mutually incompatible so there's a nice a really incredible tutorial by Arvin Narayanan who was also the first author on the dark patterns work on a bunch of these fairness definitions what they mean and why they're in commensurate so I can highly recommend that lecture so returning to our concrete case if the prevalence is differ across groups then one of our things that we're concerned with the false positive rate the false negative
+
+54
+00:36:53,160 --> 00:37:35,339
+rate or the positive predictive value will not be equal and that's something that people can point to and say that's unfair in the middle that positive predictive value was equalized across groups in compass that was what they really wanted to make sure was equal cross groups and because the probability of rearrest was larger for black defendants then either the false positive rate had to be bigger or the false negative rate had to be bigger for that group and there's an analysis in this cholachova 2017 paper that suggests that the usual way that this will work is that there will be a higher false positive rate for the group with a larger prevalence so the fact that there will be some form of unfairness that we
+
+55
+00:37:33,420 --> 00:38:14,280
+can't just say oh well all these metrics are the same across all groups and so everything has to be fair that fact is fixed but the impact of the unfairness of models is not fixed the story is often presented as oh well no matter what the journalists would have found something to complain about there's always critics and so you know you don't need to worry about fairness that much but I think it's important to note that the particular kind of unfairness that came about from this model from focusing on this positive predictive value led to a higher false positive rate more unnecessary imprisonment for black defendants the false positive rate and the positive predictive value were equalized across groups that would have
+
+56
+00:38:12,420 --> 00:38:54,119
+led to a higher false negative rate for black defendants relative to White defendants and in the context of American politics and concerns about racial inequity in the criminal justice system bias against white defendants is not going to lead to complaints from the same people and has a different relationship to the historical operation of the American justice system and so far from this being a story about the hopelessness of thinking about or caring about fairness this is a story about the necessity of confronting the trade-offs that are inevitably going to come up so some researchers that Google made a nice little tool where you can try thinking through and making these trade-offs for yourself it's a loan decision rather
+
+57
+00:38:51,900 --> 00:39:37,740
+than a criminal justice decision but it has a lot of the same properties you have a binary classifier you have different possible goals that you might set either maximizing the profit of the loaning entity or providing equal opportunity to the two groups and it's very helpful for building intuition on these fairness metrics and what it means to pay pick one over the other and these events in this controversy kicked off a real flurry of research on fairness and there's now been several years of this fairness accountability and transparity Conference fact there's tons of work on both algorithmic level approaches to try and measure these fairness metrics incorporate them into training and also more qualitative work on designing
+
+58
+00:39:36,180 --> 00:40:20,940
+systems that are more transparent and accountable so the compass example is really important for dramatizing these issues of fairness but I think it's very critical for this case and for many others to step back and ask whether this model should be built at all so this algorithm for scoring risk is proprietary and uninterpretable it doesn't give answers for why a person is higher risk or not and because it is closed Source there's no way to examine it it achieves an accuracy of about 65 which is quite High given that the marginal probability of reoffence is much lower than 50 but it's important to compare the baselines here pulling together a bunch of non-experts like you would on a jury has an accuracy of about
+
+59
+00:40:17,640 --> 00:41:01,140
+65 percent and creating a simple scoring system on the basis of how old the person is and how many prior arrests they have also has an accuracy of around 65 and it's much easier to feel comfortable with the system that says if you've been arrested twice then you have a higher risk of being arrested again and so you'll be imprisoned before trial then a system that just says oh well we ran the numbers and it looks like you have a high chance of committing a crime but even framing this problem in terms of who is likely to be rearrested is already potentially a mistake so a slightly different example of predicting failure to appear in court was tweeted out by Moritz heart who's one of the main researchers in this area choosing
+
+60
+00:40:59,520 --> 00:41:37,320
+to try to predict who will fail to appear in court treating this as something that is then a fact of the universe that this person is likely to fail to appear in court and then intervening on this and punishing them for that for that fact it's important to recognize why people fail to appear in court in general often it's because they don't have child care to cover for the care of their dependence while they're in court they don't have transportation their work schedule is inflexible or the core deployment schedule is inflexible or unreasonable it'd be better to implement steps to mitigate these issues and reduce the number of people who are likely to fail to appear in court for example by making it possible to join
+
+61
+00:41:35,579 --> 00:42:20,940
+Court remotely that's a far better approach for all involved than simply getting really really good at predicting Who currently fails to appear in court so it's important to remember that the things that we're measuring the things that we're predicting are not the be-all end-all in themselves the things that we care about are things like an effective and fair justice system and this comes up perhaps most acutely in the case of compass when we recognize that rearrest is not the same as recidivism it's not the same thing as committing more crimes being rearrested requires that a police officer believes that you committed a crime police officers are subject effect to their own biases and patterns of policing result in a far higher fraction
+
+62
+00:42:18,480 --> 00:43:04,440
+of crimes being caught for some groups than for others and so our real goal in terms of fairness and criminal justice might be around reducing those kinds of unfair impacts and using past rearrest data that we know has these issues to determine who is treated more harshly by the criminal justice system is likely to exacerbate these issues there's also a notion of model fairness that is broader than just models that make decisions about human beings so even if you're deciding a model that works on text or works on images you should consider which kinds of people your model works well for and in general representation both on engineering and management teams and in data sets really matters for this kind of model fairness so it's
+
+63
+00:43:02,640 --> 00:43:46,680
+unfortunately still very easy to make machine learning powered technology that fails for minoritized groups so for example off-the-shelf computer vision tools will often fail on darker skin so this is an example by Joy bull and weenie from MIT on how a computer vision based project that she was working on ran into difficulties because the face detection algorithm could not detect her face even though it could detect the faces of some of her friends with lighter skin and in fact she found that just putting on a white mask was enough to get the computer vision model to detect her face so this is unfortunately not a new issue in technology it's just a more Salient one with machine learning so one example is that hand soap
+
+64
+00:43:43,920 --> 00:44:32,640
+dispensers that use infrared to determine when to dispense soap will often work better for lighter skin than darker skin and issues around lighting and vision and skin tone go back to the foundation of Photography let alone computer vision the design of film of cameras and printing processes was oriented around primarily making lighter skin photograph well as in these so-called Shirley cards that were used by code DAC for calibration these resulted in much worse experiences for people with darker skin using these cameras there has been a good amount of work on this and progress since four or five years ago one example of the kind of tool that can help with this are these model cards this particular format
+
+65
+00:44:30,660 --> 00:45:14,760
+for talking about what a model can and cannot do that was published by a number of researchers including Margaret Mitchell and Timmy Gabriel it includes explicitly considering things like on which human subgroups of Interest many of them minoritized identities how well does the model perform hugging face has good Integrations for creating these kinds of model cards I think it's important to note that just solving these things by changing the data around or by calculating demographic information is not really an adequate response if the CEO of Kodak or their partner had been photographed poorly by those cameras then there's no chance that that issue would have been allowed to stay for decades so when you're
+
+66
+00:45:12,359 --> 00:45:57,839
+looking at inviting people for talks hiring people or joining organizations you should try to make sure that you have worked to reduce the bias of that Discovery process by diversifying your network and your input sources the diversify Tech job board is a really wonderful source for candidates and then there are also professional organizations inside of the ml World black and Ai and women in data science being two of the larger and more successful ones these are great places to get started to make the kinds of professional connections that can improve the representations of these minoritized groups in the engineering and design and product management process where these kinds of issues should be solved a lot of progress has
+
+67
+00:45:55,680 --> 00:46:44,040
+been made but these problems are still pretty difficult to solve an unbiased face detector might not be so challenging but unbiased image generation is still really difficult for example if you make an image generation model from internet scraped data without any safeguards in place then if you ask it to generate a picture of a CEO it will generate the stereotypical CEO a six foot or taller white man and this applies across a wide set of jobs and situations people can find themselves in and this led to a lot of criticism of early text damage generation models like Dolly and the solution that openai opted to this was to edit prompts that people put in if you did not fully specify what kind of person should be generated then
+
+68
+00:46:41,579 --> 00:47:21,300
+race and gender words would be added to the prompt with weights based on the world's population so people discovered this somewhat embarrassingly by writing prompts like a person holding a sign that says or pixel art of a person holding a text sign that says and then seeing that the appended words were then printed out by the model suffice it to say that this change did not make very many people very happy and indicates that more work needs to be done to de-bias image generation models at a broader level than just fairness we can also ask whether the system we're building is accountable to the people it's serving or acting upon and this is important because some people can consider explanation and accountability
+
+69
+00:47:19,560 --> 00:48:00,060
+in the face of important judgments to be human rights this is the right to an explanation in the European Union's general data protection regulation gdpr there is a subsection that mentions the right to obtain an explanation of a decision reached after automated assessment and the right to challenge that decision the legal status here is a little bit unclear there's a nice archive paper that talks about this a bit about what the right to an explanation might mean but what's more important for our purposes is just to know that there is an increasing chorus of people claiming that this is indeed a human right and it's not an entirely New Concept and it's not even really technology or automation specific as far
+
+70
+00:47:57,420 --> 00:48:40,800
+back as 1974 has been the law in the United States that If you deny credit to a person you must disclose the principal reasons for denying that credit application and in fact I found this interesting it's expected that you provide no more than four reasons why you denied them credit but the general idea that somebody as a right to know why something happened to them in certain cases is enshrined in some laws so what are we supposed to do if we use a deep neural network to decide whether somebody should be Advanced Credit or not so there are some off-the-shelf methods for introspecting deep neural networks that are all based off of input output gradients how would changing the pixels of this input image change the
+
+71
+00:48:38,579 --> 00:49:18,359
+class probabilities and the output so this captures a kind of local contribution but as you can see from the small image there it doesn't produce a very compelling map and there's no reason to think that just changing one pixel a tiny bit should really change the model's output that much one Improvement to that called Smooth grad is to add noise to the input and then average results kind of getting a sense for what the gradients look like in a general area around the input there isn't great theory on why that should give better explanations but people tend to find these explanations better and you can see in the smooth grad image on the left there that you can pick out the picture of a bird it seems like that is
+
+72
+00:49:16,440 --> 00:50:04,560
+giving a better explanation or an explanation that we like better for why this network is identifying that as a picture of a bird there's a bunch of kind of hacking methods like specific tricks you need when you're when you're using the relu activation there's some methods that are better for classification like grad cam one that is more popular integrated gradients takes the integral of the gradient along a path from some baseline to the final image and this method has a nice interpretation in terms of Cooperative Game Theory something called a shapley value that quantifies how much a particular collection of players in a game contributed to the final reward and adding noise to integrated gradients tends to produce really clean
+
+73
+00:50:02,460 --> 00:50:45,480
+explanations that people like but unfortunately these methods are generally not very robust their outputs tend to correlate pretty strongly in the case of images with just an edge detector there's built-in biases to convolutional networks and the architectures that we use that 10 and to emphasize certain features of images what this particular chart shows from this archive paper by Julius adebayo Moritz heart and others is that even as we randomize layers in the network going from left to right we are randomizing starting at the top of the network and then randomizing more layers going down even for popular methods like integrated gradients with smoothing or guided back propagation we can effectively randomize
+
+74
+00:50:43,800 --> 00:51:27,140
+a really large fraction of the network without changing the gross features of the explanation and resulting in an explanation that people would still accept and believe even though this network is now producing random output so in general introspecting deep neural networks and figuring out what's going inside them requires something that looks a lot more like a reverse engineering process that's still very much a research problem there's some great work on distill on reverse engineering primarily Vision networks and then some great work from anthropic AI recently on Transformer circuits that's reverse engineering large Lang language models and Chris Ola is the researcher who's done the most work here but it still is the sort of thing that
+
+75
+00:51:24,300 --> 00:52:06,839
+even getting a loose qualitative sense for how neural networks work and what they are doing in response to inputs is still the type of thing that takes a research team several years so Building A system that can explain why it took a particular decision is maybe not currently possible with deep neural networks but that doesn't mean that the systems that we build with them have to be unaccountable if somebody dislikes the decision that they get and the explanation that we give is well the neural network said you shouldn't get a loan and they challenge that it might be time to bring in a human in the loop to make that decision and building that in to the system so that it's an expected mode of operation and is considered an
+
+76
+00:52:03,900 --> 00:52:50,099
+important part of the feedback and the operation of the system is key to building an accountable system so this book automating inequality by Virginia Eubanks talks a little bit about the ways in which Technical Systems as their build today are very prone to this unaccountability where the people who are Indian most impacted by these systems some of the most critical stakeholders for these systems for example recipients of government assistance are unable to have their voices and their needs heard and taken into account in the operation of a system so this is perhaps the point at which you should ask when building a system with machine learning whether this should be built at all and particular to ask who benefits and who
+
+77
+00:52:47,579 --> 00:53:28,500
+is harmed by automating this task in addition to concerns around the behavior of models increasing concern has been pointed towards data and in particular who owns and who has rights to the data involved in the creation of machine Learning Systems it's important to remember that the training data that we use for our machine learning algorithms is almost always generated by humans and they generally feel some ownership over that data and we end up behaving a little bit like this comic on the right where they hand us some data that they made and then we say oh this is ours now I made this and in particular the large data sets you train the really large models that are pushing the frontiers of what is possible with machine learning
+
+78
+00:53:26,220 --> 00:54:09,359
+are produced by crawling the Internet by searching over all the images all the text posted on the internet and pulling large fractions of it down and many people are not aware that this is possible let alone legal and so to some extent any consent that they gave to their data being used was not informed and then additionally as technology has changed in the last decade and machine learning has gotten better what can be done with data has changed somebody uploading their art a decade ago certainly did not have on their radar the idea that they were giving consent to that art being used to create an algorithm that can mimic its style and you can in fact check whether an image of interest to you has been used to
+
+79
+00:54:06,240 --> 00:54:53,520
+train one of the large text image models specifically this have I been trained.com website will search through the Leon data set that is used to train the stable diffusion model for images that you upload so you can look to see if any pictures of you were incorporated into the data set and this goes further than just pictures that people might rather not have used in this way to actual data that has somehow been obtained illegally there's an Arts technical article a particular artist who was interested in this found that some of their medical photos which they did not consent to have uploaded to the internet somehow found their way into the lay on data set and so cleaning large web scraped data sets from this
+
+80
+00:54:51,540 --> 00:55:37,800
+kind of illegally obtained data is definitely going to be important as more attention is paid to these models as they are product eyes and monetized and more on people's radar even for data that is obtained legally saying well technically you did agree to this does not generally satisfy people remember the Facebook emotion research study technically some reading of the Facebook user data policy did support the way that they were running their experiment but many users disagreed many artists feel that creating an art generation tool that threatens their livelihoods and copies art down to the point of even faking watermarks and logos on images when told to recreate the style of an artist is an ethical use of that data
+
+81
+00:55:35,700 --> 00:56:23,400
+and it certainly is the case that creating a sort of parrot that can mimic somebody is something that a lot of people find concerning dealing with these issues around data governance is likely to be a new frontier imagine of stable diffusion has said that he's partnering with people to create mechanisms for artists to opt in or opt out of being included in training data sets for future versions of stable diffusion I found that noteworthy because mostacc has been very vocal in his defense of image generation technology and of what it can be used for but even he is interested in adjusting the way data is used there's also been work from Tech forward artists like Holly Hunter who was involved in the creation of have I been trained
+
+82
+00:56:20,520 --> 00:57:05,460
+around trying to incorporate AI systems into art in a way that empowers artists and compensates them rather than immiserating them just as we can create cards for models we can also create cards for data sets that describe how they were curated what the sources were and any other potential issues with the data and perhaps in the future even how to opt out of or be removed from a data set so this is an example from a hugging face as with model cards there's lots of good examples of data set cards on hugging face there's also a nice checklist the Dion ethics checklist that is mostly focused around data ethics but covers a lot of other ground they also have this nice list of examples for each question in their checklist of cases
+
+83
+00:57:02,760 --> 00:57:47,339
+where people have run into ethical or legal trouble by building an ml project that didn't satisfy a particular checklist item running underneath all of this has been this final most important question of whether this system should be built at all one particular use case that very frequently elicits this question is building ml-powered Weaponry ml powered Weaponry is already here it's already starting to be deployed in the world there are some remote controlled weapons that use computer vision for targeting deployed by the Israeli military in the West Bank using this smart shooter technology that's designed to in principle take normal weapons and add computer vision based targeting to them to make them into smart weapons
+
+84
+00:57:44,819 --> 00:58:29,220
+right now this deployed system shown on the left uses only sponge tipped bullets which are designed to be less lethal but they can still cause serious injury and according to the deployers in the pilot stage so it's a little unclear to what extent autonomous Weaponry is already here and being used because the definition is a little bit blurry so for example the hayrop Drone shown in the top left is a loitering munition a type of drone that can fly around hold its position for a while and then automatically destroy any radar system that locks onto it this type of drone was used in the nagorno-karabakh war between Armenia and Azerbaijan in 2021 but there's also older autonomous weapon systems the Phalanx c-whiz is designed
+
+85
+00:58:27,660 --> 00:59:10,740
+to automatically fire at Targets moving towards Naval vessels at very very high velocities so these are velocities they're usually only achieved by rocket Munitions not by manned craft and that system's been used since at least the first Gulf War in 1991. there was an analysis in 2017 by The Economist to try and look for how many systems with automated targeting there were and in particular how many of them could engage with targets without involving humans at all so that would be the last section of human out of the loop systems but given the general level of secrecy in some cases and hype and others around military technology it can be difficult to get a very clear sense and the blurriness of this definition has led
+
+86
+00:59:08,940 --> 00:59:50,339
+some to say that autonomous weapons are actually at least 100 years old for example anti-personnel mines that were used starting in the 30s and in World War II attempts to you detect whether a person has come close to them and then explode and in some sense that is an autonomous weapon and if we broaden our definition that far then maybe lots of different kinds of traps are some form of autonomous weapon but just because these weapons already exist and maybe even have been around for a century does not mean that designing ml-powered weapons is ethical anti-personnel mines in fact are the subject of a mind Ban Treaty that a very large number of countries have signed unfortunately not some of the countries with the largest
+
+87
+00:59:47,400 --> 01:00:26,880
+militaries in the world but that at least suggests that for one type of autonomous weapon that has caused a tremendous amount of collateral damage there's interest in Banning them and so perhaps rather than building these autonomous weapons so we can then ban them it would be better if we just didn't build them at all so the campaign to stop Killer Robots is a group to look into if this is something that's interesting to you it brings us to the end of our tour of the four common questions that people raise around the ethics of building an ml system I've provided some of my answers to these questions and some of the common answers to these questions but you should have thoughtful answers to these for the
+
+88
+01:00:25,619 --> 01:01:07,619
+individual projects that you work on first is the model fair I think it's generally possible but it requires trade-offs is the system accountable I think it's pretty challenging to make interpretable deep Learning Systems where interpretability allows an explanation for why a decision was made but making a system that's accountable where answers can be changed in response to user feedback or perhaps user lawsuit is possible you'll definitely want to answer the question of who owns the data up front and be on the lookout for changes especially to these large-scale internet scraped data sets and then lastly should this be built at all you'll want to ask this repeatedly throughout the life cycle of the technology I wanted to close this
+
+89
+01:01:04,920 --> 01:01:53,460
+section by talking about just how much the machine learning world can learn from medicine and from applications of machine learning to medical problems this is a field I've had a chance to work in and I've seen some of the best work on building with ML responsibly come from this field and fundamentally it's because of a mismatch between machine learning and medicine that impedance mismatch has led to a ton of learning so first we'll talk about the Fiasco that was machine learning and the covid-19 pandemic then briefly consider why medicine would have this big of a mismatch with machine learning and what the benefits of examining it closer might be and then lastly we'll talk about some concrete research on auditing
+
+90
+01:01:50,819 --> 01:02:34,680
+and Frameworks for building with ML that have come out of medicine first something that should be scary and embarrassing for people in machine learning medical researchers found that almost all machine learning research on covid-19 was effectively useless this is in the context of a biomedical response to covid-19 that was an absolute Triumph in the first year vaccinations prevented some tens of millions of deaths these vaccines were designed based on novel Technologies like lipid nanoparticles for delivering mRNA and even more traditional techniques like small molecule Therapeutics for example paxilavid the quality of research that was done was extremely high so on the right we have an inferred 3D structure
+
+91
+01:02:32,099 --> 01:03:24,900
+for a coronavirus protein in complex with the primary effective molecule in paxilavid allowing for a mechanistic understanding of how this drug was working at the atomic level and at this crucial time machine learning did not really acquit itself well so there were two reviews one in bmj and one in nature that reviewed a large set of prediction models for covid-19 either prognosis or diagnosis primarily prognosis in the case of the Winans at all paper in bmj or diagnosis on the basis of chest x-rays and CT scans and both of these reviews found that almost all of the papers were insufficiently documented did not follow best practices for developing models and did not have sufficient external validation testing
+
+92
+01:03:21,059 --> 01:04:06,780
+on external data to justify any wider use of these models even though many of them were provided as software or apis ready to be used in a clinical setting so the depth of the errors here is really very sobering a full quarter of the papers analyzed in the Roberts at all review used a pneumonia data set as a control group so the idea was we don't want our model just to detect whether people are sick or not just having having coveted patients and healthy patients might cause models that detect all pneumonias as covid so let's incorporate this pneumonia data set but they failed to mention and perhaps failed to notice that the pneumonia data set was all children all pediatric patients so the models that they were
+
+93
+01:04:04,799 --> 01:04:52,079
+training were very likely just detecting children versus adults because that would give them perfect performance on Pneumonia versus covid on that data set so it's a pretty egregious error of modeling and data set construction alongside bunch of other more subtle errors around proper validation and reporting of models and methods so I think one reason for the substantial difference in responses here is that medicine both in practice and in research has a very strong professional culture of Ethics that equips it to handle very very serious and difficult problems at least in the United States medical doctors still take the Hippocratic Oath parts of which date back all the way to Hippocrates one of the founding fathers of Greek medicine
+
+94
+01:04:49,559 --> 01:05:42,839
+and one of the core precepts of that oath is to do no harm meanwhile one of the core precepts of the Contemporary tech industry represented here by this ml generated Greek bust of Mark Zuckerberg is to move fast and break things with the implication that breaking things is not so bad and well that's probably the right approach for building lots of kinds of web applications and other software when this culture gets applied to things like medicine the results can be really ugly one particularly striking example of this was when a retinal implant that was used to restore sight to some blind people was deprecated by the vendor and so stopped working and there was no recourse for these patients because there is no other organization capable
+
+95
+01:05:40,020 --> 01:06:23,460
+of maintaining these devices the news here is not all bad for machine learning there are researchers who are working at the intersection of medicine and machine learning and developing and proposing solutions to some of these issues that I think might have broad applicability on building responsibly with machine learning first the clinical trial standards that are used for other medical devices and for pharmaceuticals have been extended to machine learning the spirit standard for Designing clinical trials and the consort standard for reporting results of clinical trials these have both been extended to include ml with Spirit Ai and consort AI two Links at the bottom of this slide for the details on the contents of both of
+
+96
+01:06:21,900 --> 01:07:07,380
+those standards one thing I wanted to highlight here was the process by which these standards were created and which is reported in those research articles which included an international survey with over a hundred participants and then a conference with 30 participants to come up with a final checklist and then a pilot use of it to determine how well it worked so the standard for producing standards in medicine is also quite high and something we could very much learn from in machine learning so because of that work and because people have pointed out these concerns progress is being made on doing better work in machine learning for medicine this recent paper in the Journal of the American Medical Association does a
+
+97
+01:07:05,400 --> 01:07:52,680
+review of clinical trials involving machine learning and finds that for many of the components of these clinical trial standards compliance and quality is very high incorporating clinical context state very clearly how the method will contribute to clinical care but there are definitely some places with poor compliance for example interestingly enough very few trials reported how low quality data was handled how data was assessed for quality and and how cases of poor quality data should be handled I think that's also something that the broader machine learning world could do a better job on and then also analysis of errors that models made which also shows up in medical research and clinical trials as analysis of Adverse Events this kind of
+
+98
+01:07:50,460 --> 01:08:34,199
+error analysis was not commonly done and this is something that in talking about testing and troubleshooting and in talking about model monitoring and continual learning we've tried to emphasize the importance of this kind of error analysis for building with ML there's also this really gorgeous pair of papers by Lauren Oakton Raynor and others in the Lancet that both developed and applied this algorithmic auditing framework for medical ml so this is something that is probably easier to incorporate into other ml workflows than is a full-on clinical trial approach but still has some of the same rigor incorporates checklists and tasks and defined artifacts that highlight what the problems are and what needs to be
+
+99
+01:08:31,980 --> 01:09:11,940
+tracked and shared while building a machine Learning System one particular component that I wanted to highlight and is here indicated in blue is that there's a big emphasis on failure modes and error analysis and what they call adversarial testing which is coming up with different kinds of inputs to put into the model to see how it performs so sort of like a behavioral check on the model these are all things that we've emphasized as part of how to build a model well there's lots of other components of this audit that the broader ml Community would do well to incorporate into their work there's a ton of really great work being done a lot of these papers are just within the last three or six months so I think it's
+
+100
+01:09:10,620 --> 01:09:51,779
+a pretty good idea to keep your finger on the pulse here so to speak in medical ml the Stanford in Institute for AI and medicine has a regular panel that gets posted on YouTube they also share a lot of great other kinds of content via Twitter and then a lot of the researchers who did some of the work that I shared Lauren Oakton Raynor Benjamin Khan are also active on Twitter along with other folks who've done great work that I didn't get time to talk about like Judy chichoya and Matt Lundgren closing out this section like medicine machine learning can be very intimately intertwined with people's lives and so ethics is really really Salient perhaps the most important ethical question to ask ourselves over
+
+101
+01:09:48,540 --> 01:10:33,360
+and over again is should this system be built at all what are the implications of building the system of automating this task or this work and it seems clear that if we don't regulate ourselves we will end up being regulated and so we should learn from older Industries like medicine rather than just assuming we can disrupt our way through so as our final section I want to talk about the ethics of artificial intelligence this is clearly a frontier both for the field of Ethics trying to think through these problems and for the technology communities that are building this I think that right now false claims and hype around artificial intelligence are the most pressing concern but we shouldn't sleep on some of the major
+
+102
+01:10:31,560 --> 01:11:18,540
+ethical issues that are potentially oncoming with AI so right now claims and Hyperbole and hype around artificial intelligence are outpacing capabilities even though those capabilities are also growing fast and this risks a kind of blowback so one way to summarize this is say that if you call something autopilot people are going to treat it like autopilot and then be upset or worse when that's not the case so famously there is an incident where somebody who believed that Tesla is lean and braking assistant system autopilot was really full self-driving was killed in a car crash in this gap between what people expect out of ml systems and what they actually get is something that Josh talked about in the project management
+
+103
+01:11:16,800 --> 01:12:02,219
+lecture so this is something that we're already having to incorporate into our engineering and our product design that people are overselling the capacities of ml systems in a way that gives users a bad idea of what is possible and this problem is very widespread even large and mature organizations like IBM can create products like Watson which was the capable question and answering system and then sell it as artificial intelligence and try to revolutionize or disrupt Fields like medicine and then end up falling far short of these extremely lofty goals they've set themselves and along the way they get at least the beginning journalistic coverage with pictures of robot hands reaching out to grab balls of light or
+
+104
+01:12:00,300 --> 01:12:44,400
+brains inside computers or computers inside brains so not only do companies oversell what their technology can do but these overstatements are repeated or Amplified by traditional and social media and this problem even extends to Academia there is a Infamous now case where Japan in 2017 said that Radiologists at that point were like Wiley Coyote already over the edge of the cliff and haven't realized that there's no ground underneath them and that people should stop training Radiologists now because within five years AKA now deep learning is going to be better than Radiologists some of the work in the intersection of medicine in ml that I presented was done by people who were in their Radiology training at
+
+105
+01:12:42,659 --> 01:13:27,840
+the time around the time this statement was made and were lucky that they continued training as Radiologists while also gaining ml expertise so that they could do the slow hard work of bringing deep learning and machine learning into Radiology this overall problem of overselling artificial intelligence you could call AI snake oil so that's the name of an upcoming book and a new sub stack by Arvin Narayanan are now very good friend and so this refers not just to people overselling the capabilities of large language models or predicting that we'll have artificial intelligence by Christmas but people who use this General Aura of hypanic segment around artificial intelligence to sell shoddy technology an example from this really
+
+106
+01:13:25,440 --> 01:14:12,960
+great set of slides linked here the tool Elevate that claims to be able to assess personality and job suitability from a 30 second video including identifying whether the person in the video is a change agent or not so the call here is to separate out the actual places where there's been rapid Improvement in what's possible with machine learning for example computer perception identifying the contents of images face recognition Orion in here even includes medical diagnosis from scans from places where there's not been as much progress and so the split that he proposes that I think is helpful is that most things that involve some form of human judgment like determining whether something is hate speech or what grade an essay should
+
+107
+01:14:10,080 --> 01:14:51,179
+receive these are on the borderline most forms of prediction especially around what he calls social outcomes so things like policing jobs Child Development these are places where there has not been substantial progress and where the risk of somebody essentially riding the coattails of gpt3 with some technique that doesn't perform any better than linear regression is at its highest so we don't have artificial intelligence yet but if we do synthesize intelligent agents a lot of thorny ethical questions are going to immediately arise so it's probably a good idea as a field and as individuals for us to think a little bit about these ahead of time so there's broad agreement that creating sentient intelligent beings would have ethical
+
+108
+01:14:49,020 --> 01:15:38,580
+implications just this past summer Google engineer Blake Lemoine became convinced that a large language model built by Google Lambda was in fact conscious and almost everyone agrees that that's not the case for these large language models but there's pretty big disagreement on how far away we are and perhaps most importantly this concern did cause a pretty big reaction both inside the field and in the popular press in my view it's a bit unfortunate that this conversation was started so early because it's so easy to dismiss this claim if it happens too many more times we might end up inured to these kinds of conversations in a boy who cried AI type situation there's also a different set of concerns around what
+
+109
+01:15:36,719 --> 01:16:19,679
+might happen with the creation of a self-improving artificial intelligence so there's already some hints in this direction for one the latest Nvidia GPU architecture Hopper incorporates a very large number of AI design circuits pictured here on the left the quality of the AI design circuits are superior this is also something that's been reported by the folks working on tpus at Google there's also cases in which large language models can be used to build better models for example large language models can teach themselves to program better and large language models can also use large language models at least as well as humans this suggests the possibility of virtuous Cycles in machine learning capabilities and
+
+110
+01:16:17,820 --> 01:17:03,300
+machine intelligence and failing to pursue this kind of very powerful technology comes with a very substantial opportunity cost this is something that's argued by the philosopher Nick Bostrom in a famous paper called astronomical waste that points out just given the size of the universe the amount of resources and the amount of time it will be around there's a huge cost in terms of potential good potential lives worth living that we leave on the table if we do not develop the Necessary Technology quickly but the primary lesson that's drawn in this paper is actually not that technology should be developed as quickly as possible but rather that it should be developed as safely as possible which is to say that the probability that this
+
+111
+01:17:00,960 --> 01:17:48,540
+imagined Galaxy or Universe spanning Utopia comes into being that probability should be maximized and so this concern around safety originating the work of Bostrom and others has become a central concern for people thinking about the ethical implications of artificial intelligence and so the concerns around self-improving intelligent systems that could end up being more intelligent than humans are nicely summarized in the parable of the paperclip maximizer also from Bostrom at least popularized in the book super intelligence so the idea here is a classic example of this proxy problem in alignment so we design an artificial intelligence system for building paper clips so it's designed to make sure that the paper clip producing
+
+112
+01:17:46,260 --> 01:18:27,900
+component of our economy runs as effectively as possible produces as many paper clips as it can and we incorporate self-improvement into it so that it becomes smarter and more capable over time at first it improves human utility as it introduces better industrial processes for paper clips but as it becomes more intelligent perhaps it finds a way to manipulate the legal system and manipulate politics to introduce a more favorable tax code for pay-per-clip related Industries and that starts to hurt overall human utility uh even as the number of paper clips created and the capacity of the paperclip maximizer increases and of course at the point when we have mandatory national service in the paperclip mines or that all matter in
+
+113
+01:18:26,400 --> 01:19:14,280
+the universe is converted to paper clips we've pretty clearly decreased human utility as this paperclip maximizer has maximized its objective and increased its own capacity so this still feels fairly far away and a lot of the speculations feel a lot more like science fiction than science fact but the stakes here are high enough that it is certainly worth having some people thinking about and working on it and many of the techniques can be applied to controlled and responsible deployment of less capable ml systems as a small aside these ideas around existential risk and super intelligences are often associated with the effective altruism Community which is concerned with the best ways to do the most good both with what you do
+
+114
+01:19:11,880 --> 01:19:54,480
+with your career one of the focuses is the 80 000 hours organization and also through charitable donations as a way to by donating to the highest impact Charities and non-profits have the largest positive impact on the world so there's a lot of very interesting ideas coming out of this community and it's particularly appealing to a lot of folks who work in technology and especially in machine learning so it's worth checking out so that brings us to the end of our planned agenda here after giving some context around what our approach to Ethics in this lecture would look like we talked about ethical concerns in three different fields first past and immediate concerns around the ethical development of Technology then up and
+
+115
+01:19:52,260 --> 01:20:42,540
+coming and near future concerns around building ethically with machine learning and then finally a taste of the ethical concerns we might face in a future where machine learning gives way to artificial intelligence with a reminder that we should make sure not to oversell our progress on that front so I got to the end of these slides and realized that this was the end of the course and felt that I couldn't leave it on uh dower and sad note of unusable medical algorithms and existential risk from Super intelligences so I wanted to close out with a bit of a more positive note on the things that we can do so I think the first and most obvious step is education a lot of these ideas around ethics are unfamiliar to people with a technical
+
+116
+01:20:40,560 --> 01:21:27,179
+background there's a lot of great longer form content that captures a lot of these ideas and can help you build your own knowledge of the history and context and eventually your own opinions on these topics I can highly recommend each of these books the alignment problem is a great place to get started it focuses pretty tightly on ML ethics and AI ethics it covers a lot of recent research and is very easily digestible for an ml audience you might also want to consider some of these books around more Tech ethics like weapons of math destruction by Kathy O'Neill and automating inequality by Virginia Eubanks from there you can prioritize things that you want to act on make your own two by two around things that have
+
+117
+01:21:24,420 --> 01:22:10,980
+impact now and can have very high impact for me I think that's things around deceptive design and dark patterns and around AI snake oil then there's also places where acting in the future might be very important and high impact for me I think that's things around ml Weaponry behind my head is existential risk from Super intelligences on super high impact but something that we can't act on right now and then all the things in between you can create your own two by two on these and then search around for organizations communities and people working on these problems to align yourself with and by way of a final goodbye as we're ending this class I want to call out that a lot of the discussion of Ethics in this lecture was
+
+118
+01:22:09,420 --> 01:22:53,040
+very negative because of the framing around cases where people raised ethical concerns but ethics is not and cannot be purely negative about avoiding doing bad things the work that we do in Building Technology with machine learning can do good in the world not just avoid doing harm we can reduce suffering so this diagram here from a neuroscience from a brain machine interface paper from 2012 is what got me into the field of machine learning in the first place it shows a tetraplegic woman who has learned to control a robot arm using only other thoughts by means of an electrode attached to her head and while the technical achievements in this paper were certainly very impressive the thing that made the strongest impression on me
+
+119
+01:22:50,460 --> 01:23:33,000
+reading this paper in college was the smile on the woman's face in the final panel if you've experienced this kind of limit Mobility either yourself or in someone close to you then you know that the joy even from something as simple as being able to feed yourself is very real we can also do good by increasing Joy not just reducing suffering despite the concerns that we talked about with text to image models there they're clearly being used to create Beauty and Joy or as Ted Underwood a digital Humanity scholar put it to explore a dimension of human culture that was accidentally created across the last five thousand years of captioning that's beautiful and it's something we should hold on to that's not to say that this happens
+
+120
+01:23:30,000 --> 01:24:17,040
+automatically by Building Technology the world automatically becomes better but leading organizations in our field are making proactive statements on this openai around long term safely around long-term safety and Broad distribution of the benefits of machine learning and artificial intelligence research Deep Mind stating which Technologies they won't pursue and making a clear statement of a gold a broadly benefit Humanity the final bit of really great news that I have is that the tools for building ml well that you've learned throughout this class align very well with building ml for good so we saw it with the medical machine learning around failure analysis and we can also see it in the principles for for responsible
+
+121
+01:24:15,060 --> 01:25:03,199
+development from these leading organizations Deep Mind mentioning accountability to people and Gathering feedback Google AI mentioning it as well and if you look closely at Google ai's list of recommended practices for responsible AI use multiple metrics to assess training and monitoring understand limitations use tests directly examine raw data Monitor and update your system after deployment these are exactly the same principles that we've been emphasizing in this course around building ml powered products the right way these techniques will also help you build machine learning that does what's right and so on that note I want to thank you for your time and your interest in this course and I wish you the best of luck as you
+
+122
+01:24:59,940 --> 01:25:03,199
+go out to build with ML
+
