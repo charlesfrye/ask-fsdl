@@ -1,5 +1,7 @@
 from langchain.embeddings.openai import OpenAIEmbeddings
 
+from cache_to_disk import cache_to_disk
+
 from langchain.vectorstores.faiss import FAISS
 # https://github.com/facebookresearch/faiss
 
@@ -18,6 +20,7 @@ class FaissDocumentStore(DocumentStore):
 
     self.setup()
 
+  @cache_to_disk(30)
   def setup(self):
 
     self.embeddings = OpenAIEmbeddings()  # uses ada-002 by default
