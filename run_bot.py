@@ -34,11 +34,14 @@ async def on_message(message):
 
     if message.author == client.user:  # ignore posts by self
         return
+    else:
+        respondent = message.author
+
 
     if message.content.startswith('$ask-fsdl'):
         header, *content = message.content.split("$ask-fsdl")  # parse
         content =  "".join(content).strip()
         response = runner(content)  # execute
-        await message.channel.send(f'{response}')  # respond
+        await message.channel.send(f'{respondent.mention} {response}')  # respond
 
 client.run(DISCORD_AUTH)
