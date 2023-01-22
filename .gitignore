@@ -1,4 +1,4 @@
-documents
+documents/stored.pkl
 *.ipynb
 
 .env
