@@ -16,16 +16,27 @@ function App() {
   const getYTPreviews = (body: string) => {
     const youtubeLinks = body.match(/(https?:\/\/www\.youtube\.com\/watch\?v=\S+)/g);
     const youtubeIds = youtubeLinks?.map((link) => getId(link));
-    const youtubePreviews = youtubeIds?.map((id) => {
+    const timeStamps = youtubeLinks?.map((link) => {
+      let tValue = link.match(/t=(\S+)/);
+      return tValue ? tValue[1] : null;
+    });
+    const youtubePreviews = youtubeIds?.map((id, index) => {
+      const ts = timeStamps ? timeStamps[index] : null;
+      if (ts) {
+        const iframeMarkup =
+        '<iframe width="560" height="315" src="//www.youtube.com/embed/' +
+        id + "&t=" + ts +
+        '" frameborder="0" allowfullscreen></iframe>';
+      }
       const iframeMarkup =
         '<iframe width="560" height="315" src="//www.youtube.com/embed/' +
-        id +
+        id + 
         '" frameborder="0" allowfullscreen></iframe>';
       return iframeMarkup;
     });
     return youtubePreviews;
   };
-  const handleSearch = async (e: any) => {   
+  const handleSearch = async (e: any) => {
     setIsLoading(true);
     e.preventDefault();
     console.log(`Searching for ${searchText}`);
