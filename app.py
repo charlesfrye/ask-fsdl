@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # LOAD DISCORD BOT
-import run_bot
+# import run_bot
 
 # SETUP FLASK
 from flask import Flask, request, jsonify, send_from_directory
